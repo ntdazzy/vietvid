@@ -23,6 +23,8 @@ import type {
   OrgInvite,
   OrgMember,
   ProfileResponse,
+  Script,
+  ScriptAngle,
   SeriesResponse,
   Template,
   TopupResponse,
@@ -50,6 +52,13 @@ export const api = {
       "/v1/products/import",
       { url },
     ),
+  scriptAngles: () => apiGet<ScriptAngle[]>("/v1/script/angles"),
+  generateScript: (body: {
+    product: { name: string; category: string; price: string; description: string };
+    angle: string;
+    seconds: number;
+    voice_gender: string;
+  }) => apiPost<Script>("/v1/script/generate", body),
   createSeries: (body: Record<string, unknown>) => apiPost<SeriesResponse>("/v1/series", body),
   seriesPerformance: (group: string) =>
     apiGet<VariantPerf[]>(`/v1/series/${group}/performance`),

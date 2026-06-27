@@ -7,6 +7,7 @@ import { Field, ChipGroup, inputCls } from "@/components/ui/field";
 import { CreditValue } from "@/components/ui/credit-value";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
+import { ScriptStudio } from "./script-studio";
 
 const ENGINES = [
   { id: "seedance", name: "Seedance", note: "Rẻ, nhanh, hợp bản nháp", icon: Zap, available: true },
@@ -94,9 +95,10 @@ export function StyleStep() {
         </div>
       </Field>
 
-      <Field label="Ý tưởng / brief (tuỳ chọn)">
+      <Field label="Kịch bản & ý tưởng" hint="Tạo kịch bản bằng AI rồi sửa, hoặc tự viết brief bên dưới.">
+        <ScriptStudio />
         <textarea
-          className={cn(inputCls, "min-h-[72px] resize-y")}
+          className={cn(inputCls, "mt-3 min-h-[72px] resize-y")}
           value={w.brief}
           onChange={(e) => w.patch({ brief: e.target.value })}
           placeholder="Nhấn mạnh chống ồn + pin trâu, giọng trẻ trung."

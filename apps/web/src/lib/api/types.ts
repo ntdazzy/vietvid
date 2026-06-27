@@ -237,6 +237,34 @@ export interface AdminStats {
   credits_issued: number;
 }
 
+export interface ScriptBeat {
+  label: string;
+  t_start: number;
+  t_end: number;
+  narration: string;
+  scene: string;
+}
+
+export interface Script {
+  angle: string;
+  angle_label: string;
+  duration_seconds: number;
+  voice_gender: string;
+  hook_line: string;
+  beats: ScriptBeat[];
+  cta: string;
+  captions: string[];
+  narration_full: string;
+  word_count: number;
+  target_words: number;
+  source: string;
+}
+
+export interface ScriptAngle {
+  value: string;
+  label: string;
+}
+
 export interface AdminEconomics {
   credits_issued: number;
   credits_consumed: number;

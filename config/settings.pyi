@@ -143,6 +143,10 @@ class Settings(BaseSettings):
     piapi_api_key: str
     piapi_base_url: str
     piapi_upload_url: str
+    fal_api_key: str
+    fal_video_model: str
+    fal_video_model_draft: str
+    video_provider_chain: str
     image_provider: str
     video_provider: str
     video_resolution: str

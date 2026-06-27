@@ -47,7 +47,25 @@ def generate(req: GenReq, _: Principal = Depends(get_principal)) -> dict:
     brief = _try_strategist(req)
     if brief is not None:
         script = scriptgen.apply_strategist(script, brief)
+    script["cues"] = scriptgen.build_captions(script)
     return script
+
+
+class CaptionReq(BaseModel):
+    beats: list[dict] = Field(default_factory=list)
+    fmt: str = "srt"  # srt | vtt | json
+
+
+@router.post("/captions")
+def captions(req: CaptionReq, _: Principal = Depends(get_principal)) -> dict:
+    """Phụ đề frame-perfect từ beats của kịch bản (timing từ script, KHÔNG ASR)."""
+    cues = scriptgen.build_captions({"beats": req.beats})
+    fmt = req.fmt.lower()
+    if fmt == "vtt":
+        return {"format": "vtt", "content": scriptgen.to_vtt(cues), "cues": cues}
+    if fmt == "json":
+        return {"format": "json", "cues": cues}
+    return {"format": "srt", "content": scriptgen.to_srt(cues), "cues": cues}
 
 
 def _try_strategist(req: GenReq) -> dict | None:

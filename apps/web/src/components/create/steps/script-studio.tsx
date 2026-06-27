@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Wand2, Loader2, Sparkles, RefreshCw } from "lucide-react";
+import { Wand2, Loader2, Sparkles, RefreshCw, Download } from "lucide-react";
 import { useWizard } from "@/store/wizard";
 import { api } from "@/lib/api/endpoints";
 import type { Script } from "@/lib/api/types";
@@ -52,6 +52,22 @@ export function ScriptStudio() {
       setErr(e instanceof Error ? e.message : "Tạo kịch bản lỗi");
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function downloadSrt() {
+    if (!script) return;
+    try {
+      const { content } = await api.scriptCaptions(script.beats, "srt");
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `vietvid-${script.angle}.srt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setErr("Tải phụ đề lỗi");
     }
   }
 
@@ -122,9 +138,18 @@ export function ScriptStudio() {
               </div>
             </div>
           ))}
-          {script.source === "template" && (
-            <p className="text-[11px] text-ink-low">Mẹo: thêm key Gemini/Groq để AI viết kịch bản sắc hơn theo đúng sản phẩm.</p>
-          )}
+          <div className="flex items-center justify-between gap-2 pt-1">
+            {script.source === "template" ? (
+              <p className="text-[11px] text-ink-low">Mẹo: thêm key Gemini/Groq để AI viết kịch bản sắc hơn.</p>
+            ) : <span />}
+            <button
+              type="button"
+              onClick={downloadSrt}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-xs text-ink-medium hover:border-white/25 hover:text-ink-high"
+            >
+              <Download className="h-3.5 w-3.5" /> Tải phụ đề .srt
+            </button>
+          </div>
         </div>
       )}
     </div>

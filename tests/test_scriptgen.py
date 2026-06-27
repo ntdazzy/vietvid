@@ -53,6 +53,40 @@ def test_apply_strategist_overrides_beats():
     assert out["source"] == "strategist+template"
 
 
+def test_captions_cover_full_duration_monotonic():
+    s = scriptgen.generate_script(product=_PRODUCT, seconds=15)
+    cues = scriptgen.build_captions(s)
+    assert cues, "phải có cue"
+    assert cues[0]["start"] == 0
+    assert cues[-1]["end"] == 15  # phủ kín tới hết
+    # timing đơn điệu tăng, không chồng lấn
+    for a, b in zip(cues, cues[1:]):
+        assert a["end"] <= b["start"] + 0.01
+        assert a["start"] <= a["end"]
+
+
+def test_srt_format_valid():
+    s = scriptgen.generate_script(product=_PRODUCT, seconds=12)
+    srt = scriptgen.to_srt(scriptgen.build_captions(s))
+    assert "-->" in srt and "00:00:00,000" in srt
+    assert srt.split("\n", 1)[0] == "1"  # block đầu đánh số 1
+
+
+def test_vtt_has_header():
+    s = scriptgen.generate_script(product=_PRODUCT, seconds=8)
+    vtt = scriptgen.to_vtt(scriptgen.build_captions(s))
+    assert vtt.startswith("WEBVTT")
+    assert "." in vtt.split("-->")[0]  # VTT dùng dấu chấm cho ms
+
+
+def test_long_narration_splits_into_multiple_cues():
+    beat = {"t_start": 0, "t_end": 10,
+            "narration": "Một hai ba bốn năm sáu bảy tám chín mười, mười một mười hai mười ba."}
+    cues = scriptgen.build_captions({"beats": [beat]})
+    assert len(cues) >= 2  # câu dài bị tách
+    assert cues[-1]["end"] == 10
+
+
 # ── endpoint (vận hành thật qua uvicorn subprocess) ──────────────────────────
 def test_script_endpoint_requires_auth(client):
     r = client.post("/v1/script/generate", json={"product": {"name": "X"}})
@@ -75,3 +109,19 @@ def test_script_endpoint_generates(client, user):
 def test_script_angles_list(client, user):
     rows = client.get("/v1/script/angles", headers=user["headers"]).json()
     assert any(a["value"] == "social_proof" for a in rows)
+
+
+def test_generate_includes_cues(client, user):
+    d = client.post("/v1/script/generate", headers=user["headers"], json={
+        "product": {"name": "Nồi chiên không dầu"}, "seconds": 15,
+    }).json()
+    assert d["cues"] and d["cues"][0]["start"] == 0
+
+
+def test_captions_endpoint_srt(client, user):
+    beats = [{"t_start": 0, "t_end": 6, "narration": "Sản phẩm này đỉnh thật sự nha mọi người."}]
+    r = client.post("/v1/script/captions", headers=user["headers"], json={"beats": beats, "fmt": "srt"})
+    assert r.status_code == 200
+    d = r.json()
+    assert d["format"] == "srt" and "-->" in d["content"]
+    assert d["cues"][-1]["end"] == 6

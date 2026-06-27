@@ -60,6 +60,8 @@ export const api = {
     seconds: number;
     voice_gender: string;
   }) => apiPost<Script>("/v1/script/generate", body),
+  scriptCaptions: (beats: unknown[], fmt = "srt") =>
+    apiPost<{ format: string; content: string; cues: unknown[] }>("/v1/script/captions", { beats, fmt }),
   createSeries: (body: Record<string, unknown>) => apiPost<SeriesResponse>("/v1/series", body),
   seriesPerformance: (group: string) =>
     apiGet<VariantPerf[]>(`/v1/series/${group}/performance`),

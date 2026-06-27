@@ -255,6 +255,13 @@ export interface ScriptBeat {
   scene: string;
 }
 
+export interface CaptionCue {
+  index: number;
+  start: number;
+  end: number;
+  text: string;
+}
+
 export interface Script {
   angle: string;
   angle_label: string;
@@ -264,6 +271,7 @@ export interface Script {
   beats: ScriptBeat[];
   cta: string;
   captions: string[];
+  cues?: CaptionCue[];
   narration_full: string;
   word_count: number;
   target_words: number;

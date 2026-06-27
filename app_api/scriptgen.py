@@ -159,6 +159,83 @@ def generate_script(
     }
 
 
+# ── Phụ đề frame-perfect (moat): timing suy từ KỊCH BẢN đã biết, KHÔNG ASR ──────
+# Vì mình tự sinh narration → biết chính xác câu nào đọc ở beat nào → cue khít khung,
+# 0 lỗi nhận dạng (đối thủ phải ASR lại video → sai chính tả/timing tiếng Việt).
+_MAX_CUE_WORDS = 8  # mỗi dòng phụ đề tối đa ~8 từ cho dễ đọc trên màn dọc
+
+
+def _split_cue_text(text: str, max_words: int = _MAX_CUE_WORDS) -> list[str]:
+    """Tách 1 câu narration thành các dòng phụ đề ngắn (ưu tiên cắt ở dấu câu)."""
+    words = text.split()
+    if not words:
+        return []
+    chunks: list[str] = []
+    cur: list[str] = []
+    for w in words:
+        cur.append(w)
+        ends_clause = w.endswith((",", ".", "!", "?", "…", ";", ":"))
+        if len(cur) >= max_words or (ends_clause and len(cur) >= 4):
+            chunks.append(" ".join(cur))
+            cur = []
+    if cur:
+        chunks.append(" ".join(cur))
+    return chunks
+
+
+def build_captions(script: dict) -> list[dict]:
+    """Trả list cue {index, start, end, text} phủ kín thời lượng, timing đơn điệu tăng.
+
+    Mỗi beat có [t_start, t_end]; chia cửa sổ đó cho các dòng phụ đề theo TỶ LỆ SỐ TỪ
+    → dòng dài hiện lâu hơn, khít với nhịp đọc TTS thật."""
+    cues: list[dict] = []
+    idx = 1
+    for beat in script.get("beats") or []:
+        t0 = float(beat.get("t_start", 0))
+        t1 = float(beat.get("t_end", t0))
+        span = max(0.1, t1 - t0)
+        lines = _split_cue_text(str(beat.get("narration") or ""))
+        if not lines:
+            continue
+        total_words = sum(len(ln.split()) for ln in lines) or 1
+        cursor = t0
+        for j, ln in enumerate(lines):
+            w = len(ln.split())
+            dur = span * (w / total_words)
+            start = cursor
+            end = t1 if j == len(lines) - 1 else round(cursor + dur, 2)
+            cues.append({"index": idx, "start": round(start, 2), "end": end, "text": ln})
+            cursor = end
+            idx += 1
+    return cues
+
+
+def _ts(sec: float, sep: str) -> str:
+    """giây → HH:MM:SS{sep}mmm (sep=',' cho SRT, '.' cho VTT)."""
+    if sec < 0:
+        sec = 0.0
+    ms = int(round(sec * 1000))
+    h, ms = divmod(ms, 3_600_000)
+    m, ms = divmod(ms, 60_000)
+    s, ms = divmod(ms, 1000)
+    return f"{h:02d}:{m:02d}:{s:02d}{sep}{ms:03d}"
+
+
+def to_srt(cues: list[dict]) -> str:
+    blocks = [
+        f"{c['index']}\n{_ts(c['start'], ',')} --> {_ts(c['end'], ',')}\n{c['text']}"
+        for c in cues
+    ]
+    return "\n\n".join(blocks) + ("\n" if blocks else "")
+
+
+def to_vtt(cues: list[dict]) -> str:
+    body = "\n\n".join(
+        f"{_ts(c['start'], '.')} --> {_ts(c['end'], '.')}\n{c['text']}" for c in cues
+    )
+    return "WEBVTT\n\n" + body + ("\n" if body else "")
+
+
 def apply_strategist(script: dict, brief: dict) -> dict:
     """Phủ CreativeBrief (Strategist, có key) lên bản template → sắc hơn, vẫn fail-soft.
 

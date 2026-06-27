@@ -44,6 +44,11 @@ export const api = {
   getJob: (id: string) => apiGet<JobDetail>(`/v1/jobs/${id}`),
   cancelJob: (id: string) => apiPost(`/v1/jobs/${id}/cancel`),
   deleteJob: (id: string) => apiDelete<void>(`/v1/jobs/${id}`),
+  importProduct: (url: string) =>
+    apiPost<{ name: string; description: string; price: string; image_url: string; images: string[]; source_url: string }>(
+      "/v1/products/import",
+      { url },
+    ),
   createSeries: (body: Record<string, unknown>) => apiPost<SeriesResponse>("/v1/series", body),
   seriesPerformance: (group: string) =>
     apiGet<VariantPerf[]>(`/v1/series/${group}/performance`),

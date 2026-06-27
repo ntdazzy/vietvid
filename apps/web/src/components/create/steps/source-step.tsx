@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { UploadCloud, Loader2, ImageOff, Sparkles, Wand2 } from "lucide-react";
+import { UploadCloud, Loader2, ImageOff, Sparkles, Wand2, Link2, Check } from "lucide-react";
 import { useWizard } from "@/store/wizard";
 import { useUploadImage } from "@/lib/query/mutations";
 import { api } from "@/lib/api/endpoints";
@@ -16,6 +16,29 @@ export function SourceStep() {
   const [genPrompt, setGenPrompt] = useState("");
   const [genLoading, setGenLoading] = useState(false);
   const [genErr, setGenErr] = useState<string | null>(null);
+  const [impUrl, setImpUrl] = useState("");
+  const [impBusy, setImpBusy] = useState(false);
+  const [impMsg, setImpMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+
+  async function importProduct() {
+    if (!impUrl.trim()) return;
+    setImpBusy(true);
+    setImpMsg(null);
+    try {
+      const d = await api.importProduct(impUrl.trim());
+      w.patchProduct({
+        name: d.name || w.product.name,
+        description: d.description || w.product.description,
+        price: d.price ? `${Number(d.price).toLocaleString("vi-VN")}đ` : w.product.price,
+      });
+      if (d.image_url) w.patch({ imagePreviewUrl: d.image_url });
+      setImpMsg({ kind: "ok", text: d.name ? `Đã lấy: ${d.name}` : "Đã lấy thông tin (một phần)." });
+    } catch (e) {
+      setImpMsg({ kind: "err", text: e instanceof Error ? e.message : "Không bóc được link" });
+    } finally {
+      setImpBusy(false);
+    }
+  }
 
   function onFile(file: File | undefined) {
     if (!file) return;
@@ -47,6 +70,31 @@ export function SourceStep() {
         <p className="mt-1 text-sm text-ink-low">
           Chọn loại video, lấy ảnh khung (tải lên hoặc tạo bằng AI) và vài thông tin để AI viết kịch bản.
         </p>
+      </div>
+
+      {/* Auto-ad: dán link sản phẩm → tự điền */}
+      <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.04] p-3">
+        <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-violet-200">
+          <Link2 className="h-3.5 w-3.5" /> Nhanh: dán link sản phẩm (Shopee / TikTok Shop / Lazada)
+        </div>
+        <div className="flex gap-2">
+          <input
+            className={cn(inputCls, "flex-1")}
+            value={impUrl}
+            onChange={(e) => setImpUrl(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && importProduct()}
+            placeholder="https://shopee.vn/..."
+          />
+          <Button variant="glass" onClick={importProduct} disabled={impBusy || !impUrl.trim()} className="gap-1.5">
+            {impBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-violet-300" />}
+            Lấy
+          </Button>
+        </div>
+        {impMsg && (
+          <p className={cn("mt-2 flex items-center gap-1.5 text-xs", impMsg.kind === "ok" ? "text-success" : "text-danger")}>
+            {impMsg.kind === "ok" && <Check className="h-3.5 w-3.5" />} {impMsg.text}
+          </p>
+        )}
       </div>
 
       <Field label="Loại video">

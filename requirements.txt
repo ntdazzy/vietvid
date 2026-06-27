@@ -46,6 +46,11 @@ uvicorn[standard]>=0.29
 python-telegram-bot>=21.0
 bcrypt>=4.1
 
+# ── M1 app_api: auth (DUAL-MODE Supabase JWKS RS256/ES256 + dev HS256) ──
+pyjwt[crypto]>=2.8   # verify/phát JWT; [crypto] = RS256/ES256 qua cryptography (đã có)
+# arq>=0.26          # item 2: worker async (q_fast/q_slow) — cài khi làm Arq
+# redis>=5.0         # item 2/billing: queue + idempotency
+
 # ── Dev tools (lint / type / security) ────────────────────────────────
 ruff==0.15.16      # pin: ruff format output phụ thuộc version → CI phải khớp dev để format-check ổn định
 mypy>=1.10          # P0.1 type-check (advisory) — CI chỉ cảnh báo, không fail

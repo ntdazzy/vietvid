@@ -430,6 +430,14 @@ def _finishing(
     # 6) QA
     sink.stage_start("QA")
     expected_seconds = snapshot["seconds"] + extra_video_seconds + (tail_s - 0.4 if use_tail else 0)
+    # Video CÓ LỜI: thành phẩm dài theo NARRATION (clip kéo dài để khớp giọng) → expected phải theo
+    # độ dài giọng, tránh QA fail oan "thời lượng lệch nhiều" khi kịch bản đọc dài hơn clip (vd KOL).
+    if voice_path and os.path.exists(voice_path):
+        from video_engine.qa import _ffprobe
+
+        _vp = _ffprobe(voice_path)
+        if _vp and _vp.get("duration"):
+            expected_seconds = max(expected_seconds, float(_vp["duration"]) + voice_delay_s)
     expected_texts = [] if clean_clip else [str(ov.get("text") or "") for ov in plan.get("text_overlays") or []]
     if use_tail and cta_tail_spec:
         expected_texts += [cta_tail_spec["short_name"][:42], cta_tail_spec["price_text"], "MUA NGAY"]

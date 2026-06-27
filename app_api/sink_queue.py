@@ -46,7 +46,9 @@ class QueueSink(NullSink):
                         inner = dict(p.get("params") or {})
                         inner["piapi_task_id"] = extra["piapi_task_id"]
                         p["params"] = inner
-                        s.execute(update(Job).where(Job.id == self.job_id).values(params=p))
+                        s.execute(update(Job)
+                                  .where(Job.id == self.job_id, Job.org_id == self.org_id)
+                                  .values(params=p))
             except Exception:  # noqa: BLE001 — ghi progress KHÔNG được làm hỏng render
                 pass
 

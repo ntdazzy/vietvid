@@ -54,6 +54,9 @@ def create_job(session, org_id, user_id, *, idempotency_key: str, spec_input: di
     if existing is not None:
         return existing, _hold_of(session, existing.id), True
 
+    # self-heal: nếu bootstrap 2 pha crash giữa chừng (org có, ví chưa) → tạo ví trước khi HOLD,
+    # tránh WalletNotFound. ensure_wallet idempotent + an toàn đồng thời.
+    wallet.ensure_wallet(session, org_id)
     est_usd, est_credits, hold_credits = estimate_hold(spec_input)
     ref_group = uuid.uuid4()
     inner = spec_input.get("params") or {}
@@ -86,6 +89,22 @@ def mark_running(session, job_id) -> None:
     job = session.get(Job, job_id)
     if job is not None:
         job.status = JobStatus.RUNNING
+
+
+def release_hold(session, org_id, job_id, *, note: str = "enqueue failed") -> None:
+    """Giải phóng HOLD khi enqueue THẤT BẠI sau commit → credits KHÔNG kẹt HELD vĩnh viễn.
+
+    Hoàn 100% hold (idempotent qua _terminal_done) + đặt job = CANCELLED. Chạy trong tenant_session.
+    """
+    job = session.get(Job, job_id)
+    if job is None:
+        return
+    hold_credits = _hold_of(session, job_id)
+    if hold_credits:
+        wallet.refund(session, org_id, job_id, ref_group=job.credit_ref_group,
+                      hold_credits=hold_credits, note=note)
+    job.status = JobStatus.CANCELLED
+    job.error = (note or "")[:1000]
 
 
 def complete_job(session, org_id, job_id, result: RenderResult) -> None:

@@ -1,38 +1,24 @@
 import Link from "next/link";
-import { UserSquare2, Clapperboard, Mic, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
-import { GlassCard } from "@/components/ui/glass-card";
-import { LandingHero } from "@/components/marketing/landing-hero";
 import { SiteHeader } from "@/components/marketing/site-header";
+import { LandingHero } from "@/components/marketing/landing-hero";
+import { SectionHeading } from "@/components/marketing/section-heading";
+import { SampleMarquee } from "@/components/marketing/sample-marquee";
+import { BeforeAfter } from "@/components/marketing/before-after";
+import { VariantLeaderboard } from "@/components/marketing/winner-loop";
+import { VoiceRail } from "@/components/marketing/voice-rail";
+import { ScriptEngineMock } from "@/components/marketing/script-engine-mock";
+import { RatioBento } from "@/components/marketing/ratio-bento";
+import { IntegrationBand } from "@/components/marketing/integration-band";
+import { Reveal } from "@/components/marketing/reveal";
 
-const FEATURES = [
-  {
-    icon: UserSquare2,
-    title: "KOL AI",
-    desc: "Tạo gương mặt đại diện ảo, làm review · lookbook · trend mà không cần quay.",
-  },
-  {
-    icon: Clapperboard,
-    title: "Video bán hàng",
-    desc: "1 ảnh sản phẩm thành video chốt đơn 60 giây, đủ tỉ lệ dọc/vuông.",
-  },
-  {
-    icon: Mic,
-    title: "Giọng Việt thật",
-    desc: "Lồng tiếng tự nhiên, nghe thử từng giọng trước khi tạo.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Minh bạch giá",
-    desc: "Thấy trước số credit, chỉ trừ khi dùng, hoàn 100% nếu lỗi hệ thống.",
-  },
-];
-
-const STEPS = [
-  { title: "Đưa 1 ảnh", desc: "Ảnh sản phẩm hoặc gương mặt KOL. Ảnh đầu làm khung video." },
-  { title: "Chọn phong cách & giọng", desc: "Engine, thời lượng, giọng Việt. Thấy giá credit ngay." },
-  { title: "Nhận video 60 giây", desc: "Xem tiến trình từng bước, tải MP4 không watermark." },
+const SAMPLES = [
+  { file: "fashion", label: "Thời trang" },
+  { file: "beauty", label: "Mỹ phẩm" },
+  { file: "tech", label: "Công nghệ" },
+  { file: "home", label: "Gia dụng" },
+  { file: "food", label: "Ẩm thực" },
 ];
 
 export default function LandingPage() {
@@ -40,83 +26,126 @@ export default function LandingPage() {
     <div className="relative min-h-dvh mesh-bg">
       <SiteHeader />
 
+      {/* S0 — HERO */}
       <LandingHero />
 
-      {/* tools / features (autovis: Công cụ) */}
-      <section id="features" className="mx-auto max-w-6xl px-4 py-20">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-[clamp(1.75rem,4vw,2.75rem)] font-bold tracking-tight text-ink-high">
-            Một nền tảng, <span className="text-gradient">đủ công cụ</span> để bán hàng bằng video
+      {/* S1 — MARQUEE mẫu output thật */}
+      <section className="py-20 lg:py-28">
+        <div className="mx-auto max-w-6xl px-4">
+          <h2 className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-ink-low">
+            Mẫu thật từ engine · 9:16
           </h2>
         </div>
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {FEATURES.map((f) => (
-            <GlassCard key={f.title} className="p-6">
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-grad-brand-soft">
-                <f.icon className="h-5 w-5 text-violet-300" />
-              </div>
-              <h3 className="mt-4 font-semibold text-ink-high">{f.title}</h3>
-              <p className="mt-1.5 text-sm text-ink-low">{f.desc}</p>
-            </GlassCard>
-          ))}
+        <div className="mt-8">
+          <SampleMarquee tiles={SAMPLES} />
         </div>
       </section>
 
-      {/* how it works */}
-      <section id="how" className="mx-auto max-w-6xl px-4 py-20">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-[clamp(1.75rem,4vw,2.75rem)] font-bold tracking-tight text-ink-high">
-            Không cần thiết bị, <span className="text-gradient">không cần ekip</span>
-          </h2>
-          <p className="mt-3 text-ink-medium">Ba bước, có video trong 60 giây.</p>
+      {/* S2 — BEFORE → AFTER */}
+      <section className="mx-auto max-w-6xl px-4 py-24 lg:py-32">
+        <div className="grid items-center gap-10 lg:grid-cols-12">
+          <Reveal className="flex justify-center lg:col-span-5 lg:justify-start">
+            <BeforeAfter />
+          </Reveal>
+          <div className="lg:col-span-7">
+            <SectionHeading
+              title={<>Ảnh sản phẩm nằm im. <span className="text-gradient">VietVid cho nó nói tiếng Việt.</span></>}
+            />
+            <ul className="mt-6 flex flex-col gap-3">
+              {[
+                "Chọn 1 trong 7 giọng Việt thật",
+                "Phụ đề khớp từng khung — timing lấy từ kịch bản, không đoán bằng ASR",
+                "Xuất đủ 3 tỉ lệ: dọc 9:16 · vuông 1:1 · ngang 16:9",
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-3 text-ink-medium">
+                  <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-violet-500/15 text-xs font-bold text-violet-300">✓</span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+            <Link href="/login" className="mt-6 inline-block">
+              <Button variant="glass">Thử với ảnh của bạn</Button>
+            </Link>
+          </div>
         </div>
-        <ol className="mt-14 grid gap-10 md:grid-cols-3 md:gap-6">
-          {STEPS.map((s, i) => (
-            <li key={s.title} className="relative">
-              {i < STEPS.length - 1 && (
-                <span className="absolute left-14 top-6 hidden h-px w-[calc(100%-2.5rem)] bg-gradient-to-r from-violet-500/40 to-transparent md:block" />
-              )}
-              <div className="flex items-start gap-4 md:flex-col">
-                <span className="font-display grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-violet-500/30 bg-violet-500/[0.08] text-lg font-bold text-violet-200">
-                  0{i + 1}
-                </span>
-                <div className="md:mt-5">
-                  <h3 className="font-display text-lg font-semibold text-ink-high">{s.title}</h3>
-                  <p className="mt-1.5 max-w-xs text-sm text-ink-low">{s.desc}</p>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ol>
       </section>
 
-      {/* transparency — wedge VietVid */}
-      <section className="mx-auto max-w-6xl px-4 py-20">
+      {/* S3 — THE WINNER LOOP (MOAT) */}
+      <section id="winner-loop" className="relative py-24 lg:py-32">
+        <div className="glow-radial pointer-events-none absolute inset-x-0 -top-10 mx-auto h-56 max-w-3xl" />
+        <div className="relative mx-auto max-w-6xl px-4">
+          <SectionHeading
+            align="center"
+            eyebrow="Chỉ VietVid có"
+            title={<>Đối thủ tạo video. <span className="text-gradient">VietVid tìm ra video ra đơn.</span></>}
+            sub="Tạo nhiều biến thể từ một sản phẩm → mỗi bản một short-link riêng → đo click thật → xếp hạng → nhân bản bản thắng."
+          />
+          <Reveal className="mt-10">
+            <VariantLeaderboard />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* S4 — 7 GIỌNG VIỆT */}
+      <section className="py-24 lg:py-32">
+        <div className="mx-auto max-w-6xl px-4">
+          <SectionHeading
+            title={<><span className="text-gradient">7 giọng Việt</span> có cá tính. Mỗi giọng một tính cách.</>}
+            sub="Trẻ trung, nhẹ nhàng, trầm ấm, dí dỏm… chọn giọng hợp ngành hàng, nghe thử ngay trong app."
+          />
+          <div className="mt-10">
+            <VoiceRail />
+          </div>
+        </div>
+      </section>
+
+      {/* S5 — BỘ MÁY KỊCH BẢN */}
+      <section className="mx-auto max-w-6xl px-4 py-24 lg:py-32">
+        <div className="grid items-center gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <SectionHeading
+              title={<>Nhập sản phẩm. <span className="text-gradient">Nhận kịch bản theo timecode.</span> Sửa được từng câu.</>}
+              sub="Chọn 1 trong 6 góc thuyết phục. Engine trả về hook + từng beat theo timecode — sửa tay trước khi dựng. Phụ đề lấy timing thẳng từ kịch bản."
+            />
+          </div>
+          <Reveal delay={0.1} className="lg:col-span-7">
+            <ScriptEngineMock />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* S6 — ĐA TỈ LỆ */}
+      <section className="mx-auto max-w-6xl px-4 py-24 lg:py-32">
+        <SectionHeading title={<>Một lần dựng. <span className="text-gradient">Dọc, vuông, ngang.</span></>} />
+        <div className="mt-10">
+          <RatioBento />
+        </div>
+      </section>
+
+      {/* S7 — MINH BẠCH CREDIT */}
+      <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="glass-bordered relative overflow-hidden p-8 lg:p-12">
-          <div className="glow-radial pointer-events-none absolute inset-x-0 -top-24 h-48" />
-          <div className="relative grid items-center gap-8 lg:grid-cols-2">
-            <div>
-              <h2 className="text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold leading-tight text-ink-high">
+          <div className="relative grid items-center gap-8 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              <h2 className="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold leading-tight text-ink-high">
                 Bạn luôn biết tốn bao nhiêu, <span className="text-gradient">trước</span> khi tiêu credit.
               </h2>
               <p className="mt-4 text-ink-medium">
-                Khác với nỗi lo "tự trừ tiền": VietVid ước tính trước, chỉ tạm giữ, dùng bao nhiêu
-                tính bấy nhiêu, và hoàn 100% nếu lỗi hệ thống.
+                Khác nỗi lo "tự trừ tiền": VietVid ước tính trước, chỉ tạm giữ, dùng bao nhiêu tính
+                bấy nhiêu, và hoàn 100% nếu lỗi hệ thống.
               </p>
               <Link href="/login" className="mt-6 inline-block">
                 <Button>Dùng thử miễn phí</Button>
               </Link>
             </div>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 lg:col-span-7">
               {[
                 ["Ước tính trước", "Thấy ~bao nhiêu credit trước khi tạo."],
                 ["Chỉ giữ tạm", "Giữ tối đa, dùng bao nhiêu tính bấy nhiêu."],
                 ["Hoàn khi lỗi", "Lỗi hệ thống thì hoàn 100%, không trừ oan."],
               ].map(([t, d]) => (
                 <div key={t} className="glass flex items-start gap-3 rounded-xl p-4">
-                  <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-violet-500/15 text-xs font-bold text-violet-300">
-                    ✓
-                  </span>
+                  <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-violet-500/15 text-xs font-bold text-violet-300">✓</span>
                   <div>
                     <div className="font-medium text-ink-high">{t}</div>
                     <div className="text-sm text-ink-low">{d}</div>
@@ -128,17 +157,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* S8 — DÁN LINK + API */}
+      <section className="mx-auto max-w-6xl px-4 py-24 lg:py-32">
+        <IntegrationBand />
+      </section>
+
+      {/* S9 — CTA cuối */}
       <section className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <h2 className="text-[clamp(2rem,5vw,3.25rem)] font-extrabold tracking-[-0.02em] text-ink-high">
-          Biến ý tưởng thành <span className="text-gradient">đơn hàng</span>.
+        <div className="mx-auto mb-8 h-px max-w-xs bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
+        <h2 className="font-display text-[clamp(2rem,5vw,3.4rem)] font-extrabold tracking-[-0.02em] text-ink-high">
+          Đừng đoán video nào ra đơn. <span className="text-gradient">Để số liệu chỉ.</span>
         </h2>
         <p className="mx-auto mt-4 max-w-md text-ink-medium">
-          Tặng 300 credit. Giọng Việt thật. Không watermark ở gói trả phí.
+          Tặng 300 credit, không cần thẻ. 7 giọng Việt thật. Không watermark ở gói trả phí.
         </p>
         <div className="mt-8 flex justify-center">
           <Link href="/login">
-            <Button size="lg">Tạo video ngay</Button>
+            <Button size="lg">Tạo loạt video đầu tiên</Button>
           </Link>
         </div>
       </section>

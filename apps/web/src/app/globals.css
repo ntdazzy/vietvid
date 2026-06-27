@@ -98,6 +98,37 @@
   .tabular {
     font-variant-numeric: tabular-nums;
   }
+
+  /* marquee gallery output — track nhân đôi, dịch -50% là loop liền mạch.
+     (reduced-motion: media query global bên dưới đã kill mọi animation.) */
+  @keyframes vv-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: vv-marquee 42s linear infinite;
+  }
+  .animate-marquee-rev {
+    animation: vv-marquee 42s linear infinite reverse;
+  }
+  /* caret nhấp nháy cho typewriter kịch bản */
+  @keyframes vv-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .caret-blink {
+    animation: vv-blink 1.05s step-end infinite;
+  }
+  /* sóng giọng "thở" nhẹ khi hover — KHÔNG ngụ ý đang phát audio thật */
+  @keyframes vv-wave {
+    0%, 100% { transform: scaleY(0.5); }
+    50% { transform: scaleY(1); }
+  }
+  /* Ken-Burns nhẹ cho khung "video" (before/after) */
+  @keyframes vv-kenburns {
+    from { transform: scale(1); }
+    to { transform: scale(1.07); }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

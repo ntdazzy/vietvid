@@ -1,0 +1,27 @@
+{
+  "job_ref": "m0test",
+  "mode": "product_ad",
+  "purpose": "draft",
+  "seconds": 5,
+  "resolution": "480p",
+  "format_key": "",
+  "product": {
+    "name": "Tai nghe Bluetooth ABC Pro",
+    "category": "Phụ kiện điện thoại",
+    "price": "199,000 VND",
+    "description": "Tai nghe không dây chống ồn, pin 30h, mic đàm thoại rõ.",
+    "image_path": "video_engine/_m0_test_product.png",
+    "image_paths_json": "[]",
+    "image_url": "",
+    "rating": 4.8,
+    "rating_count": 1200,
+    "sales_volume": 5300
+  },
+  "kol": null,
+  "params": {
+    "brief": "Giới thiệu nhanh tai nghe, nhấn chống ồn + pin trâu.",
+    "clean_clip": true
+  },
+  "scene_prompt": "",
+  "structure_reference": ""
+}

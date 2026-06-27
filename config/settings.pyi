@@ -1,0 +1,307 @@
+"""Stub TỰ SINH từ config/registry.py — KHÔNG sửa tay.
+
+Sinh lại: python -m scripts.gen_settings_stub
+"""
+
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+
+    database_url: str
+    use_fake_clients: bool
+    groq_api_key: str
+    groq_model: str
+    gemini_api_key: str
+    gemini_model: str
+    groq_requests_per_minute: int
+    critic_llm_provider: str
+    brain_enabled: bool
+    v5_brain_enabled: bool
+    input_gate_enabled: bool
+    llm_copywriter_model: str
+    llm_critic_model: str
+    llm_daily_budget_usd: float
+    llm_estimated_cost_per_campaign_usd: float
+    llm_max_campaigns_per_day: int
+    llm_budget_ledger_path: str
+    critic_threshold: float
+    critic_max_loops: int
+    dashboard_api_key: str
+    dashboard_password_hash: str
+    dashboard_session_secret: str
+    api_host: str
+    api_port: int
+    dashboard_session_hours: int
+    dashboard_session_days: int
+    dashboard_lockout_max_attempts: int
+    dashboard_lockout_minutes: int
+    dashboard_cookie_secure: bool
+    dashboard_cors_origins: str
+    telegram_bot_token: str
+    telegram_chat_id: str
+    affiliate_link_provider: str
+    shopee_cdp_url: str
+    shopee_internal_base: str
+    affiliate_link_template: str
+    shopee_cookie_lock_path: str
+    shopee_internal_timeout_seconds: float
+    shopee_link_min_interval_seconds: int
+    shopee_link_max_per_hour: int
+    shopee_link_max_per_day: int
+    shopee_link_retry_delay_seconds: int
+    meta_ads_library_token: str
+    meta_ads_library_base: str
+    youtube_trends_token: str
+    youtube_trends_base: str
+    meta_ads_library_path: str
+    youtube_trends_path: str
+    trend_ingest_enabled: bool
+    trend_ingest_interval_hours: int
+    trend_youtube_keywords: str
+    youtube_data_api_key: str
+    trend_tiktok_download_enabled: bool
+    trend_auto_approve: bool
+    dispatch_provider: str
+    youtube_access_token: str
+    youtube_privacy_status: str
+    youtube_category_id: str
+    meta_graph_token: str
+    meta_page_id: str
+    instagram_business_id: str
+    meta_graph_version: str
+    dispatch_golden_hours: str
+    dispatch_timezone: str
+    dispatch_slot_spacing_minutes: int
+    youtube_api_key: str
+    youtube_oauth_client_id: str
+    youtube_oauth_client_secret: str
+    youtube_refresh_token: str
+    dispatch_stale_minutes: int
+    publish_center_enabled: bool
+    publish_first_platform: str
+    max_auto_posts_per_channel_per_day: int
+    publish_min_spacing_minutes: int
+    publish_require_approval: bool
+    publish_live_confirm_required: bool
+    publish_stale_minutes: int
+    revenue_provider: str
+    revenue_sync_interval_seconds: int
+    category_weight_min: float
+    category_weight_max: float
+    category_explore_rate: float
+    learning_variant_min_clicks: int
+    learning_variant_min_orders: int
+    learning_hook_min_clicks: int
+    learning_hook_min_orders: int
+    learning_min_winner_delta: float
+    learning_exploration_rate: float
+    learning_exploration_decay: float
+    learning_exploration_min_rate: float
+    learning_ucb_c: float
+    pexels_api_key: str
+    pixabay_api_key: str
+    vbee_app_id: str
+    vbee_api_token: str
+    vbee_voice_code: str
+    vbee_voice_code_male: str
+    vbee_voice_code_female: str
+    gemini_tts_model: str
+    gemini_tts_voice_female: str
+    gemini_tts_voice_male: str
+    tts_provider: str
+    tts_voice: str
+    tts_voice_male: str
+    tts_jitter_pct: float
+    voice_speed: float
+    vbee_speed_rate: float
+    vbee_callback_url: str
+    tts_timeout_seconds: int
+    tts_daily_budget_usd: float
+    tts_estimated_cost_per_call_usd: float
+    tts_budget_ledger_path: str
+    suno_api_key: str
+    suno_base_url: str
+    suno_model: str
+    weight_trend: float
+    weight_sales: float
+    weight_intent: float
+    weight_commission: float
+    profit_threshold: float
+    shopee_xtra_min_commission_pct: float
+    xtra_tier_a_threshold: float
+    xtra_tier_b_threshold: float
+    xtra_min_price_vnd: float
+    xtra_score_weights_json: str
+    dedup_window_days: int
+    scraper_commit_batch_size: int
+    normalization_lower_percentile: float
+    normalization_upper_percentile: float
+    scoring_bounds_ewma_alpha: float
+    category_weights: str
+    product_enrichment_provider: str
+    product_enrichment_rate_limit_seconds: float
+    piapi_api_key: str
+    piapi_base_url: str
+    piapi_upload_url: str
+    image_provider: str
+    video_provider: str
+    video_resolution: str
+    video_premium_resolution: str
+    video_audio_mode: str
+    video_use_native_audio: bool
+    analyzer_llm_enabled: bool
+    analyzer_llm_timeout_seconds: int
+    autopilot_enabled: bool
+    autopilot_max_per_day: int
+    autopilot_min_tier: str
+    autopilot_allow_tier_b: bool
+    autopilot_min_promo_appeal: int
+    autopilot_sources: str
+    autopilot_retry_limit: int
+    video_draft_resolution: str
+    video_draft_seconds: int
+    video_final_seconds: int
+    video_daily_budget_usd: float
+    video_max_per_day: int
+    video_engine_output_dir: str
+    video_gemini_image_model: str
+    video_image_cost_usd: float
+    fx_vnd_per_usd: float
+    video_clean_plate_enabled: bool
+    video_product_hero_seconds: int
+    video_seedance_prices_json: str
+    video_piapi_timeout_seconds: float
+    video_piapi_poll_interval_seconds: float
+    video_piapi_max_wait_seconds: int
+    video_worker_poll_seconds: float
+    video_cta_tail_seconds: int
+    video_tail_transition: str
+    director_critic_threshold: float
+    strategist_enabled: bool
+    channel_theme_doc: str
+    director_review_max_rounds: int
+    director_review_min_product_fit: float
+    longform_critic_enabled: bool
+    longform_critic_max_rounds: int
+    longform_critic_min_score: float
+    longform_critic_min_cakhia: float
+    longform_fact_critic_enabled: bool
+    longform_fact_critic_strict: bool
+    longform_min_beats: int
+    longform_broll_enabled: bool
+    longform_youtube_publish_enabled: bool
+    longform_tts_engine: str
+    voiceclone_ref_audio_path: str
+    voiceclone_emotion: str
+    voiceclone_speed: float
+    voiceclone_silence_p: float
+    voiceclone_daemon_dir: str
+    voiceclone_daemon_port: int
+    longform_character_ref: str
+    longform_character_dir: str
+    film_recap_daily_budget_usd: float
+    film_recap_clip_max_seconds: int
+    film_recap_source_max_filesize_mb: int
+    film_recap_recap_beats: int
+    film_recap_scene_min_seconds: float
+    film_recap_scene_max_seconds: float
+    longform_visual_engine: str
+    longform_image_provider: str
+    longform_trends_geo: str
+    auto_approve_require_qa_v2: bool
+    qa_logo_legible_exception_score: float
+    video_overlay_hidden_kinds: str
+    piapi_image_max_size_mb: int
+    bg_music_volume: float
+    bg_music_enabled: bool
+    bg_music_dir: str
+    render_workers: int
+    render_gpu_safe_workers: int
+    ffmpeg_video_codec: str
+    render_formats: str
+    compose_polish_mode: str
+    render_require_asset_license: bool
+    render_require_qa_pass: bool
+    render_vram_guard_enabled: bool
+    render_vram_guard_max_used_pct: float
+    render_vram_guard_min_free_mb: int
+    render_vram_guard_incident_cooldown_minutes: int
+    render_stale_minutes: int
+    auto_approve_script: bool
+    auto_approve_video: bool
+    auto_dispatch: bool
+    auto_sensitive_categories: str
+    auto_dispatch_privacy: str
+    auto_dispatch_max_per_hour: int
+    browser_qa_harness_enabled: bool
+    browser_qa_headless: bool
+    browser_qa_max_concurrent: int
+    browser_qa_default_timeout_seconds: int
+    browser_qa_storage_dir: str
+    browser_qa_asset_blocking: str
+    browser_qa_cdp_port: int
+    browser_qa_min_start_jitter_seconds: int
+    browser_qa_max_start_jitter_seconds: int
+    browser_qa_max_cpu_pct: float
+    browser_qa_max_ram_pct: float
+    browser_qa_max_disk_pct: float
+    browser_qa_max_gpu_util_pct: float
+    browser_qa_profile_failure_cooldown_seconds: int
+    browser_qa_running_stale_seconds: int
+    lead_inbox_enabled: bool
+    comment_sync_mode: str
+    dm_automation_mode: str
+    lead_reply_require_approval: bool
+    lead_intent_llm_enabled: bool
+    public_base_url: str
+    storage_dir: str
+    storage_min_free_mb: int
+    live_smoke_report_path: str
+    live_smoke_audit_report_path: str
+    live_smoke_max_age_hours: int
+    backup_retention_days: int
+    log_dir: str
+    log_level: str
+    log_retention_days: int
+    audio_workdir_retention_days: int
+    mp_start_method: str
+    event_queue_maxsize: int
+    scraper_interval_seconds: int
+    scraper_import_secret: str
+    scraper_import_max: int
+    supervisor_check_interval_seconds: int
+    supervisor_restart_limit: int
+    supervisor_stable_seconds: int
+    supervisor_disabled_realert_seconds: int
+    reconcile_interval_seconds: int
+    brain_retry_limit: int
+    tiktok_ingest_enabled: bool
+    tiktok_ingest_browser: str
+    tiktok_video_sample_enabled: bool
+    user_music_volume: float
+    tiktok_audio_download_enabled: bool
+    tiktok_audio_trim_seconds: int
+    tiktok_audio_dir: str
+
+    @property
+    def cors_origins(self) -> list[str]: ...
+    @property
+    def auto_sensitive_categories_list(self) -> list[str]: ...
+    @property
+    def scripts_dir(self) -> str: ...
+    @property
+    def audio_dir(self) -> str: ...
+    @property
+    def broll_dir(self) -> str: ...
+    @property
+    def music_dir(self) -> str: ...
+    @property
+    def output_dir(self) -> str: ...
+    @property
+    def score_weights(self) -> dict[str, float]: ...
+    def render_format_specs(self) -> list[tuple[str, int, int]]: ...
+    @property
+    def category_weights_map(self) -> dict[str, dict[str, float]]: ...
+    def score_weights_for_category(self, category: str | None) -> dict[str, float]: ...
+
+settings: Settings

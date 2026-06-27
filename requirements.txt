@@ -1,0 +1,59 @@
+# ── Core ──────────────────────────────────────────────────────────────
+sqlalchemy>=2.0,<2.1
+alembic>=1.13
+pydantic>=2.6
+pydantic-settings>=2.2
+loguru>=0.7
+tenacity>=8.2
+python-dotenv>=1.0
+httpx>=0.27
+websockets>=12.0
+cryptography>=42.0
+playwright>=1.45
+
+# ── Database driver (Postgres). SQLite works out of the box for offline tests.
+psycopg2-binary>=2.9
+
+# ── Module 2: LLM clients ─────────────────────────────────────────────
+groq>=0.11          # Copywriter — Llama 3 70B (free tier)
+google-genai>=1.0   # Critic — Gemini (free tier; SDK mới, thay google-generativeai đã EOL)
+
+# ── Module 3: render ──────────────────────────────────────────────────
+watchdog>=4.0       # folder watcher
+edge-tts>=6.1       # Vietnamese TTS (cloud, free)
+faiss-cpu>=1.8,<2   # Semantic B-roll vector search for production catalogs
+# Kokoro-82M local TTS is intentionally optional/heavy. Install with:
+#   pip install -r requirements-kokoro.txt
+# whisperx — heavy. Install separately along with torch (see README).
+#   CPU now (RX6600xt has no CUDA):  pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   GPU after RTX 3060:              pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# whisperx>=3.1
+# NOTE: FFmpeg must be installed at the OS level:  sudo apt install ffmpeg
+yt-dlp>=2024.0      # Tải nhạc trend + video trend TikTok/Reels (Bậc 3 tự-học-trend) — gate sau cờ, xám ToS
+scenedetect[opencv]>=0.7  # film_recap recap B2: chọn "cảnh hay" từ clip nguồn (PySceneDetect + opencv)
+
+# ── long_narrative engine (video YouTube kể chuyện) ───────────────────
+# Engine mới dùng MoviePy 2.x (with_effects/resized/vfx.Loop — 2.x-only API) + ingest tin.
+# Engine product cũ KHÔNG dùng moviepy (shell ffmpeg trực tiếp) → đây là deps MỚI, bắt buộc.
+moviepy>=2.1        # chunk-render per-beat + composite/caption (long_narrative)
+feedparser>=6.0     # ingest RSS headlines (director topic discovery)
+trafilatura>=2.0    # bóc nội dung bài báo → markdown (kéo theo beautifulsoup4)
+
+# ── Module 5: dashboard ───────────────────────────────────────────────
+fastapi>=0.110
+python-multipart>=0.0.9  # V7-B8: UploadFile cho POST /revenue/import (báo cáo Shopee)
+uvicorn[standard]>=0.29
+python-telegram-bot>=21.0
+bcrypt>=4.1
+
+# ── Dev tools (lint / type / security) ────────────────────────────────
+ruff==0.15.16      # pin: ruff format output phụ thuộc version → CI phải khớp dev để format-check ổn định
+mypy>=1.10          # P0.1 type-check (advisory) — CI chỉ cảnh báo, không fail
+bandit>=1.7         # P0.2 security scan (advisory) — CI chỉ cảnh báo, không fail
+Pillow>=10.0
+# V8.6 clean-plate: tách nền giữ pixel gốc. KHÔNG bắt buộc — clean_plate.py tự degrade về crop
+# (vẫn pixel gốc) nếu thiếu. Cài để bật lớp segmentation đẹp hơn.
+rembg>=2.0
+onnxruntime>=1.20
+
+psutil>=5.9  # QA P2: RAM/CPU cross-platform cho health_snapshot (màn Vận hành)

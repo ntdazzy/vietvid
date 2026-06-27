@@ -48,6 +48,7 @@ bcrypt>=4.1
 
 # ── M1 app_api: auth (DUAL-MODE Supabase JWKS RS256/ES256 + dev HS256) ──
 pyjwt[crypto]>=2.8   # verify/phát JWT; [crypto] = RS256/ES256 qua cryptography (đã có)
+boto3>=1.34          # lưu video lên S3/R2 (chỉ dùng khi VIETVID_S3_* set; import lazy)
 # arq>=0.26          # item 2: worker async (q_fast/q_slow) — cài khi làm Arq
 # redis>=5.0         # item 2/billing: queue + idempotency
 

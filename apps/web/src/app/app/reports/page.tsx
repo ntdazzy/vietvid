@@ -1,7 +1,9 @@
 "use client";
 
-import { Film, CheckCircle2, XCircle, Coins, ArrowDownToLine, RotateCcw, Lock, TrendingUp } from "lucide-react";
+import { Film, CheckCircle2, XCircle, Coins, ArrowDownToLine, RotateCcw, Lock, TrendingUp, Link2, MousePointerClick } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useWallet, useLedger, useJobs } from "@/lib/query/hooks";
+import { api } from "@/lib/api/endpoints";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils/cn";
@@ -12,6 +14,7 @@ export default function ReportsPage() {
   const wallet = useWallet();
   const ledger = useLedger(200);
   const jobs = useJobs(100);
+  const affiliate = useQuery({ queryKey: ["affiliate-stats"], queryFn: api.affiliateStats });
 
   const loading = wallet.isLoading || ledger.isLoading || jobs.isLoading;
 
@@ -61,6 +64,14 @@ export default function ReportsPage() {
               <Stat icon={RotateCcw} label="Đã hoàn" value={refunded} tone="refund" />
               <Stat icon={Lock} label="Đang giữ" value={held} tone="hold" />
               <Stat icon={Coins} label="Số dư" value={balance} tone="neutral" />
+            </div>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-ink-low">Affiliate</h2>
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+              <Stat icon={Link2} label="Link rút gọn" value={affiliate.data?.links ?? 0} tone="brand" />
+              <Stat icon={MousePointerClick} label="Lượt click" value={affiliate.data?.clicks ?? 0} tone="success" />
             </div>
           </section>
 

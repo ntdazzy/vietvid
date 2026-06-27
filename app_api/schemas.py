@@ -14,13 +14,13 @@ from pydantic import BaseModel, Field
 
 # ── request ─────────────────────────────────────────────────────────────
 class ProductIn(BaseModel):
-    name: str = ""
-    category: str = ""
-    price: str = ""
-    description: str = ""
-    image_path: str = ""
-    image_paths_json: str = "[]"
-    image_url: str = ""
+    name: str = Field(default="", max_length=200)
+    category: str = Field(default="", max_length=80)
+    price: str = Field(default="", max_length=40)
+    description: str = Field(default="", max_length=2000)
+    image_path: str = Field(default="", max_length=500)
+    image_paths_json: str = Field(default="[]", max_length=4000)
+    image_url: str = Field(default="", max_length=500)
     rating: float = 0.0
     rating_count: int = 0
     sales_volume: float = 0.0
@@ -28,29 +28,29 @@ class ProductIn(BaseModel):
 
 class KolIn(BaseModel):
     id: int | None = None
-    name: str = ""
-    gender: str = ""
-    style: str = ""
-    character_sheet: str = ""
-    image_path: str = ""
-    voice_id: str = ""
+    name: str = Field(default="", max_length=120)
+    gender: str = Field(default="", max_length=20)
+    style: str = Field(default="", max_length=200)
+    character_sheet: str = Field(default="", max_length=4000)
+    image_path: str = Field(default="", max_length=500)
+    voice_id: str = Field(default="", max_length=80)
 
 
 class JobCreateRequest(BaseModel):
     idempotency_key: str = Field(min_length=1, max_length=200)
-    mode: str = "product_ad"
-    purpose: str = "final"
+    mode: str = Field(default="product_ad", max_length=40)
+    purpose: str = Field(default="final", max_length=20)
     seconds: int = Field(default=15, ge=1, le=300)
-    resolution: str = "720p"
-    format_key: str = ""
-    format_label: str = ""
-    format_prompt: str = ""
-    overlay_policy: str = "allow"
+    resolution: str = Field(default="720p", max_length=20)
+    format_key: str = Field(default="", max_length=80)
+    format_label: str = Field(default="", max_length=120)
+    format_prompt: str = Field(default="", max_length=4000)
+    overlay_policy: str = Field(default="allow", max_length=20)
     product: ProductIn = Field(default_factory=ProductIn)
     kol: KolIn | None = None
     params: dict[str, Any] = Field(default_factory=dict)
-    scene_prompt: str = ""
-    structure_reference: str = ""
+    scene_prompt: str = Field(default="", max_length=4000)
+    structure_reference: str = Field(default="", max_length=4000)
     # M2 FK (Sóng 4): nối job với template/KOL/brand-kit đã chọn từ gallery.
     template_id: str | None = None
     kol_persona_id: str | None = None

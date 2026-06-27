@@ -165,6 +165,32 @@ export interface DevTokenResponse {
   expires_in: number;
 }
 
+export interface ProfileResponse {
+  user_id: string;
+  email: string;
+  full_name: string;
+  avatar_url: string;
+  locale: string;
+  email_verified: boolean;
+}
+
+export interface OrgMember {
+  user_id: string;
+  email: string;
+  full_name: string;
+  role: string;
+  status: string;
+  is_owner: boolean;
+}
+
+export interface OrgInvite {
+  id: string;
+  email: string;
+  role: string;
+  status: string;
+  expires_at: string;
+}
+
 export interface CreditPack {
   id: string;
   name: string;

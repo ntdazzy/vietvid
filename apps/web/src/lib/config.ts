@@ -8,3 +8,4 @@ export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 export const supabaseConfigured = () => Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 export const DEV_TOKEN_KEY = "vietvid_dev_token";
+export const REFRESH_TOKEN_KEY = "vietvid_refresh_token";

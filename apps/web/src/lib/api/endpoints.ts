@@ -1,6 +1,6 @@
 import { API_BASE_URL } from "@/lib/config";
 import { getToken } from "@/lib/auth/session";
-import { apiGet, apiPost } from "./client";
+import { apiDelete, apiGet, apiPatch, apiPost } from "./client";
 import type {
   BootstrapResponse,
   CreditPack,
@@ -12,6 +12,9 @@ import type {
   JobList,
   LedgerEntry,
   MeResponse,
+  OrgInvite,
+  OrgMember,
+  ProfileResponse,
   TopupResponse,
   WalletResponse,
 } from "./types";
@@ -29,8 +32,34 @@ export const api = {
   createJob: (body: JobCreateRequest) => apiPost<JobCreateResponse>("/v1/jobs", body),
   listJobs: (limit = 30) => apiGet<JobList>(`/v1/jobs?limit=${limit}`),
   getJob: (id: string) => apiGet<JobDetail>(`/v1/jobs/${id}`),
-  // Lưu ý: video cần Bearer → <video src> thuần không gửi header được. W3 sẽ ký URL/token query.
+  cancelJob: (id: string) => apiPost(`/v1/jobs/${id}/cancel`),
+  deleteJob: (id: string) => apiDelete<void>(`/v1/jobs/${id}`),
+  // URL authed thô (cần Bearer — render-timeline fetch kèm header rồi tạo blob).
   videoUrl: (id: string) => `${API_BASE_URL}/v1/jobs/${id}/video`,
+  // URL CÓ CHỮ KÝ: phát/tải/chia sẻ KHÔNG cần Bearer (token query, hết hạn).
+  getVideoSignedUrl: async (id: string): Promise<string> => {
+    const { url } = await apiGet<{ url: string }>(`/v1/jobs/${id}/video-url`);
+    return `${API_BASE_URL}${url}`;
+  },
+
+  // hồ sơ + đổi mật khẩu
+  updateProfile: (body: { full_name?: string; avatar_url?: string; locale?: string }) =>
+    apiPatch<ProfileResponse>("/v1/auth/me", body),
+  changePassword: (current_password: string, new_password: string) =>
+    apiPost<{ ok: boolean; detail: string }>("/v1/auth/change-password", {
+      current_password,
+      new_password,
+    }),
+
+  // org / team
+  orgMembers: () => apiGet<OrgMember[]>("/v1/orgs/members"),
+  orgInvites: () => apiGet<OrgInvite[]>("/v1/orgs/invites"),
+  inviteMember: (email: string, role = "member") =>
+    apiPost<OrgInvite>("/v1/orgs/invite", { email, role }),
+  removeMember: (userId: string) => apiDelete<{ ok: boolean }>(`/v1/orgs/members/${userId}`),
+  revokeInvite: (id: string) => apiDelete<{ ok: boolean }>(`/v1/orgs/invites/${id}`),
+  acceptInvite: (token: string) =>
+    apiPost<{ ok: boolean; detail: string }>("/v1/orgs/accept-invite", { token }),
 
   async uploadImage(file: File): Promise<{ image_path: string; filename: string; bytes: number }> {
     const fd = new FormData();

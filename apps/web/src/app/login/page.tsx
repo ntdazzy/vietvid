@@ -148,6 +148,15 @@ export default function LoginPage() {
               </div>
             </Field>
 
+            {mode === "login" && (
+              <Link
+                href="/forgot-password"
+                className="-mt-2 self-end text-xs text-violet-300 hover:text-violet-200"
+              >
+                Quên mật khẩu?
+              </Link>
+            )}
+
             {error && (
               <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger/[0.1] p-3 text-sm text-danger">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />

@@ -1,6 +1,7 @@
 "use client";
 
-import { DEV_TOKEN_KEY, supabaseConfigured } from "@/lib/config";
+import { DEV_TOKEN_KEY, REFRESH_TOKEN_KEY, supabaseConfigured } from "@/lib/config";
+import { logoutLocal } from "./local";
 import { getSupabase } from "./supabase";
 
 /**
@@ -19,8 +20,15 @@ export async function getToken(): Promise<string | null> {
 }
 
 export function clearSession() {
-  if (typeof window !== "undefined") localStorage.removeItem(DEV_TOKEN_KEY);
-  if (supabaseConfigured()) void getSupabase()?.auth.signOut();
+  if (supabaseConfigured()) {
+    void getSupabase()?.auth.signOut();
+  } else {
+    void logoutLocal(); // thu hồi refresh token phía server (best-effort)
+  }
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(DEV_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+  }
 }
 
 export async function isAuthed(): Promise<boolean> {

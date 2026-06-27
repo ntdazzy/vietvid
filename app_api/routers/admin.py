@@ -13,12 +13,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 
-from app_api import wallet
+from app_api import audit, wallet
 from app_api.auth import Principal
 from app_api.db import session_scope, tenant_session
 from app_api.deps import require_admin
 from app_api.models import (
-    Job, LedgerEntry, LedgerKind, Membership, Org, User, VvKolPersona, Video,
+    AuditLog, Job, LedgerEntry, LedgerKind, Membership, Org, User, VvKolPersona, Video,
 )
 
 router = APIRouter(prefix="/v1/admin", tags=["admin"], dependencies=[Depends(require_admin)])
@@ -93,6 +93,9 @@ def set_user_status(user_id: uuid.UUID, req: StatusReq, admin: Principal = Depen
         if u is None:
             raise HTTPException(404, "Không tìm thấy user")
         u.status = req.status
+        audit.record(s, action="user.status", actor_email=admin.email,
+                     actor_user_id=admin.user_id,
+                     detail={"user_id": str(user_id), "status": req.status})
     return {"ok": True, "user_id": str(user_id), "status": req.status}
 
 
@@ -103,7 +106,8 @@ class CreditAdjustReq(BaseModel):
 
 
 @router.post("/orgs/{org_id}/credit-adjust")
-def credit_adjust(org_id: uuid.UUID, req: CreditAdjustReq) -> dict:
+def credit_adjust(org_id: uuid.UUID, req: CreditAdjustReq,
+                  admin: Principal = Depends(require_admin)) -> dict:
     if req.amount == 0:
         raise HTTPException(422, "amount phải khác 0")
     try:
@@ -113,6 +117,9 @@ def credit_adjust(org_id: uuid.UUID, req: CreditAdjustReq) -> dict:
                 s, org_id, req.amount, kind=LedgerKind.ADJUST,
                 note=req.note or f"admin adjust {req.amount:+d}",
             )
+            audit.record(s, action="credit.adjust", actor_email=admin.email,
+                         actor_user_id=admin.user_id, org_id=str(org_id),
+                         detail={"amount": req.amount, "note": req.note})
     except wallet.WalletError as exc:
         raise HTTPException(400, str(exc)) from exc
     return {"ok": True, "org_id": str(org_id), "balance_credits": bal}
@@ -150,7 +157,7 @@ class ModDecision(BaseModel):
 
 
 @router.post("/moderation/{kol_id}/decision")
-def moderate(kol_id: uuid.UUID, req: ModDecision) -> dict:
+def moderate(kol_id: uuid.UUID, req: ModDecision, admin: Principal = Depends(require_admin)) -> dict:
     new_status = "APPROVED" if req.approve else "BLOCKED"
     with tenant_session(req.org_id) as s:
         k = s.execute(
@@ -161,4 +168,32 @@ def moderate(kol_id: uuid.UUID, req: ModDecision) -> dict:
         if k is None:
             raise HTTPException(404, "Không tìm thấy KOL")
         k.moderation_status = new_status
+        audit.record(s, action="kol.moderate", actor_email=admin.email,
+                     actor_user_id=admin.user_id, org_id=req.org_id,
+                     detail={"kol_id": str(kol_id), "status": new_status})
     return {"ok": True, "kol_id": str(kol_id), "status": new_status}
+
+
+# ── Audit log viewer ──────────────────────────────────────────────────────
+class AuditRow(BaseModel):
+    id: int
+    action: str
+    actor_email: str
+    org_id: str | None
+    detail: dict
+    created_at: str | None
+
+
+@router.get("/audit", response_model=list[AuditRow])
+def list_audit(limit: int = 50) -> list[AuditRow]:
+    limit = max(1, min(limit, 200))
+    with session_scope() as s:
+        rows = s.execute(
+            select(AuditLog).order_by(AuditLog.id.desc()).limit(limit)
+        ).scalars().all()
+        return [
+            AuditRow(id=r.id, action=r.action, actor_email=r.actor_email or "",
+                     org_id=str(r.org_id) if r.org_id else None, detail=dict(r.detail or {}),
+                     created_at=r.created_at.isoformat() if r.created_at else None)
+            for r in rows
+        ]

@@ -112,6 +112,9 @@ def complete_job(session, org_id, job_id, result: RenderResult) -> None:
     job = session.get(Job, job_id)
     if job is None:
         return
+    # Job đã bị huỷ (user cancel) → KHÔNG hồi sinh. HOLD đã hoàn ở release_hold; bỏ qua.
+    if job.status == JobStatus.CANCELLED:
+        return
     hold_credits = _hold_of(session, job_id)
     ref_group = job.credit_ref_group
 

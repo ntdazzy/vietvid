@@ -197,6 +197,78 @@ def get_job(job_id: uuid.UUID, tenant: Tenant = Depends(get_tenant)) -> JobDetai
     return JobDetailOut(**base.model_dump(), events=ev)
 
 
+_CANCELLABLE = {jobs_svc.JobStatus.WAITING_CONFIG, jobs_svc.JobStatus.QUEUED, jobs_svc.JobStatus.HELD}
+_DELETABLE = {
+    jobs_svc.JobStatus.READY, jobs_svc.JobStatus.FAILED, jobs_svc.JobStatus.REFUNDED,
+    jobs_svc.JobStatus.CANCELLED, jobs_svc.JobStatus.QA_FAIL,
+}
+
+
+@router.post("/{job_id}/cancel", response_model=JobOut)
+def cancel_job(job_id: uuid.UUID, tenant: Tenant = Depends(get_tenant)) -> JobOut:
+    """Huỷ job chưa chạy xong + HOÀN 100% HOLD. RUNNING không huỷ được (engine inline không ngắt
+    được — hàng đợi bền ở Sóng 2 sẽ cho huỷ giữa chừng)."""
+    with tenant_session(tenant.org_id) as s:
+        job = s.execute(
+            select(Job).where(Job.id == job_id, Job.org_id == tenant.org_id)
+        ).scalar_one_or_none()
+        if job is None:
+            raise HTTPException(status_code=404, detail="Không tìm thấy job")
+        if job.status not in _CANCELLABLE:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Không huỷ được job ở trạng thái {job.status}",
+            )
+        jobs_svc.release_hold(s, uuid.UUID(tenant.org_id), job_id, note="user cancel")
+        s.flush()
+        has_video = s.execute(
+            select(Video.id).where(Video.job_id == job_id, Video.org_id == tenant.org_id)
+        ).first() is not None
+        out = _job_out(job, has_video=has_video)
+    return out
+
+
+@router.delete("/{job_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_job(job_id: uuid.UUID, tenant: Tenant = Depends(get_tenant)) -> None:
+    """Xoá job đã ở trạng thái cuối + video của nó (sổ cái credit GIỮ NGUYÊN — bất biến)."""
+    with tenant_session(tenant.org_id) as s:
+        job = s.execute(
+            select(Job).where(Job.id == job_id, Job.org_id == tenant.org_id)
+        ).scalar_one_or_none()
+        if job is None:
+            raise HTTPException(status_code=404, detail="Không tìm thấy job")
+        if job.status not in _DELETABLE:
+            raise HTTPException(
+                status_code=409, detail=f"Không xoá được job đang xử lý ({job.status})"
+            )
+        # xoá file video local (best-effort) trước khi xoá row.
+        v = s.execute(
+            select(Video).where(Video.job_id == job_id, Video.org_id == tenant.org_id)
+        ).scalar_one_or_none()
+        if v and v.storage_url and not v.storage_url.startswith(("http://", "https://")):
+            try:
+                if os.path.exists(v.storage_url):
+                    os.remove(v.storage_url)
+            except OSError:
+                pass  # best-effort; row vẫn bị xoá
+        s.delete(job)  # cascade: job_events + videos (FK ondelete=CASCADE)
+
+
+@router.get("/{job_id}/video-url")
+def get_video_signed_url(job_id: uuid.UUID, tenant: Tenant = Depends(get_tenant)) -> dict:
+    """Cấp URL CÓ CHỮ KÝ (hết hạn) để <video src> phát được mà không cần Bearer header."""
+    from app_api.media import sign_media_token
+
+    with tenant_session(tenant.org_id) as s:
+        exists = s.execute(
+            select(Video.id).where(Video.job_id == job_id, Video.org_id == tenant.org_id)
+        ).first()
+    if not exists:
+        raise HTTPException(status_code=404, detail="Chưa có video cho job này")
+    token = sign_media_token(str(job_id), tenant.org_id)
+    return {"url": f"/v1/media/video/{job_id}?token={token}"}
+
+
 @router.get("/{job_id}/video")
 def get_job_video(job_id: uuid.UUID, tenant: Tenant = Depends(get_tenant)):
     """Serve MP4 (không watermark — gói trả phí). M1 = file local; R2 URL → redirect (M1+)."""

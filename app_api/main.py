@@ -29,6 +29,7 @@ from app_api.routers import content as content_router
 from app_api.routers import images as images_router
 from app_api.routers import jobs as jobs_router
 from app_api.routers import media as media_router
+from app_api.routers import notifications as notifications_router
 from app_api.routers import orgs as orgs_router
 from app_api.routers import uploads as uploads_router
 from app_api.routers import voice as voice_router
@@ -115,6 +116,7 @@ app.include_router(media_router.router)
 app.include_router(admin_router.router)
 app.include_router(affiliate_router.router)
 app.include_router(affiliate_router.redirect_router)
+app.include_router(notifications_router.router)
 
 
 @app.get("/health", tags=["meta"])

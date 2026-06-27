@@ -147,6 +147,18 @@ def complete_job(session, org_id, job_id, result: RenderResult) -> None:
             aspect=job.aspect, has_watermark=True,
         ))
 
+    # Thông báo in-app (best-effort, cùng tenant_session).
+    from app_api import notify
+
+    if result.status == JobStatus.READY:
+        notify.create(session, org_id, type="job_ready", title="Video đã sẵn sàng 🎬",
+                      body="Video của bạn đã render xong, bấm để xem.",
+                      ref_type="job", ref_id=job_id, user_id=job.created_by)
+    elif result.status in (JobStatus.FAILED, JobStatus.QA_FAIL):
+        notify.create(session, org_id, type="job_failed", title="Video tạo chưa thành công",
+                      body=(result.error or "Đã hoàn credit nếu lỗi hệ thống.")[:200],
+                      ref_type="job", ref_id=job_id, user_id=job.created_by)
+
     # Ví: READY/QA_FAIL → SETTLE actual; FAILED+system → REFUND 100%; FAILED+input → SETTLE actual.
     if result.status in (JobStatus.READY, JobStatus.QA_FAIL):
         wallet.settle(session, org_id, job_id, ref_group=ref_group,

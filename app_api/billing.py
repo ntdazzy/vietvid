@@ -79,6 +79,13 @@ def apply_topup(session: Session, *, provider: str, ext_ref: str) -> Payment | N
     p.status = PaymentStatus.SUCCEEDED
     p.settled_at = func.now()
     session.flush()
+    from app_api import notify
+
+    notify.create(
+        session, p.org_id, type="payment", title="Đã nạp credit thành công 💳",
+        body=f"+{int(p.credits_granted):,} credit ({int(p.amount_vnd):,}đ qua {p.provider}).",
+        ref_type="payment", ref_id=p.id, user_id=p.user_id,
+    )
     return p
 
 

@@ -109,6 +109,10 @@ async def vnpay_ipn(request: Request) -> dict:
             return {"RspCode": "01", "Message": "Order not found"}
         if existing.status == "SUCCEEDED":
             return {"RspCode": "02", "Message": "Order already confirmed"}
+        # Đối soát số tiền: VNPay gửi vnp_Amount = số tiền × 100.
+        if str(params.get("vnp_Amount")) != str(int(existing.amount_vnd) * 100):
+            existing.status = "FAILED"
+            return {"RspCode": "04", "Message": "Invalid amount"}
         billing.apply_topup(s, provider="vnpay", ext_ref=txn_ref)
     return {"RspCode": "00", "Message": "Confirm Success"}
 

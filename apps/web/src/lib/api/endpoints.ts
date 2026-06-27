@@ -2,6 +2,7 @@ import { API_BASE_URL } from "@/lib/config";
 import { getToken } from "@/lib/auth/session";
 import { apiDelete, apiGet, apiPatch, apiPost } from "./client";
 import type {
+  AdminEconomics,
   AdminStats,
   AdminUser,
   AffiliateLink,
@@ -104,6 +105,9 @@ export const api = {
   adminModeration: () => apiGet<ModItem[]>("/v1/admin/moderation"),
   adminModerate: (kolId: string, orgId: string, approve: boolean) =>
     apiPost(`/v1/admin/moderation/${kolId}/decision`, { org_id: orgId, approve }),
+  adminEconomics: () => apiGet<AdminEconomics>("/v1/admin/economics"),
+  adminBroadcast: (title: string, body = "") =>
+    apiPost<{ ok: boolean; sent: number }>("/v1/admin/broadcast", { title, body }),
 
   // affiliate
   affiliateLinks: () => apiGet<AffiliateLink[]>("/v1/affiliate/links"),

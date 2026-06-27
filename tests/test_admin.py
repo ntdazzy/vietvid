@@ -43,6 +43,25 @@ def test_admin_credit_adjust(client, admin, user):
     assert client.get("/v1/auth/me", headers=user["headers"]).json()["balance_credits"] == before
 
 
+def test_admin_economics(client, admin):
+    e = client.get("/v1/admin/economics", headers=admin["headers"])
+    assert e.status_code == 200
+    d = e.json()
+    for k in ("revenue_vnd", "margin_vnd", "provider_cost_usd", "credits_issued",
+              "jobs_total", "success_rate", "jobs_by_status"):
+        assert k in d
+
+
+def test_admin_broadcast_reaches_user(client, admin, user):
+    title = "Bảo trì hệ thống tối nay"
+    r = client.post("/v1/admin/broadcast", headers=admin["headers"],
+                    json={"title": title, "body": "Từ 23h-24h."})
+    assert r.status_code == 200 and r.json()["sent"] >= 1
+    # user thấy broadcast trong thông báo
+    notifs = client.get("/v1/notifications", headers=user["headers"]).json()
+    assert any(n["title"] == title for n in notifs["items"])
+
+
 def test_admin_moderation_flow(client, admin, user):
     # user tạo KOL mặt thật → PENDING
     k = client.post("/v1/kol-personas", headers=user["headers"],

@@ -13,12 +13,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 
-from app_api import audit, wallet
+from app_api import audit, config, notify, wallet
 from app_api.auth import Principal
 from app_api.db import session_scope, tenant_session
 from app_api.deps import require_admin
 from app_api.models import (
-    AuditLog, Job, LedgerEntry, LedgerKind, Membership, Org, User, VvKolPersona, Video,
+    AuditLog, Job, JobStatus, LedgerEntry, LedgerKind, Membership, Org, Payment,
+    PaymentStatus, User, VvKolPersona, Video,
 )
 
 router = APIRouter(prefix="/v1/admin", tags=["admin"], dependencies=[Depends(require_admin)])
@@ -46,6 +47,64 @@ def stats() -> dict:
             ).scalar_one())
     return {"users": users, "orgs": orgs, "jobs": jobs, "videos": videos,
             "credits_issued": credits_issued}
+
+
+# ── Economics: doanh thu vs chi phí provider → biên lợi nhuận ──────────────
+@router.get("/economics")
+def economics() -> dict:
+    issued = consumed = revenue_vnd = 0
+    cost_usd = 0.0
+    by_status: dict[str, int] = {}
+    for org_id in _org_ids():
+        with tenant_session(org_id) as s:
+            issued += int(s.execute(
+                select(func.coalesce(func.sum(LedgerEntry.delta_credits), 0))
+                .where(LedgerEntry.entry_type.in_([LedgerKind.TOPUP, LedgerKind.BONUS]))
+            ).scalar_one())
+            consumed += int(-s.execute(
+                select(func.coalesce(func.sum(LedgerEntry.delta_credits), 0))
+                .where(LedgerEntry.entry_type == LedgerKind.SETTLE)
+            ).scalar_one())
+            cost_usd += float(s.execute(
+                select(func.coalesce(func.sum(Job.actual_cost_usd), 0))
+            ).scalar_one() or 0)
+            revenue_vnd += int(s.execute(
+                select(func.coalesce(func.sum(Payment.amount_vnd), 0))
+                .where(Payment.status == PaymentStatus.SUCCEEDED)
+            ).scalar_one())
+            for st, c in s.execute(select(Job.status, func.count()).group_by(Job.status)).all():
+                by_status[st] = by_status.get(st, 0) + int(c)
+    cost_vnd = int(cost_usd * config.USD_TO_VND)
+    total = sum(by_status.values()) or 1
+    return {
+        "credits_issued": issued, "credits_consumed": consumed,
+        "provider_cost_usd": round(cost_usd, 2), "provider_cost_vnd": cost_vnd,
+        "revenue_vnd": revenue_vnd, "margin_vnd": revenue_vnd - cost_vnd,
+        "jobs_total": sum(by_status.values()), "jobs_by_status": by_status,
+        "success_rate": round(by_status.get(JobStatus.READY, 0) / total * 100, 1),
+    }
+
+
+# ── Broadcast: gửi 1 thông báo tới mọi workspace ───────────────────────────
+class BroadcastReq(BaseModel):
+    title: str = Field(min_length=1, max_length=120)
+    body: str = Field(default="", max_length=500)
+
+
+@router.post("/broadcast")
+def broadcast(req: BroadcastReq, admin: Principal = Depends(require_admin)) -> dict:
+    sent = 0
+    for org_id in _org_ids():
+        try:
+            with tenant_session(org_id) as s:
+                notify.create(s, org_id, type="system", title=req.title, body=req.body)
+            sent += 1
+        except Exception:  # noqa: BLE001
+            pass
+    with session_scope() as s:
+        audit.record(s, action="broadcast", actor_email=admin.email,
+                     actor_user_id=admin.user_id, detail={"title": req.title, "sent": sent})
+    return {"ok": True, "sent": sent}
 
 
 # ── Users ────────────────────────────────────────────────────────────────

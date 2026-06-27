@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Users, Building2, Film, Clapperboard, Coins, ShieldAlert, Search, Loader2, Ban, CircleCheck, Plus } from "lucide-react";
+import { Users, Building2, Film, Clapperboard, Coins, ShieldAlert, Search, Loader2, Ban, CircleCheck, Plus, Megaphone, Send, TrendingUp, TrendingDown } from "lucide-react";
 import { api } from "@/lib/api/endpoints";
 import { useMe } from "@/lib/query/hooks";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -11,15 +11,22 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { inputCls } from "@/components/ui/field";
 
+const vnd = (n: number) => `${n.toLocaleString("vi-VN")}đ`;
+
 export default function AdminPage() {
   const me = useMe();
   const qc = useQueryClient();
   const isAdmin = me.data?.is_admin;
 
   const stats = useQuery({ queryKey: ["admin-stats"], queryFn: api.adminStats, enabled: !!isAdmin });
+  const econ = useQuery({ queryKey: ["admin-econ"], queryFn: api.adminEconomics, enabled: !!isAdmin });
   const moderation = useQuery({ queryKey: ["admin-mod"], queryFn: api.adminModeration, enabled: !!isAdmin });
   const [q, setQ] = useState("");
   const users = useQuery({ queryKey: ["admin-users", q], queryFn: () => api.adminUsers(q), enabled: !!isAdmin });
+  const [bcTitle, setBcTitle] = useState("");
+  const [bcBody, setBcBody] = useState("");
+  const [bcMsg, setBcMsg] = useState<string | null>(null);
+  const [bcBusy, setBcBusy] = useState(false);
 
   if (me.isLoading) return <Skeleton className="h-40 w-full rounded-xl" />;
   if (!isAdmin)
@@ -46,8 +53,24 @@ export default function AdminPage() {
     await api.adminModerate(id, orgId, approve);
     qc.invalidateQueries({ queryKey: ["admin-mod"] });
   }
+  async function sendBroadcast() {
+    if (bcTitle.trim().length < 1) return;
+    setBcBusy(true);
+    setBcMsg(null);
+    try {
+      const r = await api.adminBroadcast(bcTitle.trim(), bcBody.trim());
+      setBcMsg(`Đã gửi tới ${r.sent} workspace.`);
+      setBcTitle("");
+      setBcBody("");
+    } catch {
+      setBcMsg("Gửi thất bại, thử lại.");
+    } finally {
+      setBcBusy(false);
+    }
+  }
 
   const S = stats.data;
+  const E = econ.data;
 
   return (
     <div className="flex flex-col gap-6">
@@ -63,6 +86,58 @@ export default function AdminPage() {
         <Stat icon={Film} label="Job" value={S?.jobs} />
         <Stat icon={Clapperboard} label="Video" value={S?.videos} />
         <Stat icon={Coins} label="Credit đã phát" value={S?.credits_issued} />
+      </div>
+
+      {/* economics: doanh thu vs chi phí → biên lợi nhuận */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <GlassCard className="p-5 lg:col-span-2">
+          <div className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-ink-low">
+            <TrendingUp className="h-4 w-4 text-violet-300" /> Kinh tế vận hành
+          </div>
+          {econ.isLoading || !E ? (
+            <Skeleton className="h-28 w-full" />
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3">
+                <Money label="Doanh thu" value={E.revenue_vnd} tone="ink" />
+                <Money label="Chi phí AI" value={E.provider_cost_vnd} tone="warn" sub={`$${E.provider_cost_usd.toLocaleString("en-US")}`} />
+                <Money label="Biên lợi nhuận" value={E.margin_vnd} tone={E.margin_vnd >= 0 ? "good" : "bad"} />
+              </div>
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/[0.06] pt-4 text-sm">
+                <span className="text-ink-low">Tỷ lệ render thành công <span className="ml-1 font-numeric font-semibold text-ink-high">{E.success_rate}%</span></span>
+                <span className="text-ink-low">Tổng job <span className="ml-1 font-numeric font-semibold text-ink-high">{E.jobs_total.toLocaleString("vi-VN")}</span></span>
+                <span className="text-ink-low">Credit tiêu thụ <span className="ml-1 font-numeric font-semibold text-ink-high">{E.credits_consumed.toLocaleString("vi-VN")}</span></span>
+              </div>
+            </>
+          )}
+        </GlassCard>
+
+        {/* broadcast */}
+        <GlassCard className="flex flex-col p-5">
+          <div className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-ink-low">
+            <Megaphone className="h-4 w-4 text-violet-300" /> Gửi thông báo toàn hệ thống
+          </div>
+          <input
+            className={`${inputCls} mb-2`}
+            value={bcTitle}
+            onChange={(e) => setBcTitle(e.target.value)}
+            maxLength={120}
+            placeholder="Tiêu đề (vd: Bảo trì tối nay)"
+          />
+          <textarea
+            className={`${inputCls} mb-3 min-h-[64px] flex-1 resize-y`}
+            value={bcBody}
+            onChange={(e) => setBcBody(e.target.value)}
+            maxLength={500}
+            placeholder="Nội dung ngắn (tuỳ chọn)"
+          />
+          <div className="flex items-center justify-between gap-3">
+            {bcMsg ? <span className="text-xs text-success">{bcMsg}</span> : <span />}
+            <Button size="sm" variant="glass" className="gap-1.5" onClick={sendBroadcast} disabled={bcBusy || bcTitle.trim().length < 1}>
+              {bcBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 text-violet-300" />} Gửi
+            </Button>
+          </div>
+        </GlassCard>
       </div>
 
       {/* moderation */}
@@ -141,6 +216,21 @@ export default function AdminPage() {
           </div>
         )}
       </GlassCard>
+    </div>
+  );
+}
+
+function Money({ label, value, tone, sub }: { label: string; value: number; tone: "ink" | "good" | "bad" | "warn"; sub?: string }) {
+  const color = tone === "good" ? "text-success" : tone === "bad" ? "text-danger" : tone === "warn" ? "text-hold" : "text-ink-high";
+  return (
+    <div>
+      <div className="text-xs uppercase tracking-wider text-ink-low">{label}</div>
+      <div className={`mt-1 flex items-baseline gap-1.5 font-numeric text-xl font-bold ${color}`}>
+        {tone === "good" && <TrendingUp className="h-4 w-4" />}
+        {tone === "bad" && <TrendingDown className="h-4 w-4" />}
+        {vnd(value)}
+      </div>
+      {sub && <div className="mt-0.5 text-xs text-ink-low">{sub}</div>}
     </div>
   );
 }

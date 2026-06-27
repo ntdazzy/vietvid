@@ -237,6 +237,18 @@ export interface AdminStats {
   credits_issued: number;
 }
 
+export interface AdminEconomics {
+  credits_issued: number;
+  credits_consumed: number;
+  provider_cost_usd: number;
+  provider_cost_vnd: number;
+  revenue_vnd: number;
+  margin_vnd: number;
+  jobs_total: number;
+  jobs_by_status: Record<string, number>;
+  success_rate: number;
+}
+
 export interface AdminUser {
   id: string;
   email: string;

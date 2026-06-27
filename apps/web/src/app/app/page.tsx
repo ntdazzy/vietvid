@@ -29,7 +29,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold text-ink-high lg:text-[34px]">
+        <h1 className="text-xl font-bold text-ink-high sm:text-2xl lg:text-[34px]">
           Chào, <span className="text-gradient">{name}</span> 👋
         </h1>
         <p className="mt-1 text-ink-low">Biến 1 ảnh sản phẩm thành video chốt đơn, giọng Việt thật.</p>

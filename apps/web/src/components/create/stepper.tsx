@@ -8,7 +8,8 @@ const STEPS = ["Nguồn", "Phong cách", "Giọng", "Xem trước", "Tạo"];
 
 export function Stepper({ step }: { step: WizardStep }) {
   return (
-    <ol className="flex items-center gap-2">
+    <div>
+      <ol className="flex items-center gap-2">
       {STEPS.map((label, i) => {
         const n = (i + 1) as WizardStep;
         const done = n < step;
@@ -41,6 +42,11 @@ export function Stepper({ step }: { step: WizardStep }) {
           </li>
         );
       })}
-    </ol>
+      </ol>
+      {/* mobile: tên bước hiện tại (label desktop bị ẩn) */}
+      <p className="mt-2 text-center text-xs font-medium text-ink-medium sm:hidden">
+        Bước {step}/{STEPS.length} · {STEPS[step - 1]}
+      </p>
+    </div>
   );
 }

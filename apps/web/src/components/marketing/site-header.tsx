@@ -152,7 +152,34 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
       {/* mobile menu */}
       {mobile && (
         <div className="mx-auto mt-2 max-w-6xl px-4 lg:hidden">
-          <div className={cn(PANEL, "max-h-[70vh] overflow-y-auto p-3")}>
+          <div className={cn(PANEL, "max-h-[78vh] overflow-y-auto p-3")}>
+            {authed && (
+              <div className="mb-3">
+                <div className="mb-2 flex items-center justify-between px-1">
+                  <CreditBadge />
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {[
+                    ["Bảng điều khiển", "/app"],
+                    ["KOL AI", "/app/kol"],
+                    ["Mẫu", "/app/templates"],
+                    ["Thư viện", "/app/library"],
+                    ["Affiliate", "/app/affiliate"],
+                    ["Báo cáo", "/app/reports"],
+                    ...(me.data?.is_admin ? ([["Admin", "/app/admin"]] as [string, string][]) : []),
+                  ].map(([t, h]) => (
+                    <Link
+                      key={h}
+                      href={h}
+                      onClick={() => setMobile(false)}
+                      className="rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2 text-sm font-medium text-ink-medium hover:bg-white/[0.05] hover:text-ink-high"
+                    >
+                      {t}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
             {CONTENT_GROUPS.map((g) => (
               <div key={g.title} className="mb-3">
                 <div className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-violet-300/70">
@@ -166,6 +193,18 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
             <Link href={authed ? "/app/create" : "/login"} onClick={() => setMobile(false)}>
               <Button className="mt-1 w-full">{authed ? "Tạo video" : "Đăng nhập"}</Button>
             </Link>
+            {authed && (
+              <button
+                onClick={() => {
+                  setMobile(false);
+                  clearSession();
+                  router.push("/");
+                }}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg py-2 text-sm text-ink-low hover:bg-white/[0.05] hover:text-ink-medium"
+              >
+                <LogOut className="h-4 w-4" /> Đăng xuất
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -92,3 +92,64 @@ BILLING_DEV_ENABLED: bool = _bool("VIETVID_BILLING_DEV", not IS_PROD)
 
 def vnpay_configured() -> bool:
     return bool(VNPAY_TMN_CODE and VNPAY_HASH_SECRET)
+
+
+# ── Quan sát + an toàn prod (Sóng 1A) ───────────────────────────────────
+# Log: mức + định dạng. JSON cho prod (máy đọc), text cho dev (người đọc).
+LOG_LEVEL: str = _str("VIETVID_LOG_LEVEL", "INFO").upper()
+LOG_JSON: bool = _bool("VIETVID_LOG_JSON", IS_PROD)
+
+# Security headers (HSTS/XFO/nosniff/referrer). Bật mặc định ở prod.
+SECURITY_HEADERS_ENABLED: bool = _bool("VIETVID_SECURITY_HEADERS", IS_PROD)
+
+# Rate limit (cửa sổ cố định trong-tiến-trình, MVP 1-box). "N/giây".
+# Prod đa-instance nên chuyển sang Redis — knob giữ nguyên, chỉ đổi backend.
+RATE_LIMIT_ENABLED: bool = _bool("VIETVID_RATE_LIMIT", True)
+RATE_LIMIT_DEFAULT: str = _str("VIETVID_RL_DEFAULT", "120/60")   # mọi route / IP
+RATE_LIMIT_AUTH: str = _str("VIETVID_RL_AUTH", "10/60")          # login/register/reset/dev-token
+RATE_LIMIT_EXPENSIVE: str = _str("VIETVID_RL_EXPENSIVE", "30/60")  # jobs/images/voice/compose
+
+# Giá trị placeholder của DEV_JWT_SECRET — startup gate từ chối boot prod nếu còn cái này.
+_DEV_JWT_PLACEHOLDER: str = "vietvid-dev-secret-change-me-please-32b+"
+
+
+# ── Vòng đời auth (Sóng 1B) ─────────────────────────────────────────────
+# URL frontend để dựng link reset/verify trong email.
+APP_BASE_URL: str = _str("VIETVID_APP_URL", "http://localhost:3000")
+ACCESS_TOKEN_TTL: int = _int("VIETVID_ACCESS_TTL", 3600)            # 1h
+REFRESH_TOKEN_TTL: int = _int("VIETVID_REFRESH_TTL", 60 * 60 * 24 * 30)  # 30 ngày
+RESET_TOKEN_TTL: int = _int("VIETVID_RESET_TTL", 3600)             # 1h
+VERIFY_TOKEN_TTL: int = _int("VIETVID_VERIFY_TTL", 60 * 60 * 24)   # 24h
+
+# Email (SMTP). Để TRỐNG = dev: token/link ghi ra LOG để bạn lấy thử (không gửi thật).
+SMTP_HOST: str = _str("VIETVID_SMTP_HOST")
+SMTP_PORT: int = _int("VIETVID_SMTP_PORT", 587)
+SMTP_USER: str = _str("VIETVID_SMTP_USER")
+SMTP_PASSWORD: str = _str("VIETVID_SMTP_PASSWORD")
+SMTP_FROM: str = _str("VIETVID_SMTP_FROM", "VietVid <no-reply@vietvid.vn>")
+
+
+def email_configured() -> bool:
+    return bool(SMTP_HOST and SMTP_USER and SMTP_PASSWORD)
+
+
+# ── Reaper job treo (Sóng 2) ────────────────────────────────────────────
+# Job inline kẹt RUNNING khi tiến trình chết (redeploy/crash) → HOLD treo mãi. Reaper quét
+# job non-terminal quá hạn → hoàn HOLD + đặt CANCELLED. Chạy 1 lần lúc boot + định kỳ.
+REAPER_ENABLED: bool = _bool("VIETVID_REAPER", True)
+REAPER_STUCK_MINUTES: int = _int("VIETVID_REAPER_STUCK_MIN", 15)
+REAPER_INTERVAL_SECONDS: int = _int("VIETVID_REAPER_INTERVAL", 600)
+
+# ── Lưu trữ media (Sóng 2) — S3/R2. Trống = lưu file local (MVP 1-box). ──
+STORAGE_BUCKET: str = _str("VIETVID_S3_BUCKET")
+STORAGE_ENDPOINT: str = _str("VIETVID_S3_ENDPOINT")        # R2/minio; trống = AWS S3
+STORAGE_ACCESS_KEY: str = _str("VIETVID_S3_ACCESS_KEY")
+STORAGE_SECRET_KEY: str = _str("VIETVID_S3_SECRET_KEY")
+STORAGE_REGION: str = _str("VIETVID_S3_REGION", "auto")
+STORAGE_PUBLIC_BASE: str = _str("VIETVID_S3_PUBLIC_BASE")  # CDN base (tuỳ chọn)
+# Token ký URL video (xem/chia sẻ không cần Bearer). Dùng DEV_JWT_SECRET nếu trống.
+MEDIA_URL_TTL: int = _int("VIETVID_MEDIA_URL_TTL", 3600)
+
+
+def storage_configured() -> bool:
+    return bool(STORAGE_BUCKET and STORAGE_ACCESS_KEY and STORAGE_SECRET_KEY)

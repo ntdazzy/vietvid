@@ -10,10 +10,9 @@
     rgba(99, 102, 241, 0.1) 40%,
     transparent 72%
   );
-  /* mesh nền marketing — đen nhiều lớp + glow lệch tâm (KHÔNG gradient phẳng) */
-  --mesh-bg: radial-gradient(40% 50% at 12% 18%, rgba(124, 77, 255, 0.22), transparent 60%),
-    radial-gradient(36% 46% at 88% 12%, rgba(59, 130, 246, 0.18), transparent 62%),
-    radial-gradient(46% 56% at 72% 92%, rgba(34, 211, 238, 0.12), transparent 60%), #06070d;
+  /* nền marketing: dark phẳng + DUY NHẤT 1 vầng tím rất nhẹ trên đỉnh (tránh mesh tím-xanh-cyan
+     — dấu hiệu "AI-generic"). Accent tím để dành cho CTA/headline, không trải khắp nền. */
+  --mesh-bg: radial-gradient(58% 36% at 50% -6%, rgba(124, 77, 255, 0.1), transparent 64%), #06070d;
   --border-grad: linear-gradient(
     135deg,
     rgba(124, 77, 255, 0.55),

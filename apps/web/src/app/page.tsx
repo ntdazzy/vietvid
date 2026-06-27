@@ -1,13 +1,5 @@
 import Link from "next/link";
-import {
-  UserSquare2,
-  Clapperboard,
-  Mic,
-  ShieldCheck,
-  Image as ImageIcon,
-  Wand2,
-  Play,
-} from "lucide-react";
+import { UserSquare2, Clapperboard, Mic, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -38,9 +30,9 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { icon: ImageIcon, title: "Đưa 1 ảnh", desc: "Ảnh sản phẩm hoặc gương mặt KOL. Ảnh đầu làm khung video." },
-  { icon: Wand2, title: "Chọn phong cách & giọng", desc: "Engine, thời lượng, giọng Việt. Thấy giá credit ngay." },
-  { icon: Play, title: "Nhận video 60 giây", desc: "Xem tiến trình từng bước, tải MP4 không watermark." },
+  { title: "Đưa 1 ảnh", desc: "Ảnh sản phẩm hoặc gương mặt KOL. Ảnh đầu làm khung video." },
+  { title: "Chọn phong cách & giọng", desc: "Engine, thời lượng, giọng Việt. Thấy giá credit ngay." },
+  { title: "Nhận video 60 giây", desc: "Xem tiến trình từng bước, tải MP4 không watermark." },
 ];
 
 export default function LandingPage() {
@@ -78,20 +70,24 @@ export default function LandingPage() {
           </h2>
           <p className="mt-3 text-ink-medium">Ba bước, có video trong 60 giây.</p>
         </div>
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
+        <ol className="mt-14 grid gap-10 md:grid-cols-3 md:gap-6">
           {STEPS.map((s, i) => (
-            <GlassCard key={s.title} className="relative p-6">
-              <span className="absolute right-5 top-4 font-numeric text-3xl font-bold text-white/[0.06]">
-                0{i + 1}
-              </span>
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-grad-brand-soft">
-                <s.icon className="h-5 w-5 text-violet-300" />
+            <li key={s.title} className="relative">
+              {i < STEPS.length - 1 && (
+                <span className="absolute left-14 top-6 hidden h-px w-[calc(100%-2.5rem)] bg-gradient-to-r from-violet-500/40 to-transparent md:block" />
+              )}
+              <div className="flex items-start gap-4 md:flex-col">
+                <span className="font-display grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-violet-500/30 bg-violet-500/[0.08] text-lg font-bold text-violet-200">
+                  0{i + 1}
+                </span>
+                <div className="md:mt-5">
+                  <h3 className="font-display text-lg font-semibold text-ink-high">{s.title}</h3>
+                  <p className="mt-1.5 max-w-xs text-sm text-ink-low">{s.desc}</p>
+                </div>
               </div>
-              <h3 className="mt-4 font-semibold text-ink-high">{s.title}</h3>
-              <p className="mt-1.5 text-sm text-ink-low">{s.desc}</p>
-            </GlassCard>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
 
       {/* transparency — wedge VietVid */}

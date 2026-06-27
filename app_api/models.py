@@ -64,6 +64,15 @@ class ModerationStatus:
     PENDING, APPROVED, FLAGGED, BLOCKED = "PENDING", "APPROVED", "FLAGGED", "BLOCKED"
 
 
+class TokenPurpose:
+    PASSWORD_RESET, EMAIL_VERIFY, REFRESH = "PASSWORD_RESET", "EMAIL_VERIFY", "REFRESH"
+
+
+# Predicate RLS fail-closed (GUC chưa set → NULL → 0 dòng). Dùng LẠI nguyên văn ở mọi migration
+# tenant (D7) — tránh gõ lại literal sai lệch phá cô lập.
+RLS_USING_PREDICATE = "org_id = nullif(current_setting('vietvid.current_org', true), '')::uuid"
+
+
 # ── [M1] global (no org_id, no RLS) ──────────────────────────────────────
 class User(Base):
     __tablename__ = "users"
@@ -121,6 +130,186 @@ class Membership(Base):
         Index("ix_memberships_user", "user_id"),
         Index("ix_memberships_org", "org_id"),
     )
+
+
+class AuthToken(Base):
+    """Token vòng đời auth (global, KHÔNG RLS) — dùng chung cho:
+    PASSWORD_RESET, EMAIL_VERIFY, REFRESH. Chỉ lưu HASH (sha256) của token, KHÔNG lưu raw.
+    Hết hiệu lực khi: quá expires_at, đã used_at (one-time), hoặc revoked_at (logout/rotate).
+    """
+
+    __tablename__ = "auth_tokens"
+    id: Mapped[uuid.UUID] = _PK()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    purpose: Mapped[str] = mapped_column(Text, nullable=False)
+    token_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    meta: Mapped[dict] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+    created_at: Mapped[datetime] = _TS()
+    __table_args__ = (
+        UniqueConstraint("token_hash", name="uq_auth_tokens_hash"),
+        CheckConstraint(
+            "purpose IN ('PASSWORD_RESET','EMAIL_VERIFY','REFRESH')", name="ck_auth_token_purpose"
+        ),
+        Index("ix_auth_tokens_user_purpose", "user_id", "purpose"),
+    )
+
+
+class OrgInvitation(Base):
+    """Lời mời thành viên vào org (global, KHÔNG RLS — invitee chưa là member nên không qua RLS).
+    Tra cứu bằng token (secret) khi accept; liệt kê theo org_id tường minh (như memberships).
+    """
+
+    __tablename__ = "org_invitations"
+    id: Mapped[uuid.UUID] = _PK()
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("orgs.id", ondelete="CASCADE"), nullable=False
+    )
+    email: Mapped[str] = mapped_column(CITEXT, nullable=False)
+    role: Mapped[str] = mapped_column(Text, server_default=text("'member'"))
+    token_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(Text, server_default=text("'PENDING'"))
+    invited_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    accepted_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = _TS()
+    __table_args__ = (
+        UniqueConstraint("token_hash", name="uq_org_invite_hash"),
+        CheckConstraint(
+            "status IN ('PENDING','ACCEPTED','REVOKED')", name="ck_org_invite_status"
+        ),
+        Index("ix_org_invite_org", "org_id"),
+        Index("ix_org_invite_email", "email"),
+    )
+
+
+# ── [M2] billing catalog (GLOBAL — không RLS) ────────────────────────────
+class Plan(Base):
+    """Catalog gói thuê bao. Backs orgs.plan_code (cache denormalized)."""
+
+    __tablename__ = "plans"
+    code: Mapped[str] = mapped_column(Text, primary_key=True)  # free/pro/business
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    name_vi: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    monthly_price_vnd: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    yearly_price_vnd: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    monthly_credit_grant: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    max_concurrent_jobs: Mapped[int] = mapped_column(Integer, server_default=text("1"))
+    max_resolution: Mapped[str] = mapped_column(Text, server_default=text("'720p'"))
+    max_seconds: Mapped[int] = mapped_column(Integer, server_default=text("15"))
+    watermark_free: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
+    features: Mapped[dict] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+    is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    sort_order: Mapped[int] = mapped_column(Integer, server_default=text("0"))
+    created_at: Mapped[datetime] = _TS()
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class CreditPack(Base):
+    """Catalog gói credit mua lẻ (top-up). Backs payments.credit_pack_id."""
+
+    __tablename__ = "credit_packs"
+    id: Mapped[uuid.UUID] = _PK()
+    code: Mapped[str] = mapped_column(Text, nullable=False)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    amount_vnd: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    credits: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    bonus_credits: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    sort_order: Mapped[int] = mapped_column(Integer, server_default=text("0"))
+    created_at: Mapped[datetime] = _TS()
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    __table_args__ = (
+        UniqueConstraint("code", name="uq_credit_pack_code"),
+        CheckConstraint("amount_vnd > 0", name="ck_credit_pack_amount_pos"),
+        CheckConstraint("credits > 0", name="ck_credit_pack_credits_pos"),
+    )
+
+
+# ── [M2] nội dung tenant (org_id NULLABLE = system seed dùng chung; RLS NỚI) ──
+class VvTemplate(Base):
+    """Template/preset wizard. org_id NULL = mẫu hệ thống (mọi org thấy); có org_id = của riêng org."""
+
+    __tablename__ = "vv_templates"
+    id: Mapped[uuid.UUID] = _PK()
+    org_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("orgs.id", ondelete="CASCADE"))
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    category: Mapped[str] = mapped_column(Text, server_default=text("'product_ad'"))
+    preset: Mapped[dict] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+    thumbnail_url: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    sort_order: Mapped[int] = mapped_column(Integer, server_default=text("0"))
+    created_at: Mapped[datetime] = _TS()
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    __table_args__ = (Index("ix_vv_templates_org", "org_id"),)
+
+
+class VvKolPersona(Base):
+    """Người mẫu/KOL. source='ai' (persona AI sinh) hoặc 'upload' (mặt thật user tải — cần đồng ý
+    + kiểm duyệt). org_id NULL = persona hệ thống."""
+
+    __tablename__ = "vv_kol_personas"
+    id: Mapped[uuid.UUID] = _PK()
+    org_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("orgs.id", ondelete="CASCADE"))
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str] = mapped_column(Text, server_default=text("''"))  # character sheet
+    gender: Mapped[str] = mapped_column(Text, server_default=text("'female'"))
+    voice_gender: Mapped[str] = mapped_column(Text, server_default=text("'female'"))
+    avatar_url: Mapped[str] = mapped_column(Text, server_default=text("''"))  # ảnh tham chiếu (i2v)
+    source: Mapped[str] = mapped_column(Text, server_default=text("'ai'"))
+    consent_confirmed: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
+    moderation_status: Mapped[str] = mapped_column(Text, server_default=text("'APPROVED'"))
+    is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    sort_order: Mapped[int] = mapped_column(Integer, server_default=text("0"))
+    created_at: Mapped[datetime] = _TS()
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    __table_args__ = (
+        CheckConstraint("source IN ('ai','upload')", name="ck_kol_source"),
+        CheckConstraint(
+            "moderation_status IN ('PENDING','APPROVED','FLAGGED','BLOCKED')",
+            name="ck_kol_moderation",
+        ),
+        Index("ix_vv_kol_org", "org_id"),
+    )
+
+
+class VvBrandKit(Base):
+    """Bộ nhận diện thương hiệu (logo/màu/watermark/disclosure). Luôn thuộc 1 org (RLS chuẩn)."""
+
+    __tablename__ = "vv_brand_kits"
+    id: Mapped[uuid.UUID] = _PK()
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("orgs.id", ondelete="CASCADE"), nullable=False
+    )
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    logo_url: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    primary_color: Mapped[str] = mapped_column(Text, server_default=text("'#7C3AED'"))
+    secondary_color: Mapped[str] = mapped_column(Text, server_default=text("'#2563EB'"))
+    font: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    watermark_text: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    disclosure_text: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    is_default: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
+    created_at: Mapped[datetime] = _TS()
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    __table_args__ = (Index("ix_vv_brand_kits_org", "org_id"),)
 
 
 # ── [M1] tenant-owned (org_id + RLS ở migration) ─────────────────────────
@@ -305,4 +494,11 @@ class Video(Base):
 # Bảng tenant-owned cần RLS (migration bật ENABLE+FORCE + policy org_isolation).
 TENANT_TABLES = (
     "wallets", "ledger_entries", "payments", "jobs", "job_events", "videos",
+)
+
+# Bảng CÓ cột org_id nhưng CỐ Ý global (không RLS): lớp join/identity/pre-auth — truy cập
+# trước khi set GUC tenant (vd IPN, accept-invite bằng token). Mỗi mục là quyết định có chủ đích
+# (SYSTEM_DESIGN D4/D5). Test RLS-coverage loại trừ danh sách này; thêm bảng global-org mới vào đây.
+GLOBAL_ORG_TABLES = (
+    "memberships", "org_invitations",
 )

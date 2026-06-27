@@ -352,6 +352,29 @@ class VvBrandKit(Base):
     __table_args__ = (Index("ix_vv_brand_kits_org", "org_id"),)
 
 
+# ── [M2] notifications (tenant, RLS chuẩn) ────────────────────────────────
+class Notification(Base):
+    """Thông báo in-app: video sẵn sàng / lỗi, đã nạp tiền, hệ thống."""
+
+    __tablename__ = "notifications"
+    id: Mapped[uuid.UUID] = _PK()
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("orgs.id", ondelete="CASCADE"), nullable=False
+    )
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    type: Mapped[str] = mapped_column(Text, nullable=False)  # job_ready/job_failed/payment/system
+    title: Mapped[str] = mapped_column(Text, nullable=False)
+    body: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    ref_type: Mapped[str] = mapped_column(Text, server_default=text("''"))  # job/payment
+    ref_id: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = _TS()
+    __table_args__ = (
+        Index("ix_notifications_org_created", "org_id", "created_at"),
+        Index("ix_notifications_unread", "org_id", "read_at"),
+    )
+
+
 # ── [M1] tenant-owned (org_id + RLS ở migration) ─────────────────────────
 class Wallet(Base):
     __tablename__ = "wallets"
@@ -534,6 +557,7 @@ class Video(Base):
 # Bảng tenant-owned cần RLS (migration bật ENABLE+FORCE + policy org_isolation).
 TENANT_TABLES = (
     "wallets", "ledger_entries", "payments", "jobs", "job_events", "videos",
+    "notifications",
 )
 
 # Bảng CÓ cột org_id nhưng CỐ Ý global (không RLS): lớp join/identity/pre-auth — truy cập

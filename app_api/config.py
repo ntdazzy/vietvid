@@ -94,6 +94,19 @@ def vnpay_configured() -> bool:
     return bool(VNPAY_TMN_CODE and VNPAY_HASH_SECRET)
 
 
+# ── MoMo (cổng chính, Sóng 3). Trống = chưa cấu hình → cổng momo báo lỗi. ──
+MOMO_PARTNER_CODE: str = _str("VIETVID_MOMO_PARTNER_CODE")
+MOMO_ACCESS_KEY: str = _str("VIETVID_MOMO_ACCESS_KEY")
+MOMO_SECRET_KEY: str = _str("VIETVID_MOMO_SECRET_KEY")
+MOMO_ENDPOINT: str = _str("VIETVID_MOMO_ENDPOINT", "https://test-payment.momo.vn/v2/gateway/api/create")
+MOMO_RETURN_URL: str = _str("VIETVID_MOMO_RETURN_URL", "http://localhost:3000/billing/return")
+MOMO_IPN_URL: str = _str("VIETVID_MOMO_IPN_URL", "http://localhost:8099/v1/billing/ipn/momo")
+
+
+def momo_configured() -> bool:
+    return bool(MOMO_PARTNER_CODE and MOMO_ACCESS_KEY and MOMO_SECRET_KEY)
+
+
 # ── Quan sát + an toàn prod (Sóng 1A) ───────────────────────────────────
 # Log: mức + định dạng. JSON cho prod (máy đọc), text cho dev (người đọc).
 LOG_LEVEL: str = _str("VIETVID_LOG_LEVEL", "INFO").upper()

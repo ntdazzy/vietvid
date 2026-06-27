@@ -45,10 +45,10 @@ def create_topup(session: Session, org_id, user_id, *, pack_id: str, provider: s
     pack = _pack_by_code(session, pack_id)
     if pack is None:
         raise BillingError(f"Gói không hợp lệ: {pack_id}")
-    # VNPay: nhúng org vào ext_ref để IPN (không-auth) resolve được tenant; dev = uuid ngẫu nhiên.
+    # VNPay/MoMo: nhúng org vào ext_ref để IPN (không-auth) resolve được tenant; dev = uuid ngẫu nhiên.
     ext_ref = (
         uuid.UUID(str(org_id)).hex + uuid.uuid4().hex[:8]
-        if provider == "vnpay"
+        if provider in ("vnpay", "momo")
         else uuid.uuid4().hex
     )
     p = Payment(
@@ -118,5 +118,75 @@ def org_from_vnpay_txnref(ext_ref: str) -> str | None:
     """org_id nhúng ở 32 hex đầu của vnp_TxnRef (đã được HMAC ký nên tin được sau verify)."""
     try:
         return str(uuid.UUID(ext_ref[:32]))
+    except (ValueError, IndexError):
+        return None
+
+
+# ── MoMo adapter (cổng chính) ─────────────────────────────────────────────
+def _momo_sign(raw: str) -> str:
+    return hmac.new(config.MOMO_SECRET_KEY.encode(), raw.encode(), hashlib.sha256).hexdigest()
+
+
+def build_momo_payment(payment: Payment) -> str:
+    """Gọi MoMo createPayment (server-to-server) → trả payUrl. ext_ref = orderId (nhúng org)."""
+    if not config.momo_configured():
+        raise BillingError("MoMo chưa cấu hình (thiếu PARTNER_CODE / ACCESS_KEY / SECRET_KEY)")
+    import json
+
+    import httpx
+
+    order_id = payment.ext_ref
+    request_id = uuid.uuid4().hex
+    amount = str(int(payment.amount_vnd))
+    order_info = f"Nap {int(payment.credits_granted)} credit VietVid"
+    extra_data = ""
+    request_type = "captureWallet"
+    raw = (
+        f"accessKey={config.MOMO_ACCESS_KEY}&amount={amount}&extraData={extra_data}"
+        f"&ipnUrl={config.MOMO_IPN_URL}&orderId={order_id}&orderInfo={order_info}"
+        f"&partnerCode={config.MOMO_PARTNER_CODE}&redirectUrl={config.MOMO_RETURN_URL}"
+        f"&requestId={request_id}&requestType={request_type}"
+    )
+    body = {
+        "partnerCode": config.MOMO_PARTNER_CODE, "accessKey": config.MOMO_ACCESS_KEY,
+        "requestId": request_id, "amount": amount, "orderId": order_id,
+        "orderInfo": order_info, "redirectUrl": config.MOMO_RETURN_URL,
+        "ipnUrl": config.MOMO_IPN_URL, "extraData": extra_data, "requestType": request_type,
+        "signature": _momo_sign(raw), "lang": "vi",
+    }
+    try:
+        resp = httpx.post(config.MOMO_ENDPOINT, json=body, timeout=20)
+        data = resp.json()
+    except (httpx.HTTPError, json.JSONDecodeError) as exc:
+        raise BillingError(f"MoMo lỗi kết nối: {exc}") from exc
+    pay_url = data.get("payUrl")
+    if not pay_url:
+        raise BillingError(f"MoMo từ chối: {data.get('message', data)}")
+    return pay_url
+
+
+def verify_momo_ipn(params: dict) -> tuple[bool, str]:
+    """(chữ ký hợp lệ VÀ resultCode==0, orderId). MoMo IPN ký theo thứ tự field cố định."""
+    if not config.momo_configured():
+        return False, params.get("orderId", "")
+    recv = params.get("signature", "")
+    raw = (
+        f"accessKey={config.MOMO_ACCESS_KEY}&amount={params.get('amount','')}"
+        f"&extraData={params.get('extraData','')}&message={params.get('message','')}"
+        f"&orderId={params.get('orderId','')}&orderInfo={params.get('orderInfo','')}"
+        f"&orderType={params.get('orderType','')}&partnerCode={params.get('partnerCode','')}"
+        f"&payType={params.get('payType','')}&requestId={params.get('requestId','')}"
+        f"&responseTime={params.get('responseTime','')}&resultCode={params.get('resultCode','')}"
+        f"&transId={params.get('transId','')}"
+    )
+    sig_ok = hmac.compare_digest(_momo_sign(raw), recv)
+    paid = str(params.get("resultCode")) == "0"
+    return (sig_ok and paid), params.get("orderId", "")
+
+
+def org_from_momo_orderid(order_id: str) -> str | None:
+    """org_id nhúng 32 hex đầu của orderId (giống VNPay ext_ref)."""
+    try:
+        return str(uuid.UUID(order_id[:32]))
     except (ValueError, IndexError):
         return None

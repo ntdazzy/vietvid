@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Plus,
@@ -40,6 +41,7 @@ export default function BillingPage() {
   const ledger = useLedger(80);
   const packs = useQuery({ queryKey: ["packs"], queryFn: api.billingPacks });
   const topup = useTopup();
+  const [provider, setProvider] = useState<"dev" | "momo" | "vnpay">("dev");
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,7 +96,7 @@ export default function BillingPage() {
                   className="mt-4 w-full gap-2"
                   variant={i === 1 ? "primary" : "glass"}
                   disabled={topup.isPending}
-                  onClick={() => topup.mutate({ packId: p.id })}
+                  onClick={() => topup.mutate({ packId: p.id, provider })}
                 >
                   {topup.isPending && topup.variables?.packId === p.id ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -112,8 +114,34 @@ export default function BillingPage() {
             Đã nạp {topup.data.credits.toLocaleString("vi-VN")} credit. Số dư đã cập nhật.
           </p>
         )}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-ink-low">Cổng:</span>
+          {([
+            ["dev", "Dev (thử)"],
+            ["momo", "MoMo"],
+            ["vnpay", "VNPay"],
+          ] as const).map(([v, label]) => (
+            <button
+              key={v}
+              onClick={() => setProvider(v)}
+              className={cn(
+                "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
+                provider === v
+                  ? "border-violet-400/40 bg-violet-500/20 text-ink-high"
+                  : "border-white/10 text-ink-low hover:text-ink-medium",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {topup.isError && (
+          <p className="mt-2 text-sm text-danger">
+            {topup.error instanceof Error ? topup.error.message : "Nạp lỗi"} — cổng có thể chưa được cấu hình.
+          </p>
+        )}
         <p className="mt-2 text-xs text-ink-disabled">
-          Đang dùng cổng dev (nạp tức thì để thử). VNPay/Momo/VietQR bật khi cấu hình cổng thật.
+          MoMo/VNPay bật khi chủ shop cấu hình khoá merchant; cổng "Dev" nạp tức thì để thử.
         </p>
       </div>
 

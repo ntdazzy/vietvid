@@ -18,7 +18,7 @@ router = APIRouter(prefix="/v1/billing", tags=["billing"])
 
 class TopupRequest(BaseModel):
     pack_id: str
-    provider: str = "dev"  # dev | vnpay
+    provider: str = "dev"  # dev | vnpay | momo
 
 
 @router.get("/packs")
@@ -33,9 +33,11 @@ def create_topup(req: TopupRequest, tenant: Tenant = Depends(get_tenant)) -> dic
     org_uuid = uuid.UUID(tenant.org_id)
     if req.provider == "dev" and not config.BILLING_DEV_ENABLED:
         raise HTTPException(status_code=404, detail="Cổng dev đã tắt")
-    if req.provider not in ("dev", "vnpay"):
+    if req.provider not in ("dev", "vnpay", "momo"):
         raise HTTPException(status_code=422, detail="Cổng không hỗ trợ")
 
+    pay_url = None
+    balance = None
     try:
         with tenant_session(tenant.org_id) as s:
             p = billing.create_topup(s, org_uuid, tenant.uid, pack_id=req.pack_id, provider=req.provider)
@@ -45,15 +47,17 @@ def create_topup(req: TopupRequest, tenant: Tenant = Depends(get_tenant)) -> dic
                 billing.apply_topup(s, provider="dev", ext_ref=ext_ref)
                 w = wallet.ensure_wallet(s, org_uuid)
                 balance = int(w.balance_credits)
-            else:
+            elif req.provider == "vnpay":
                 pay_url = billing.build_vnpay_url(p)
+            else:  # momo
+                pay_url = billing.build_momo_payment(p)
     except billing.BillingError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     if req.provider == "dev":
         return {"payment_id": payment_id, "provider": "dev", "status": "succeeded",
                 "credits": credits, "amount_vnd": amount, "balance_credits": balance}
-    return {"payment_id": payment_id, "provider": "vnpay", "status": "pending",
+    return {"payment_id": payment_id, "provider": req.provider, "status": "pending",
             "credits": credits, "amount_vnd": amount, "pay_url": pay_url}
 
 
@@ -107,3 +111,39 @@ async def vnpay_ipn(request: Request) -> dict:
             return {"RspCode": "02", "Message": "Order already confirmed"}
         billing.apply_topup(s, provider="vnpay", ext_ref=txn_ref)
     return {"RspCode": "00", "Message": "Confirm Success"}
+
+
+@router.post("/ipn/momo")
+async def momo_ipn(request: Request) -> dict:
+    """MoMo gọi server-to-server (JSON). Verify chữ ký → đối soát SỐ TIỀN → apply idempotent."""
+    if not config.momo_configured():
+        return {"resultCode": 99, "message": "Gateway not configured"}
+    try:
+        params = await request.json()
+    except Exception:  # noqa: BLE001
+        return {"resultCode": 99, "message": "Bad payload"}
+
+    ok, order_id = billing.verify_momo_ipn(params)
+    if not order_id:
+        return {"resultCode": 99, "message": "Order not found"}
+    if not ok:
+        return {"resultCode": 99, "message": "Invalid signature or unpaid"}
+
+    org_id = billing.org_from_momo_orderid(order_id)
+    if org_id is None:
+        return {"resultCode": 99, "message": "Order not found"}
+
+    with tenant_session(org_id) as s:
+        existing = s.execute(
+            select(Payment).where(Payment.provider == "momo", Payment.ext_ref == order_id)
+        ).scalar_one_or_none()
+        if existing is None:
+            return {"resultCode": 99, "message": "Order not found"}
+        if existing.status == "SUCCEEDED":
+            return {"resultCode": 0, "message": "Already confirmed"}
+        # Đối soát số tiền (fix lỗ hổng audit: IPN phải khớp amount đã tạo).
+        if str(params.get("amount")) != str(int(existing.amount_vnd)):
+            existing.status = "FAILED"
+            return {"resultCode": 99, "message": "Amount mismatch"}
+        billing.apply_topup(s, provider="momo", ext_ref=order_id)
+    return {"resultCode": 0, "message": "Confirm Success"}

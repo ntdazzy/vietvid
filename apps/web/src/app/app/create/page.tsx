@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle, Layers } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useWizard, freshKey, type WizardStep } from "@/store/wizard";
 import { FEATURE_PRESETS } from "@/lib/features";
 import { api } from "@/lib/api/endpoints";
@@ -19,9 +20,12 @@ import type { JobCreateRequest } from "@/lib/api/types";
 
 export default function CreatePage() {
   const w = useWizard();
+  const router = useRouter();
   const create = useCreateJob();
   const [error, setError] = useState<string | null>(null);
   const [insufficient, setInsufficient] = useState(false);
+  const [seriesCount, setSeriesCount] = useState(1);
+  const [seriesBusy, setSeriesBusy] = useState(false);
 
   // đảm bảo có idempotency_key cho lần tạo này
   useEffect(() => {
@@ -134,6 +138,41 @@ export default function CreatePage() {
     });
   }
 
+  async function handleSeries() {
+    setError(null);
+    setInsufficient(false);
+    setSeriesBusy(true);
+    try {
+      await api.createSeries({
+        idempotency_key: w.idempotencyKey,
+        count: seriesCount,
+        mode: w.videoType,
+        purpose: w.purpose,
+        seconds: w.seconds,
+        resolution: w.resolution,
+        brief: w.brief,
+        voice_gender: w.voiceGender || "female",
+        product: {
+          name: w.product.name,
+          category: w.product.category,
+          price: w.product.price,
+          description: w.product.description,
+          image_path: w.product.image_path,
+        },
+        template_id: w.templateId || undefined,
+        kol_persona_id: w.kolPersonaId || undefined,
+        brand_kit_id: w.brandKitId || undefined,
+      });
+      w.reset();
+      router.push("/app/library");
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 402) setInsufficient(true);
+      else setError(e instanceof Error ? e.message : "Tạo loạt thất bại");
+    } finally {
+      setSeriesBusy(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <Stepper step={w.step} />
@@ -162,6 +201,34 @@ export default function CreatePage() {
         </p>
       )}
 
+      {/* auto-series: số biến thể (chỉ ở bước Tạo) */}
+      {w.step === 4 && (
+        <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+          <Layers className="h-5 w-5 shrink-0 text-violet-300" />
+          <div className="flex-1">
+            <div className="text-sm font-medium text-ink-high">Số biến thể (auto-series)</div>
+            <div className="text-xs text-ink-low">
+              Tạo nhiều video từ 1 sản phẩm, mỗi bản một góc nhìn khác (A/B).
+            </div>
+          </div>
+          <div className="flex gap-1">
+            {[1, 2, 3, 5].map((n) => (
+              <button
+                key={n}
+                onClick={() => setSeriesCount(n)}
+                className={`grid h-9 w-9 place-items-center rounded-lg text-sm font-medium transition-colors ${
+                  seriesCount === n
+                    ? "bg-violet-500/20 text-ink-high"
+                    : "text-ink-low hover:bg-white/[0.05]"
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* footer nav (ẩn ở bước Tạo) */}
       {w.step !== 5 && (
         <div className="flex items-center justify-between border-t border-white/[0.06] pt-5">
@@ -175,16 +242,20 @@ export default function CreatePage() {
             </Button>
           ) : (
             <Button
-              onClick={handleCreate}
-              disabled={create.isPending || needsConsent}
+              onClick={() => (seriesCount > 1 ? handleSeries() : handleCreate())}
+              disabled={create.isPending || seriesBusy || needsConsent}
               className="gap-2"
             >
-              {create.isPending ? (
+              {create.isPending || seriesBusy ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
-              {create.isPending ? "Đang tạo…" : "Tạo video"}
+              {create.isPending || seriesBusy
+                ? "Đang tạo…"
+                : seriesCount > 1
+                  ? `Tạo ${seriesCount} video`
+                  : "Tạo video"}
             </Button>
           )}
         </div>

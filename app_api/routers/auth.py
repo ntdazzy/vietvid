@@ -294,6 +294,7 @@ def me(tenant: Tenant = Depends(get_tenant)) -> MeResponse:
         auth_mode=config.auth_mode(),
         balance_credits=bal,
         held_credits=held,
+        is_admin=config.is_admin_email(tenant.principal.email),
     )
 
 

@@ -149,7 +149,20 @@ STORAGE_REGION: str = _str("VIETVID_S3_REGION", "auto")
 STORAGE_PUBLIC_BASE: str = _str("VIETVID_S3_PUBLIC_BASE")  # CDN base (tuỳ chọn)
 # Token ký URL video (xem/chia sẻ không cần Bearer). Dùng DEV_JWT_SECRET nếu trống.
 MEDIA_URL_TTL: int = _int("VIETVID_MEDIA_URL_TTL", 3600)
+MEDIA_SHARE_TTL: int = _int("VIETVID_MEDIA_SHARE_TTL", 60 * 60 * 24 * 30)  # link chia sẻ 30 ngày
 
 
 def storage_configured() -> bool:
     return bool(STORAGE_BUCKET and STORAGE_ACCESS_KEY and STORAGE_SECRET_KEY)
+
+
+# ── Admin (Sóng 4) — email super-admin (phẩy phân tách). Bootstrap đơn giản, không cần bảng. ──
+ADMIN_EMAILS: str = _str("VIETVID_ADMIN_EMAILS")
+
+
+def admin_email_set() -> set[str]:
+    return {e.strip().lower() for e in ADMIN_EMAILS.split(",") if e.strip()}
+
+
+def is_admin_email(email: str) -> bool:
+    return bool(email) and email.strip().lower() in admin_email_set()

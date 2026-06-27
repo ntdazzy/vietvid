@@ -20,6 +20,8 @@ from app_api.observability import (
     install_exception_handlers,
 )
 from app_api.ratelimit import RateLimitMiddleware
+from app_api.routers import admin as admin_router
+from app_api.routers import affiliate as affiliate_router
 from app_api.routers import auth as auth_router
 from app_api.routers import billing as billing_router
 from app_api.routers import compose as compose_router
@@ -110,6 +112,9 @@ app.include_router(images_router.router)
 app.include_router(compose_router.router)
 app.include_router(content_router.router)
 app.include_router(media_router.router)
+app.include_router(admin_router.router)
+app.include_router(affiliate_router.router)
+app.include_router(affiliate_router.redirect_router)
 
 
 @app.get("/health", tags=["meta"])

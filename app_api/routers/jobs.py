@@ -77,6 +77,8 @@ def create_job(
             job, hold_credits, duplicated = jobs_svc.create_job(
                 s, org_uuid, tenant.uid,
                 idempotency_key=req.idempotency_key, spec_input=spec_input,
+                template_id=req.template_id, kol_persona_id=req.kol_persona_id,
+                brand_kit_id=req.brand_kit_id,
             )
             job_pk = job.id
             job_id = str(job.id)
@@ -267,6 +269,25 @@ def get_video_signed_url(job_id: uuid.UUID, tenant: Tenant = Depends(get_tenant)
         raise HTTPException(status_code=404, detail="Chưa có video cho job này")
     token = sign_media_token(str(job_id), tenant.org_id)
     return {"url": f"/v1/media/video/{job_id}?token={token}"}
+
+
+@router.get("/{job_id}/share-url")
+def get_share_url(job_id: uuid.UUID, tenant: Tenant = Depends(get_tenant)) -> dict:
+    """Link chia sẻ CÔNG KHAI (TTL dài) tới trang /share/{id}/{token} + URL nhúng video."""
+    from app_api import config
+    from app_api.media import sign_media_token
+
+    with tenant_session(tenant.org_id) as s:
+        exists = s.execute(
+            select(Video.id).where(Video.job_id == job_id, Video.org_id == tenant.org_id)
+        ).first()
+    if not exists:
+        raise HTTPException(status_code=404, detail="Chưa có video cho job này")
+    token = sign_media_token(str(job_id), tenant.org_id, ttl=config.MEDIA_SHARE_TTL)
+    return {
+        "share_url": f"{config.APP_BASE_URL.rstrip('/')}/share/{job_id}/{token}",
+        "video_url": f"/v1/media/video/{job_id}?token={token}",
+    }
 
 
 @router.get("/{job_id}/video")

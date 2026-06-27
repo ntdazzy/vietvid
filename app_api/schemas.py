@@ -51,10 +51,16 @@ class JobCreateRequest(BaseModel):
     params: dict[str, Any] = Field(default_factory=dict)
     scene_prompt: str = ""
     structure_reference: str = ""
+    # M2 FK (Sóng 4): nối job với template/KOL/brand-kit đã chọn từ gallery.
+    template_id: str | None = None
+    kol_persona_id: str | None = None
+    brand_kit_id: str | None = None
 
     def to_spec_input(self) -> dict:
-        """dict JobSpec (không gồm job_ref/workdir — app gán lúc build_job_spec)."""
-        d = self.model_dump(exclude={"idempotency_key"})
+        """dict JobSpec (không gồm job_ref/workdir/FK — app gán lúc build_job_spec/create_job)."""
+        d = self.model_dump(
+            exclude={"idempotency_key", "template_id", "kol_persona_id", "brand_kit_id"}
+        )
         if d.get("kol") is None:
             d.pop("kol", None)
         return d
@@ -90,6 +96,7 @@ class MeResponse(BaseModel):
     auth_mode: str
     balance_credits: int
     held_credits: int
+    is_admin: bool = False
 
 
 class WalletResponse(BaseModel):

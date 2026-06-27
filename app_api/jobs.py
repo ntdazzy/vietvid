@@ -46,7 +46,15 @@ def estimate_hold(spec_input: dict) -> tuple[float, int, int]:
     return est_usd, est_credits, hold_credits
 
 
-def create_job(session, org_id, user_id, *, idempotency_key: str, spec_input: dict):
+def _as_uuid(v):
+    try:
+        return uuid.UUID(str(v)) if v else None
+    except (ValueError, TypeError):
+        return None
+
+
+def create_job(session, org_id, user_id, *, idempotency_key: str, spec_input: dict,
+               template_id=None, kol_persona_id=None, brand_kit_id=None):
     """Tạo job + HOLD credit (1 transaction của caller). Trả (job, hold_credits, duplicated)."""
     existing = session.execute(
         select(Job).where(Job.org_id == org_id, Job.idempotency_key == idempotency_key)
@@ -64,6 +72,8 @@ def create_job(session, org_id, user_id, *, idempotency_key: str, spec_input: di
         org_id=org_id, created_by=user_id, idempotency_key=idempotency_key,
         kind=spec_input.get("kind", spec_input.get("mode", "product_ad")),
         status=JobStatus.QUEUED, params=spec_input,
+        template_id=_as_uuid(template_id), kol_persona_id=_as_uuid(kol_persona_id),
+        brand_kit_id=_as_uuid(brand_kit_id),
         aspect=inner.get("aspect", "9:16") or "9:16",
         resolution=spec_input.get("resolution", "720p"),
         seconds=int(spec_input.get("seconds", 15)),

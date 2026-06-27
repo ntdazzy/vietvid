@@ -93,3 +93,12 @@ def require_role(*roles: str):
 
 
 require_owner = require_role("owner")
+
+
+def require_admin(principal: Principal = Depends(get_principal)) -> Principal:
+    """Chỉ super-admin (email trong VIETVID_ADMIN_EMAILS). 403 nếu không."""
+    from app_api import config
+
+    if not config.is_admin_email(principal.email):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cần quyền quản trị")
+    return principal

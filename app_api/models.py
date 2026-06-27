@@ -234,6 +234,46 @@ class CreditPack(Base):
     )
 
 
+# ── [M2] affiliate loop (vượt autovis: video → click → doanh thu) ────────
+class VvAffiliateLink(Base):
+    """Short-link gắn vào đuôi CTA video. /r/{code} → redirect target_url + ghi click."""
+
+    __tablename__ = "vv_affiliate_links"
+    id: Mapped[uuid.UUID] = _PK()
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("orgs.id", ondelete="CASCADE"), nullable=False
+    )
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    code: Mapped[str] = mapped_column(Text, nullable=False)            # mã ngắn (global-unique)
+    target_url: Mapped[str] = mapped_column(Text, nullable=False)
+    label: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    network: Mapped[str] = mapped_column(Text, server_default=text("''"))  # shopee/lazada/tiktok
+    job_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))    # video gắn link
+    clicks: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))  # cache đếm
+    created_at: Mapped[datetime] = _TS()
+    __table_args__ = (
+        UniqueConstraint("code", name="uq_affiliate_code"),
+        Index("ix_affiliate_org", "org_id"),
+    )
+
+
+class VvLinkClick(Base):
+    """Click append-only trên short-link (nguồn chân lý cho attribution)."""
+
+    __tablename__ = "vv_link_clicks"
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("orgs.id", ondelete="CASCADE"), nullable=False
+    )
+    link_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("vv_affiliate_links.id", ondelete="CASCADE"), nullable=False
+    )
+    referer: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    ua_hash: Mapped[str] = mapped_column(Text, server_default=text("''"))  # sha256 UA (không lưu PII)
+    created_at: Mapped[datetime] = _TS()
+    __table_args__ = (Index("ix_link_click_link", "link_id", "id"),)
+
+
 # ── [M2] nội dung tenant (org_id NULLABLE = system seed dùng chung; RLS NỚI) ──
 class VvTemplate(Base):
     """Template/preset wizard. org_id NULL = mẫu hệ thống (mọi org thấy); có org_id = của riêng org."""
@@ -501,4 +541,7 @@ TENANT_TABLES = (
 # (SYSTEM_DESIGN D4/D5). Test RLS-coverage loại trừ danh sách này; thêm bảng global-org mới vào đây.
 GLOBAL_ORG_TABLES = (
     "memberships", "org_invitations",
+    # affiliate: redirect /r/{code} & ghi click chạy PRE-AUTH (không GUC) → phải global,
+    # lọc org_id tường minh ở endpoint quản lý/analytics.
+    "vv_affiliate_links", "vv_link_clicks",
 )

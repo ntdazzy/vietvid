@@ -277,6 +277,13 @@ export interface CaptionCue {
   text: string;
 }
 
+export interface ClaimWarning {
+  match: string;
+  label: string;
+  severity: "block" | "warn";
+  beat_index?: number;
+}
+
 export interface Script {
   angle: string;
   angle_label: string;
@@ -287,6 +294,7 @@ export interface Script {
   cta: string;
   captions: string[];
   cues?: CaptionCue[];
+  claim_warnings?: ClaimWarning[];
   narration_full: string;
   word_count: number;
   target_words: number;

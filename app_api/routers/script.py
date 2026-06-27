@@ -10,7 +10,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
-from app_api import scriptgen
+from app_api import claims, scriptgen
 from app_api.auth import Principal
 from app_api.deps import get_principal
 
@@ -48,7 +48,19 @@ def generate(req: GenReq, _: Principal = Depends(get_principal)) -> dict:
     if brief is not None:
         script = scriptgen.apply_strategist(script, brief)
     script["cues"] = scriptgen.build_captions(script)
+    script["claim_warnings"] = claims.scan_script(script)
     return script
+
+
+class ClaimCheckReq(BaseModel):
+    text: str = Field(default="", max_length=8000)
+
+
+@router.post("/check-claims")
+def check_claims(req: ClaimCheckReq, _: Principal = Depends(get_principal)) -> dict:
+    """Quét claim cấm (y tế/tài chính/tuyệt đối) trong 1 đoạn text → cảnh báo theo luật QC VN."""
+    findings = claims.scan_claims(req.text)
+    return {"findings": findings, "has_blocking": claims.has_blocking(findings)}
 
 
 class CaptionReq(BaseModel):

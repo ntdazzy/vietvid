@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Wand2, Loader2, Sparkles, RefreshCw, Download } from "lucide-react";
+import { Wand2, Loader2, Sparkles, RefreshCw, Download, ShieldAlert } from "lucide-react";
 import { useWizard } from "@/store/wizard";
 import { api } from "@/lib/api/endpoints";
 import type { Script } from "@/lib/api/types";
@@ -115,6 +115,20 @@ export function ScriptStudio() {
 
       {script && (
         <div className="mt-4 flex flex-col gap-2.5">
+          {(script.claim_warnings?.length ?? 0) > 0 && (
+            <div className="rounded-lg border border-hold/30 bg-hold/[0.07] p-2.5">
+              <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-hold">
+                <ShieldAlert className="h-3.5 w-3.5" /> Cảnh báo nội dung quảng cáo (luật VN)
+              </div>
+              <ul className="flex flex-col gap-0.5">
+                {script.claim_warnings!.map((w, i) => (
+                  <li key={i} className="text-[11px] text-ink-low">
+                    <span className={cn("font-medium", w.severity === "block" ? "text-danger" : "text-hold")}>“{w.match}”</span> — {w.label}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="flex items-center gap-2 text-xs text-ink-low">
             <span className="rounded bg-white/[0.06] px-1.5 py-0.5 font-medium text-ink-high">“{script.hook_line}”</span>
             <span className={cn("font-numeric", script.word_count > script.target_words * 1.25 ? "text-hold" : "text-ink-low")}>

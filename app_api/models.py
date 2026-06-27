@@ -289,6 +289,47 @@ class VvLinkClick(Base):
     __table_args__ = (Index("ix_link_click_link", "link_id", "id"),)
 
 
+class VvApiKey(Base):
+    """Khoá API B2B — cho phép gọi /api/v1 thay người dùng (agency/dev tích hợp).
+
+    GLOBAL (tra cứu theo hash TRƯỚC khi biết org → không RLS), nhưng có org_id để định danh
+    workspace. Chỉ lưu sha256(key); raw chỉ hiện 1 lần lúc tạo. prefix lưu để hiển thị
+    'vv_live_ab…' trong danh sách. Hết hiệu lực khi revoked_at đặt."""
+
+    __tablename__ = "vv_api_keys"
+    id: Mapped[uuid.UUID] = _PK()
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("orgs.id", ondelete="CASCADE"), nullable=False
+    )
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    name: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    key_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    prefix: Mapped[str] = mapped_column(Text, server_default=text("''"))  # hiển thị, không bí mật
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = _TS()
+    __table_args__ = (
+        UniqueConstraint("key_hash", name="uq_api_key_hash"),
+        Index("ix_api_key_org", "org_id"),
+    )
+
+
+class VvWebhook(Base):
+    """Webhook B2B — URL nhận sự kiện job (READY/FAILED) kèm chữ ký HMAC. RLS tenant chuẩn."""
+
+    __tablename__ = "vv_webhooks"
+    id: Mapped[uuid.UUID] = _PK()
+    org_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("orgs.id", ondelete="CASCADE"), nullable=False
+    )
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    url: Mapped[str] = mapped_column(Text, nullable=False)
+    secret: Mapped[str] = mapped_column(Text, nullable=False)  # ký HMAC payload
+    active: Mapped[bool] = mapped_column(server_default=text("true"))
+    created_at: Mapped[datetime] = _TS()
+    __table_args__ = (Index("ix_webhook_org", "org_id"),)
+
+
 # ── [M2] nội dung tenant (org_id NULLABLE = system seed dùng chung; RLS NỚI) ──
 class VvTemplate(Base):
     """Template/preset wizard. org_id NULL = mẫu hệ thống (mọi org thấy); có org_id = của riêng org."""
@@ -574,7 +615,7 @@ class Video(Base):
 # Bảng tenant-owned cần RLS (migration bật ENABLE+FORCE + policy org_isolation).
 TENANT_TABLES = (
     "wallets", "ledger_entries", "payments", "jobs", "job_events", "videos",
-    "notifications",
+    "notifications", "vv_webhooks",
 )
 
 # Bảng CÓ cột org_id nhưng CỐ Ý global (không RLS): lớp join/identity/pre-auth — truy cập
@@ -587,4 +628,6 @@ GLOBAL_ORG_TABLES = (
     "vv_affiliate_links", "vv_link_clicks",
     # audit_log: phải SỐNG SÓT cả khi org bị xoá (điều tra/pháp lý, D5) → global, không RLS.
     "audit_log",
+    # vv_api_keys: tra cứu theo hash TRƯỚC khi biết org (auth /api/v1) → global, lọc org_id ở quản lý.
+    "vv_api_keys",
 )

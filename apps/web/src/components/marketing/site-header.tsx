@@ -84,6 +84,11 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
               Báo cáo
             </NavLink>
           )}
+          {authed && (
+            <NavLink href="/app/api" onEnter={() => openMenu(null)}>
+              API
+            </NavLink>
+          )}
           {authed && me.data?.is_admin && (
             <NavLink href="/app/admin" onEnter={() => openMenu(null)}>
               Admin
@@ -166,6 +171,7 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
                     ["Thư viện", "/app/library"],
                     ["Affiliate", "/app/affiliate"],
                     ["Báo cáo", "/app/reports"],
+                    ["API", "/app/api"],
                     ...(me.data?.is_admin ? ([["Admin", "/app/admin"]] as [string, string][]) : []),
                   ].map(([t, h]) => (
                     <Link

@@ -22,11 +22,13 @@ from app_api.observability import (
 from app_api.ratelimit import RateLimitMiddleware
 from app_api.routers import admin as admin_router
 from app_api.routers import affiliate as affiliate_router
+from app_api.routers import api_public as api_public_router
 from app_api.routers import auth as auth_router
 from app_api.routers import billing as billing_router
 from app_api.routers import compose as compose_router
 from app_api.routers import content as content_router
 from app_api.routers import images as images_router
+from app_api.routers import integrations as integrations_router
 from app_api.routers import jobs as jobs_router
 from app_api.routers import media as media_router
 from app_api.routers import notifications as notifications_router
@@ -123,6 +125,8 @@ app.include_router(notifications_router.router)
 app.include_router(series_router.router)
 app.include_router(products_router.router)
 app.include_router(script_router.router)
+app.include_router(integrations_router.router)
+app.include_router(api_public_router.router)
 
 
 @app.get("/health", tags=["meta"])

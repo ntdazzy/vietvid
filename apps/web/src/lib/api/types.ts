@@ -237,6 +237,21 @@ export interface AdminStats {
   credits_issued: number;
 }
 
+export interface ApiKey {
+  id: string;
+  name: string;
+  prefix: string;
+  last_used_at: string | null;
+  created_at: string | null;
+}
+
+export interface Webhook {
+  id: string;
+  url: string;
+  active: boolean;
+  created_at: string | null;
+}
+
 export interface VoicePersona {
   id: string;
   name: string;

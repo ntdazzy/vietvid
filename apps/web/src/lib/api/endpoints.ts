@@ -6,6 +6,8 @@ import type {
   AdminStats,
   AdminUser,
   AffiliateLink,
+  ApiKey,
+  Webhook,
   BootstrapResponse,
   BrandKit,
   NotifList,
@@ -127,6 +129,16 @@ export const api = {
     apiPost<AffiliateLink>("/v1/affiliate/links", body),
   deleteAffiliateLink: (id: string) => apiDelete<void>(`/v1/affiliate/links/${id}`),
   affiliateStats: () => apiGet<{ links: number; clicks: number }>("/v1/affiliate/stats"),
+
+  // B2B: khoá API + webhook
+  apiKeys: () => apiGet<ApiKey[]>("/v1/api-keys"),
+  createApiKey: (name: string) =>
+    apiPost<{ id: string; name: string; prefix: string; key: string }>("/v1/api-keys", { name }),
+  revokeApiKey: (id: string) => apiDelete<{ ok: boolean }>(`/v1/api-keys/${id}`),
+  webhooks: () => apiGet<Webhook[]>("/v1/webhooks"),
+  createWebhook: (url: string) =>
+    apiPost<{ id: string; url: string; secret: string }>("/v1/webhooks", { url }),
+  deleteWebhook: (id: string) => apiDelete<{ ok: boolean }>(`/v1/webhooks/${id}`),
 
   // notifications
   notifications: () => apiGet<NotifList>("/v1/notifications"),

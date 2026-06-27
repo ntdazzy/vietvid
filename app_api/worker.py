@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 import tempfile
 
-from app_api import config, storage
+from app_api import config, storage, webhooks
 from app_api.db import tenant_session
 from app_api.jobs import build_job_spec, complete_job, mark_running
 from app_api.models import Job, JobStatus
@@ -53,4 +53,9 @@ def run_job(org_id, job_id) -> RenderResult | None:
             storage.cleanup_workdir(job_id, keep=None)          # đã upload cloud → xoá sạch
         else:
             storage.cleanup_workdir(job_id, keep=local_final)   # local → giữ final.mp4, xoá phần dư
+        # 5) báo webhook B2B (best-effort — không được làm vỡ worker)
+        try:
+            webhooks.notify_terminal(org_id, job_id, result.status)
+        except Exception:  # noqa: BLE001
+            pass
     return result

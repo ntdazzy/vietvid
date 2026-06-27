@@ -77,6 +77,33 @@ def get_tenant(
     return Tenant(org_id=org_id, uid=uid, role=role, principal=principal)
 
 
+# ── API key auth cho /api/v1 (B2B) ───────────────────────────────────────
+def get_api_tenant(
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+    authorization: str | None = Header(default=None),
+) -> Tenant:
+    """Khoá API (X-API-Key hoặc Authorization: Bearer vv_live_…) → Tenant của org sở hữu."""
+    from app_api import apikeys
+    from app_api.auth import Principal
+    from app_api.db import session_scope
+
+    raw = (x_api_key or "").strip()
+    if not raw and authorization and authorization.lower().startswith("bearer "):
+        cand = authorization[7:].strip()
+        if cand.startswith("vv_live_"):
+            raw = cand
+    if not raw:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Thiếu X-API-Key", headers={"WWW-Authenticate": "ApiKey"})
+    with session_scope() as s:
+        key = apikeys.verify(s, raw)
+        if key is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Khoá API không hợp lệ")
+        org_id, uid = str(key.org_id), key.created_by
+    principal = Principal(user_id=str(uid) if uid else org_id, email="api@vietvid")
+    return Tenant(org_id=org_id, uid=uid or uuid.UUID(org_id), role="owner", principal=principal)
+
+
 # ── RBAC: chặn theo role (Sóng 1B) ──────────────────────────────────────
 def require_role(*roles: str):
     """Dependency factory: chỉ cho qua nếu tenant.role thuộc `roles`. 403 nếu không."""

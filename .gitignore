@@ -36,3 +36,4 @@ secrets/
 # M0 test/output artifacts
 _m0_out/
 video_engine/_m0_test_product.png
+_vietvid_db_url.txt

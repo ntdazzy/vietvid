@@ -27,6 +27,7 @@ export interface WizardState {
   purpose: "final" | "draft";
   seconds: number;
   resolution: string;
+  aspect: string; // 9:16 dọc | 1:1 vuông | 16:9 ngang
   videoEngine: string;
   brief: string;
   // B3
@@ -59,6 +60,7 @@ const initial = {
   purpose: "final" as const,
   seconds: 8,
   resolution: "720p",
+  aspect: "9:16",
   videoEngine: "seedance",
   brief: "",
   product: { name: "", category: "", price: "", description: "", image_path: "" },

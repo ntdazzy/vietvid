@@ -16,6 +16,13 @@ const ENGINES = [
   { id: "hailuo", name: "Hailuo", note: "Nhanh, rẻ", icon: Gauge, available: false },
 ];
 
+// Hộp xem trước tỷ lệ (px) — gợi hình dáng khung mà không cần ảnh.
+const ASPECTS = [
+  { value: "9:16", label: "Dọc", box: { width: 18, height: 32 } },
+  { value: "1:1", label: "Vuông", box: { width: 28, height: 28 } },
+  { value: "16:9", label: "Ngang", box: { width: 32, height: 18 } },
+];
+
 export function StyleStep() {
   const w = useWizard();
   const est = useEstimate({
@@ -61,6 +68,32 @@ export function StyleStep() {
             { value: "1080p", label: "1080p" },
           ]}
         />
+      </Field>
+
+      <Field label="Tỷ lệ khung hình" hint="Dọc cho TikTok/Reels, vuông cho feed, ngang cho YouTube.">
+        <div className="grid grid-cols-3 gap-3">
+          {ASPECTS.map((a) => {
+            const active = w.aspect === a.value;
+            return (
+              <button
+                key={a.value}
+                type="button"
+                onClick={() => w.patch({ aspect: a.value })}
+                className={cn(
+                  "flex flex-col items-center gap-2 rounded-xl border p-3 transition-colors",
+                  active ? "border-violet-500/60 bg-violet-500/10" : "border-white/10 hover:border-white/25",
+                )}
+              >
+                <span
+                  className={cn("rounded-sm border", active ? "border-violet-300 bg-violet-500/20" : "border-ink-low/50")}
+                  style={a.box}
+                />
+                <span className={cn("text-xs font-medium", active ? "text-ink-high" : "text-ink-low")}>{a.value}</span>
+                <span className="text-[10px] text-ink-low">{a.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </Field>
 
       <Field label="Engine tạo video" hint="Veo/Kling/Hailuo sẽ mở ở bản M2.">

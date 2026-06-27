@@ -124,6 +124,7 @@ export default function CreatePage() {
         brief: w.brief,
         voice_gender: w.voiceGender || "female",
         voice_persona: w.voicePersona,
+        aspect: w.aspect,
         video_engine: w.videoEngine,
         clean_clip: false,
       },

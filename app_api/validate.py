@@ -10,6 +10,7 @@ from __future__ import annotations
 _KNOWN_MODES = {"product_ad", "premium", "kol_full", "long_narrative", "film_recap"}
 _KNOWN_PURPOSES = {"final", "draft"}
 _KNOWN_OVERLAY = {"allow", "require", "forbid"}
+_KNOWN_ASPECTS = {"9:16", "1:1", "16:9", "4:5"}
 _RES_ORDER = {"480p": 1, "720p": 2, "1080p": 3}
 
 # Giới hạn theo plan_code (M1 tối thiểu — Free ≤480p/≤20s; trả phí rộng hơn).
@@ -64,6 +65,14 @@ def validate_and_clamp(spec_input: dict, plan_code: str = "free") -> tuple[dict,
     if capped_res != res:
         notes.append(f"độ phân giải {res} → trần gói {capped_res}")
         res = capped_res
+
+    # Tỷ lệ khung hình (trong params) — clamp về bộ hợp lệ, sai thì về dọc 9:16.
+    inner = dict(d.get("params") or {})
+    aspect = str(inner.get("aspect", "9:16") or "9:16")
+    if aspect not in _KNOWN_ASPECTS:
+        notes.append(f"tỷ lệ {aspect} → mặc định 9:16")
+        inner["aspect"] = "9:16"
+        d["params"] = inner
 
     d["seconds"] = seconds
     d["resolution"] = res

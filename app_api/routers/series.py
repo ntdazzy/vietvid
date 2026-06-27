@@ -44,6 +44,8 @@ class SeriesRequest(BaseModel):
     resolution: str = "720p"
     brief: str = ""
     voice_gender: str = "female"
+    voice_persona: str = Field(default="", max_length=40)
+    aspect: str = Field(default="9:16", max_length=10)
     product: ProductIn = Field(default_factory=ProductIn)
     template_id: str | None = None
     kol_persona_id: str | None = None
@@ -82,7 +84,10 @@ def create_series(
                     "mode": req.mode, "purpose": req.purpose, "seconds": req.seconds,
                     "resolution": req.resolution,
                     "product": req.product.model_dump(),
-                    "params": {"brief": brief, "voice_gender": req.voice_gender},
+                    "params": {
+                        "brief": brief, "voice_gender": req.voice_gender,
+                        "voice_persona": req.voice_persona, "aspect": req.aspect,
+                    },
                 }
                 try:
                     spec_input, _ = validate_and_clamp(spec_raw, plan_code)

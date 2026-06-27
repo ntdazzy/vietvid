@@ -19,7 +19,7 @@ export function PreviewStep() {
     ["Loại video", w.videoType === "kol_full" ? "KOL AI" : "Video sản phẩm"],
     ["Sản phẩm", w.product.name || "(chưa đặt tên)"],
     ...(w.videoType === "kol_full" ? ([["KOL", w.kolName || "(chưa đặt tên)"]] as [string, string][]) : []),
-    ["Thời lượng", `${w.seconds}s · ${w.resolution}`],
+    ["Thời lượng", `${w.seconds}s · ${w.resolution} · ${w.aspect}`],
     ["Engine", w.videoEngine],
     [
       "Giọng",

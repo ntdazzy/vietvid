@@ -16,27 +16,34 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app_api import config, wallet
-from app_api.models import Payment, PaymentStatus
-
-# Gói credit (≈150đ/credit, gói lớn thưởng thêm). credits đã gồm thưởng.
-PACKS: dict[str, dict] = {
-    "starter": {"amount_vnd": 100_000, "credits": 700, "name": "Khởi đầu"},
-    "popular": {"amount_vnd": 300_000, "credits": 2000, "name": "Phổ biến"},
-    "pro": {"amount_vnd": 900_000, "credits": 7000, "name": "Chuyên nghiệp"},
-}
+from app_api.models import CreditPack, Payment, PaymentStatus
 
 
 class BillingError(Exception):
     pass
 
 
-def get_packs() -> list[dict]:
-    return [{"id": k, **v} for k, v in PACKS.items()]
+def get_packs(session: Session) -> list[dict]:
+    """Catalog gói credit từ DB (data-driven). id = code (ổn định cho frontend)."""
+    rows = session.execute(
+        select(CreditPack).where(CreditPack.is_active.is_(True)).order_by(CreditPack.sort_order)
+    ).scalars().all()
+    return [
+        {"id": p.code, "code": p.code, "name": p.name,
+         "amount_vnd": int(p.amount_vnd), "credits": int(p.credits)}
+        for p in rows
+    ]
+
+
+def _pack_by_code(session: Session, code: str) -> CreditPack | None:
+    return session.execute(
+        select(CreditPack).where(CreditPack.code == code, CreditPack.is_active.is_(True))
+    ).scalar_one_or_none()
 
 
 def create_topup(session: Session, org_id, user_id, *, pack_id: str, provider: str) -> Payment:
-    pack = PACKS.get(pack_id)
-    if not pack:
+    pack = _pack_by_code(session, pack_id)
+    if pack is None:
         raise BillingError(f"Gói không hợp lệ: {pack_id}")
     # VNPay: nhúng org vào ext_ref để IPN (không-auth) resolve được tenant; dev = uuid ngẫu nhiên.
     ext_ref = (
@@ -46,8 +53,8 @@ def create_topup(session: Session, org_id, user_id, *, pack_id: str, provider: s
     )
     p = Payment(
         org_id=org_id, user_id=user_id, provider=provider, ext_ref=ext_ref,
-        amount_vnd=pack["amount_vnd"], credits_granted=pack["credits"],
-        status=PaymentStatus.PENDING,
+        amount_vnd=int(pack.amount_vnd), credits_granted=int(pack.credits),
+        credit_pack_id=pack.id, status=PaymentStatus.PENDING,
     )
     session.add(p)
     session.flush()

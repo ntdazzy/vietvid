@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy import select
 
 from app_api import billing, config, wallet
-from app_api.db import tenant_session
+from app_api.db import session_scope, tenant_session
 from app_api.deps import Tenant, get_tenant
 from app_api.models import Payment
 
@@ -23,7 +23,9 @@ class TopupRequest(BaseModel):
 
 @router.get("/packs")
 def list_packs() -> list[dict]:
-    return billing.get_packs()
+    # credit_packs là bảng GLOBAL (không RLS) → session_scope.
+    with session_scope() as s:
+        return billing.get_packs(s)
 
 
 @router.post("/topup")

@@ -265,6 +265,22 @@ export interface AffiliateLink {
   clicks: number;
 }
 
+export interface AppNotification {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  ref_type: string;
+  ref_id: string;
+  read: boolean;
+  created_at: string | null;
+}
+
+export interface NotifList {
+  items: AppNotification[];
+  unread: number;
+}
+
 export interface CreditPack {
   id: string;
   name: string;

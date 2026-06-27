@@ -9,6 +9,7 @@ import { ChevronDown, Flame, Menu, X, LogOut, Plus } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { CreditBadge } from "@/components/shell/credit-badge";
+import { NotifBell } from "@/components/shell/notif-bell";
 import { clearSession } from "@/lib/auth/session";
 import { CONTENT_GROUPS, type Feature, type FeatureGroup } from "@/lib/features";
 import { cn } from "@/lib/utils/cn";
@@ -92,6 +93,7 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
         <div className="flex items-center gap-2">
           {authed ? (
             <>
+              <NotifBell />
               <div className="hidden sm:block">
                 <CreditBadge />
               </div>

@@ -7,6 +7,7 @@ import type {
   AffiliateLink,
   BootstrapResponse,
   BrandKit,
+  NotifList,
   CreditPack,
   EstimateRequest,
   EstimateResponse,
@@ -100,6 +101,10 @@ export const api = {
     apiPost<AffiliateLink>("/v1/affiliate/links", body),
   deleteAffiliateLink: (id: string) => apiDelete<void>(`/v1/affiliate/links/${id}`),
   affiliateStats: () => apiGet<{ links: number; clicks: number }>("/v1/affiliate/stats"),
+
+  // notifications
+  notifications: () => apiGet<NotifList>("/v1/notifications"),
+  markNotificationsRead: (ids?: string[]) => apiPost("/v1/notifications/read", { ids: ids ?? null }),
 
   async uploadImage(file: File): Promise<{ image_path: string; filename: string; bytes: number }> {
     const fd = new FormData();

@@ -484,6 +484,8 @@ class Job(Base):
     template_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     kol_persona_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     brand_kit_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    # nhóm biến thể auto-series (vòng lặp hiệu suất: rank biến thể theo click thật).
+    series_group: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     params: Mapped[dict] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
     aspect: Mapped[str] = mapped_column(Text, server_default=text("'9:16'"))
     resolution: Mapped[str] = mapped_column(Text, server_default=text("'720p'"))

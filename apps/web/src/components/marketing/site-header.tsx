@@ -44,6 +44,11 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
           <NavLink href="/app/library" onEnter={() => setOpen(null)}>
             Thư viện
           </NavLink>
+          {authed && (
+            <NavLink href="/app/reports" onEnter={() => setOpen(null)}>
+              Báo cáo
+            </NavLink>
+          )}
           <Trigger label="Hỗ trợ" active={open === "support"} onEnter={() => setOpen("support")} />
 
           {/* mega panels */}

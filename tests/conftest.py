@@ -19,6 +19,9 @@ import uuid
 import httpx
 import pytest
 
+ADMIN_EMAIL = "vietvid-pytest-admin@test.local"
+
+
 def _free_port() -> int:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(("127.0.0.1", 0))
@@ -44,7 +47,10 @@ def server() -> str:
     port = _free_port()
     base = f"http://127.0.0.1:{port}"
     env = dict(os.environ)
-    env.update(VIETVID_REAPER="0", VIETVID_RATE_LIMIT="0", PYTHONUTF8="1")
+    env.update(
+        VIETVID_REAPER="0", VIETVID_RATE_LIMIT="0", PYTHONUTF8="1",
+        VIETVID_ADMIN_EMAILS=ADMIN_EMAIL,
+    )
     proc = subprocess.Popen(
         [sys.executable, "-m", "uvicorn", "app_api.main:app",
          "--port", str(port), "--log-level", "warning"],
@@ -86,6 +92,16 @@ def user(client) -> dict:
 @pytest.fixture
 def user2(client) -> dict:
     return _register(client)
+
+
+@pytest.fixture
+def admin(client) -> dict:
+    """User có email trong VIETVID_ADMIN_EMAILS (đăng ký, hoặc login nếu đã tồn tại từ run trước)."""
+    r = client.post("/v1/auth/register", json={"email": ADMIN_EMAIL, "password": "matkhau123"})
+    if r.status_code == 409:
+        r = client.post("/v1/auth/login", json={"email": ADMIN_EMAIL, "password": "matkhau123"})
+    tok = r.json()["access_token"]
+    return {"email": ADMIN_EMAIL, "token": tok, "headers": {"Authorization": f"Bearer {tok}"}}
 
 
 # spec tối thiểu hợp lệ để create_job dựng HOLD (KHÔNG gọi engine).

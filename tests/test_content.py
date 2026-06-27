@@ -87,3 +87,32 @@ def test_brand_kit_isolated(client, user, user2):
     kid = r.json()["id"]
     b_rows = client.get("/v1/brand-kits", headers=user2["headers"]).json()
     assert not any(k["id"] == kid for k in b_rows)
+
+
+def test_job_links_template_kol_brandkit(client, user):
+    """create_job ghi đúng FK template/kol/brand-kit (đặt-chỗ M2 → giờ thật)."""
+    import uuid
+    from sqlalchemy import text
+    from app_api import jobs as jobs_svc
+    from app_api.db import tenant_session
+    from tests.conftest import JOB_SPEC
+
+    tid = client.post("/v1/templates", headers=user["headers"], json={"name": "T", "preset": {}}).json()["id"]
+    kid = client.post("/v1/kol-personas", headers=user["headers"], json={"name": "K", "source": "ai"}).json()["id"]
+    bid = client.post("/v1/brand-kits", headers=user["headers"], json={"name": "B"}).json()["id"]
+
+    with tenant_session(user["org_id"]) as s:
+        job, _, _ = jobs_svc.create_job(
+            s, uuid.UUID(user["org_id"]), uuid.UUID(user["uid"]),
+            idempotency_key=f"k-{uuid.uuid4().hex[:10]}", spec_input=JOB_SPEC,
+            template_id=tid, kol_persona_id=kid, brand_kit_id=bid,
+        )
+        jid = job.id
+    with tenant_session(user["org_id"]) as s:
+        row = s.execute(text(
+            "SELECT template_id, kol_persona_id, brand_kit_id FROM jobs WHERE id=:id"
+        ), {"id": jid}).one()
+    assert str(row[0]) == tid and str(row[1]) == kid and str(row[2]) == bid
+    # dọn
+    with tenant_session(user["org_id"]) as s:
+        jobs_svc.release_hold(s, uuid.UUID(user["org_id"]), jid, note="cleanup")

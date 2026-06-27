@@ -139,6 +139,22 @@ def org_plan_code(org_id: str) -> str:
         return (org.plan_code if org else "free") or "free"
 
 
+def user_account_status(uid: uuid.UUID) -> str | None:
+    """Trạng thái tài khoản (ACTIVE/SUSPENDED/DELETED). None nếu user chưa tồn tại trong DB
+    (vd Supabase JIT — bootstrap sẽ tạo). Dùng cho kill-switch ở deps."""
+    with session_scope() as s:
+        u = s.get(User, uid)
+        return u.status if u else None
+
+
+def touch_last_login(uid: uuid.UUID) -> None:
+    """Ghi users.last_login_at = now (telemetry/đăng nhập)."""
+    from sqlalchemy import func, update
+
+    with session_scope() as s:
+        s.execute(update(User).where(User.id == uid).values(last_login_at=func.now()))
+
+
 def role_in_org(uid: uuid.UUID, org_id: str) -> str | None:
     """Role của user trong org (None nếu không phải thành viên active)."""
     with session_scope() as s:

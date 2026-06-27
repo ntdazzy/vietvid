@@ -27,13 +27,20 @@ def get_principal(authorization: str | None = Header(default=None)) -> Principal
         )
     token = authorization[7:].strip()
     try:
-        return verify_token(token)
+        principal = verify_token(token)
     except AuthError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(exc),
             headers={"WWW-Authenticate": "Bearer"},
         ) from exc
+
+    # Kill-switch: tài khoản bị khoá/xoá không qua được dù token còn hạn.
+    # (None = user chưa tồn tại trong DB, vd Supabase JIT → để bootstrap tạo.)
+    st = tenancy.user_account_status(tenancy.principal_uuid(principal.user_id))
+    if st in ("SUSPENDED", "DELETED"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tài khoản đã bị khoá")
+    return principal
 
 
 @dataclass(frozen=True)
@@ -68,3 +75,21 @@ def get_tenant(
         )
     role = tenancy.role_in_org(uid, org_id) or "owner"
     return Tenant(org_id=org_id, uid=uid, role=role, principal=principal)
+
+
+# ── RBAC: chặn theo role (Sóng 1B) ──────────────────────────────────────
+def require_role(*roles: str):
+    """Dependency factory: chỉ cho qua nếu tenant.role thuộc `roles`. 403 nếu không."""
+
+    def _dep(tenant: Tenant = Depends(get_tenant)) -> Tenant:
+        if tenant.role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Cần quyền: {', '.join(roles)}",
+            )
+        return tenant
+
+    return _dep
+
+
+require_owner = require_role("owner")

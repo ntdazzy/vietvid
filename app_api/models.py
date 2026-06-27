@@ -159,6 +159,21 @@ class AuthToken(Base):
     )
 
 
+class AuditLog(Base):
+    """Nhật ký hành động nhạy cảm (admin suspend/credit-adjust/moderation). GLOBAL + append-only
+    (sống sót cả khi org/user bị xoá — phục vụ điều tra/pháp lý, D5). Trigger chặn UPDATE/DELETE."""
+
+    __tablename__ = "audit_log"
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    org_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))  # plain (không FK/CASCADE)
+    actor_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    actor_email: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    action: Mapped[str] = mapped_column(Text, nullable=False)
+    detail: Mapped[dict] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+    created_at: Mapped[datetime] = _TS()
+    __table_args__ = (Index("ix_audit_created", "created_at"),)
+
+
 class OrgInvitation(Base):
     """Lời mời thành viên vào org (global, KHÔNG RLS — invitee chưa là member nên không qua RLS).
     Tra cứu bằng token (secret) khi accept; liệt kê theo org_id tường minh (như memberships).
@@ -568,4 +583,6 @@ GLOBAL_ORG_TABLES = (
     # affiliate: redirect /r/{code} & ghi click chạy PRE-AUTH (không GUC) → phải global,
     # lọc org_id tường minh ở endpoint quản lý/analytics.
     "vv_affiliate_links", "vv_link_clicks",
+    # audit_log: phải SỐNG SÓT cả khi org bị xoá (điều tra/pháp lý, D5) → global, không RLS.
+    "audit_log",
 )

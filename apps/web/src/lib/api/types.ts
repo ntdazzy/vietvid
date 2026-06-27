@@ -48,6 +48,7 @@ export interface MeResponse {
   auth_mode: string;
   balance_credits: number;
   held_credits: number;
+  is_admin?: boolean;
 }
 
 export interface WalletResponse {
@@ -107,6 +108,9 @@ export interface JobCreateRequest {
   params?: Record<string, unknown>;
   scene_prompt?: string;
   structure_reference?: string;
+  template_id?: string;
+  kol_persona_id?: string;
+  brand_kit_id?: string;
 }
 
 export interface JobCreateResponse {
@@ -189,6 +193,76 @@ export interface OrgInvite {
   role: string;
   status: string;
   expires_at: string;
+}
+
+export interface Template {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  preset: Record<string, unknown>;
+  thumbnail_url: string;
+  is_system: boolean;
+}
+
+export interface KolPersona {
+  id: string;
+  name: string;
+  description: string;
+  gender: string;
+  voice_gender: string;
+  avatar_url: string;
+  source: string; // ai | upload
+  moderation_status: string;
+  is_system: boolean;
+}
+
+export interface BrandKit {
+  id: string;
+  name: string;
+  logo_url: string;
+  primary_color: string;
+  secondary_color: string;
+  font: string;
+  watermark_text: string;
+  disclosure_text: string;
+  is_default: boolean;
+}
+
+export interface AdminStats {
+  users: number;
+  orgs: number;
+  jobs: number;
+  videos: number;
+  credits_issued: number;
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  full_name: string;
+  status: string;
+  org_id: string | null;
+  plan_code: string | null;
+  created_at: string | null;
+}
+
+export interface ModItem {
+  id: string;
+  org_id: string;
+  name: string;
+  avatar_url: string;
+  description: string;
+}
+
+export interface AffiliateLink {
+  id: string;
+  code: string;
+  short_url: string;
+  target_url: string;
+  label: string;
+  network: string;
+  clicks: number;
 }
 
 export interface CreditPack {

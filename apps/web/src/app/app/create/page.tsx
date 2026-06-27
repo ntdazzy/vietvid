@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle } from "lucide-re
 import Link from "next/link";
 import { useWizard, freshKey, type WizardStep } from "@/store/wizard";
 import { FEATURE_PRESETS } from "@/lib/features";
+import { api } from "@/lib/api/endpoints";
 import { useCreateJob } from "@/lib/query/mutations";
 import { Stepper } from "@/components/create/stepper";
 import { SourceStep } from "@/components/create/steps/source-step";
@@ -27,9 +28,10 @@ export default function CreatePage() {
     if (!w.idempotencyKey) w.patch({ idempotencyKey: freshKey() });
   }, [w]);
 
-  // preset theo ?feature=<key> (mở từ menu mega): đặt loại video + gợi ý brief.
+  // preset theo ?feature= (menu mega) hoặc ?template=/?kol=/?brand= (gallery Sóng 4).
   useEffect(() => {
-    const f = new URLSearchParams(window.location.search).get("feature");
+    const q = new URLSearchParams(window.location.search);
+    const f = q.get("feature");
     const preset = f ? FEATURE_PRESETS[f] : undefined;
     if (preset)
       w.patch({
@@ -38,6 +40,38 @@ export default function CreatePage() {
         frameMode: preset.frameMode ?? "upload",
         step: 1,
       });
+
+    const templateId = q.get("template");
+    const kolId = q.get("kol");
+    const brandId = q.get("brand");
+    if (brandId) w.patch({ brandKitId: brandId });
+    (async () => {
+      if (templateId) {
+        const t = (await api.templates().catch(() => [])).find((x) => x.id === templateId);
+        if (t) {
+          const p = (t.preset ?? {}) as { videoType?: string; brief?: string; frameMode?: string };
+          w.patch({
+            templateId: t.id,
+            videoType: (p.videoType as "product_ad" | "kol_full") ?? w.videoType,
+            brief: typeof p.brief === "string" ? p.brief : w.brief,
+            frameMode: (p.frameMode as "upload" | "ai") ?? "upload",
+            step: 1,
+          });
+        }
+      }
+      if (kolId) {
+        const k = (await api.kolPersonas().catch(() => [])).find((x) => x.id === kolId);
+        if (k) {
+          w.patch({
+            kolPersonaId: k.id,
+            videoType: "kol_full",
+            kolName: k.name,
+            voiceGender: (k.voice_gender as "female" | "male") || "female",
+            step: 1,
+          });
+        }
+      }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -87,6 +121,9 @@ export default function CreatePage() {
         video_engine: w.videoEngine,
         clean_clip: false,
       },
+      template_id: w.templateId || undefined,
+      kol_persona_id: w.kolPersonaId || undefined,
+      brand_kit_id: w.brandKitId || undefined,
     };
     create.mutate(body, {
       onSuccess: (res) => w.patch({ jobId: res.job_id, step: 5 }),

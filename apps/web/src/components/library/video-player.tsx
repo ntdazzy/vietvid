@@ -23,8 +23,12 @@ export function VideoPlayer({ jobId }: { jobId: string }) {
   }, [jobId]);
 
   async function share() {
-    if (!url) return;
-    await navigator.clipboard.writeText(url);
+    try {
+      const { share_url } = await api.getShareUrl(jobId);
+      await navigator.clipboard.writeText(share_url);
+    } catch {
+      if (url) await navigator.clipboard.writeText(url);
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }

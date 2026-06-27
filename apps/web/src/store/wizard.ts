@@ -34,6 +34,10 @@ export interface WizardState {
   kolName: string; // chỉ dùng khi videoType=kol_full
   kolStyle: string;
   consent: boolean; // KOL bắt buộc đồng ý
+  // FK chọn từ gallery (Sóng 4)
+  templateId: string;
+  kolPersonaId: string;
+  brandKitId: string;
   // B5
   idempotencyKey: string;
   jobId: string;
@@ -62,6 +66,9 @@ const initial = {
   kolName: "",
   kolStyle: "",
   consent: false,
+  templateId: "",
+  kolPersonaId: "",
+  brandKitId: "",
   idempotencyKey: "",
   jobId: "",
 };

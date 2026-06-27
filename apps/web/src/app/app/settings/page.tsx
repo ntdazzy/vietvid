@@ -173,9 +173,14 @@ export default function SettingsPage() {
           <Users className="h-4 w-4" /> Thành viên workspace
         </div>
         <p className="mb-3 text-sm text-ink-low">Mời cộng sự cùng tạo video trong workspace của bạn.</p>
-        <Link href="/app/team">
-          <Button variant="glass">Quản lý thành viên</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/app/team">
+            <Button variant="glass">Quản lý thành viên</Button>
+          </Link>
+          <Link href="/app/brand-kits">
+            <Button variant="glass">Bộ thương hiệu</Button>
+          </Link>
+        </div>
       </GlassCard>
 
       {/* API keys (Product C) */}

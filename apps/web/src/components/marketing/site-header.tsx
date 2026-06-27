@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api/endpoints";
 import { ChevronDown, Flame, Menu, X, LogOut, Plus } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
@@ -21,6 +23,7 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
   const [open, setOpen] = useState<null | "content" | "tools" | "support">(null);
   const [mobile, setMobile] = useState(false);
   const router = useRouter();
+  const me = useQuery({ queryKey: ["me"], queryFn: api.me, enabled: authed });
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
@@ -33,7 +36,7 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
         <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={() => setOpen(null)}>
           <NavLink href={authed ? "/app" : "/"}>{authed ? "Bảng điều khiển" : "Trang chủ"}</NavLink>
           <Link
-            href="/app/create?feature=review"
+            href={authed ? "/app/kol" : "/login"}
             className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-violet-200 transition-colors hover:bg-white/[0.05]"
           >
             KOL AI <Flame className="h-3.5 w-3.5 text-orange-400" />
@@ -41,12 +44,27 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
 
           <Trigger label="Tạo nội dung" active={open === "content"} onEnter={() => setOpen("content")} />
           <Trigger label="Công cụ" active={open === "tools"} onEnter={() => setOpen("tools")} />
+          {authed && (
+            <NavLink href="/app/templates" onEnter={() => setOpen(null)}>
+              Mẫu
+            </NavLink>
+          )}
           <NavLink href="/app/library" onEnter={() => setOpen(null)}>
             Thư viện
           </NavLink>
           {authed && (
+            <NavLink href="/app/affiliate" onEnter={() => setOpen(null)}>
+              Affiliate
+            </NavLink>
+          )}
+          {authed && (
             <NavLink href="/app/reports" onEnter={() => setOpen(null)}>
               Báo cáo
+            </NavLink>
+          )}
+          {authed && me.data?.is_admin && (
+            <NavLink href="/app/admin" onEnter={() => setOpen(null)}>
+              Admin
             </NavLink>
           )}
           <Trigger label="Hỗ trợ" active={open === "support"} onEnter={() => setOpen("support")} />

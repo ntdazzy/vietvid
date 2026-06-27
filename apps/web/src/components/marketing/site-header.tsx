@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -26,6 +26,20 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
   const router = useRouter();
   const me = useQuery({ queryKey: ["me"], queryFn: api.me, enabled: authed });
 
+  // Fix "di vào menu là mất": đóng có ĐỘ TRỄ; rê qua khe trigger→panel không bị đóng.
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelClose = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  };
+  const openMenu = (k: "content" | "tools" | "support" | null) => {
+    cancelClose();
+    setOpen(k);
+  };
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpen(null), 180);
+  };
+
   return (
     <header className="fixed inset-x-0 top-0 z-50">
       <div className="mx-auto mt-4 flex max-w-6xl items-center justify-between rounded-2xl border border-white/[0.07] bg-bg-base/70 px-4 py-2.5 backdrop-blur-xl lg:px-5">
@@ -34,41 +48,48 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
         </Link>
 
         {/* desktop nav */}
-        <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={() => setOpen(null)}>
-          <NavLink href={authed ? "/app" : "/"}>{authed ? "Bảng điều khiển" : "Trang chủ"}</NavLink>
+        <nav
+          className="hidden items-center gap-1 lg:flex"
+          onMouseLeave={scheduleClose}
+          onMouseEnter={cancelClose}
+        >
+          <NavLink href={authed ? "/app" : "/"} onEnter={() => openMenu(null)}>
+            {authed ? "Bảng điều khiển" : "Trang chủ"}
+          </NavLink>
           <Link
             href={authed ? "/app/kol" : "/login"}
+            onMouseEnter={() => openMenu(null)}
             className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-violet-200 transition-colors hover:bg-white/[0.05]"
           >
             KOL AI <Flame className="h-3.5 w-3.5 text-orange-400" />
           </Link>
 
-          <Trigger label="Tạo nội dung" active={open === "content"} onEnter={() => setOpen("content")} />
-          <Trigger label="Công cụ" active={open === "tools"} onEnter={() => setOpen("tools")} />
+          <Trigger label="Tạo nội dung" active={open === "content"} onEnter={() => openMenu("content")} />
+          <Trigger label="Công cụ" active={open === "tools"} onEnter={() => openMenu("tools")} />
           {authed && (
-            <NavLink href="/app/templates" onEnter={() => setOpen(null)}>
+            <NavLink href="/app/templates" onEnter={() => openMenu(null)}>
               Mẫu
             </NavLink>
           )}
-          <NavLink href="/app/library" onEnter={() => setOpen(null)}>
+          <NavLink href="/app/library" onEnter={() => openMenu(null)}>
             Thư viện
           </NavLink>
           {authed && (
-            <NavLink href="/app/affiliate" onEnter={() => setOpen(null)}>
+            <NavLink href="/app/affiliate" onEnter={() => openMenu(null)}>
               Affiliate
             </NavLink>
           )}
           {authed && (
-            <NavLink href="/app/reports" onEnter={() => setOpen(null)}>
+            <NavLink href="/app/reports" onEnter={() => openMenu(null)}>
               Báo cáo
             </NavLink>
           )}
           {authed && me.data?.is_admin && (
-            <NavLink href="/app/admin" onEnter={() => setOpen(null)}>
+            <NavLink href="/app/admin" onEnter={() => openMenu(null)}>
               Admin
             </NavLink>
           )}
-          <Trigger label="Hỗ trợ" active={open === "support"} onEnter={() => setOpen("support")} />
+          <Trigger label="Hỗ trợ" active={open === "support"} onEnter={() => openMenu("support")} />
 
           {/* mega panels */}
           {open === "content" && <MegaPanel groups={CONTENT_GROUPS} cols={3} />}
@@ -192,23 +213,47 @@ function MegaPanel({ groups, cols }: { groups: FeatureGroup[]; cols: number }) {
     <div className="absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3">
       <div
         className={cn(
-          PANEL,
-          "grid gap-x-6 gap-y-1 p-5",
-          cols === 3 ? "w-[840px] grid-cols-3" : "w-[600px] grid-cols-2",
+          "relative overflow-hidden rounded-3xl border border-white/[0.08] bg-bg-elevated/95 backdrop-blur-2xl",
+          "shadow-[0_30px_90px_-24px_rgba(0,0,0,0.85)]",
+          cols === 3 ? "w-[860px]" : "w-[620px]",
         )}
       >
-        {groups.map((g) => (
-          <div key={g.title}>
-            <div className="mb-2 border-b border-white/[0.06] pb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-violet-300/70">
-              {g.title}
+        {/* dải accent tím mảnh trên đỉnh — chữ ký riêng của panel VietVid */}
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
+
+        <div
+          className={cn(
+            "grid gap-x-5 gap-y-0.5 p-4",
+            cols === 3 ? "grid-cols-3" : "grid-cols-2",
+          )}
+        >
+          {groups.map((g) => (
+            <div key={g.title} className="px-1">
+              <div className="mb-1 flex items-center gap-2 px-2.5 py-1.5">
+                <span className="h-1 w-1 rounded-full bg-violet-400" />
+                <span className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-violet-300/80">
+                  {g.title}
+                </span>
+              </div>
+              <div className="flex flex-col">
+                {g.items.map((f) => (
+                  <FeatureRow key={f.key} f={f} />
+                ))}
+              </div>
             </div>
-            <div className="flex flex-col">
-              {g.items.map((f) => (
-                <FeatureRow key={f.key} f={f} />
-              ))}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        {/* footer CTA — đẩy người dùng vào hành động (nét riêng, không phải menu thuần liệt kê) */}
+        <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.015] px-5 py-3">
+          <span className="text-xs text-ink-low">Tải 1 ảnh sản phẩm — ra video trong ~60 giây.</span>
+          <Link
+            href="/app/create"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-violet-300 transition hover:text-violet-200"
+          >
+            Tạo video ngay <ChevronDown className="h-3.5 w-3.5 -rotate-90" />
+          </Link>
+        </div>
       </div>
     </div>
   );
@@ -218,25 +263,33 @@ function FeatureRow({ f, onNav }: { f: Feature; onNav?: () => void }) {
   const inner = (
     <div
       className={cn(
-        "group flex items-start gap-3 rounded-lg p-2.5 transition-colors",
-        f.available ? "hover:bg-white/[0.05]" : "opacity-60",
+        "group relative flex items-start gap-3 rounded-xl p-2.5 transition-all duration-200",
+        f.available
+          ? "hover:translate-x-0.5 hover:bg-violet-500/[0.07]"
+          : "cursor-default opacity-55",
       )}
     >
+      {/* thanh accent trái trượt vào khi hover (available) */}
+      {f.available && (
+        <span className="absolute left-0 top-1/2 h-0 w-[3px] -translate-y-1/2 rounded-full bg-violet-400 transition-all duration-200 group-hover:h-7" />
+      )}
       <span
         className={cn(
-          "mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg",
-          f.available ? "bg-grad-brand-soft text-violet-300" : "bg-white/[0.04] text-ink-low",
+          "mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl transition-colors",
+          f.available
+            ? "bg-violet-500/[0.12] text-violet-300 group-hover:bg-violet-500/20"
+            : "bg-white/[0.04] text-ink-low",
         )}
       >
-        <f.icon className="h-4 w-4" />
+        <f.icon className="h-[18px] w-[18px]" />
       </span>
-      <div className="min-w-0">
+      <div className="min-w-0 py-0.5">
         <div className="flex items-center gap-1.5">
           <span className="text-sm font-medium text-ink-high">{f.label}</span>
           {f.badge && (
             <span
               className={cn(
-                "rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase",
+                "rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide",
                 f.badge === "Sắp có"
                   ? "bg-white/[0.06] text-ink-low"
                   : "bg-violet-500/20 text-violet-200",
@@ -246,7 +299,7 @@ function FeatureRow({ f, onNav }: { f: Feature; onNav?: () => void }) {
             </span>
           )}
         </div>
-        <div className="text-xs text-ink-low">{f.desc}</div>
+        <div className="mt-0.5 text-xs leading-snug text-ink-low">{f.desc}</div>
       </div>
     </div>
   );

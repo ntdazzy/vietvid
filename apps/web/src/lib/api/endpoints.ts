@@ -22,8 +22,10 @@ import type {
   OrgInvite,
   OrgMember,
   ProfileResponse,
+  SeriesResponse,
   Template,
   TopupResponse,
+  VariantPerf,
   WalletResponse,
 } from "./types";
 
@@ -42,8 +44,9 @@ export const api = {
   getJob: (id: string) => apiGet<JobDetail>(`/v1/jobs/${id}`),
   cancelJob: (id: string) => apiPost(`/v1/jobs/${id}/cancel`),
   deleteJob: (id: string) => apiDelete<void>(`/v1/jobs/${id}`),
-  createSeries: (body: Record<string, unknown>) =>
-    apiPost<{ job_ids: string[]; count: number; total_hold_credits: number }>("/v1/series", body),
+  createSeries: (body: Record<string, unknown>) => apiPost<SeriesResponse>("/v1/series", body),
+  seriesPerformance: (group: string) =>
+    apiGet<VariantPerf[]>(`/v1/series/${group}/performance`),
   // URL authed thô (cần Bearer — render-timeline fetch kèm header rồi tạo blob).
   videoUrl: (id: string) => `${API_BASE_URL}/v1/jobs/${id}/video`,
   // URL CÓ CHỮ KÝ: phát/tải/chia sẻ KHÔNG cần Bearer (token query, hết hạn).

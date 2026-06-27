@@ -255,6 +255,25 @@ export interface ModItem {
   description: string;
 }
 
+export interface SeriesResponse {
+  series_group: string;
+  job_ids: string[];
+  count: number;
+  total_hold_credits: number;
+  balance_credits: number;
+  held_credits: number;
+  tracked: boolean;
+}
+
+export interface VariantPerf {
+  job_id: string;
+  label: string;
+  status: string;
+  clicks: number;
+  has_video: boolean;
+  is_winner: boolean;
+}
+
 export interface AffiliateLink {
   id: string;
   code: string;

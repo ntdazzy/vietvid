@@ -25,6 +25,7 @@ export default function CreatePage() {
   const [error, setError] = useState<string | null>(null);
   const [insufficient, setInsufficient] = useState(false);
   const [seriesCount, setSeriesCount] = useState(1);
+  const [seriesTarget, setSeriesTarget] = useState("");
   const [seriesBusy, setSeriesBusy] = useState(false);
 
   // đảm bảo có idempotency_key cho lần tạo này
@@ -143,7 +144,7 @@ export default function CreatePage() {
     setInsufficient(false);
     setSeriesBusy(true);
     try {
-      await api.createSeries({
+      const res = await api.createSeries({
         idempotency_key: w.idempotencyKey,
         count: seriesCount,
         mode: w.videoType,
@@ -162,9 +163,10 @@ export default function CreatePage() {
         template_id: w.templateId || undefined,
         kol_persona_id: w.kolPersonaId || undefined,
         brand_kit_id: w.brandKitId || undefined,
+        target_url: seriesTarget.trim() || undefined,
       });
       w.reset();
-      router.push("/app/library");
+      router.push(`/app/series/${res.series_group}`);
     } catch (e) {
       if (e instanceof ApiError && e.status === 402) setInsufficient(true);
       else setError(e instanceof Error ? e.message : "Tạo loạt thất bại");
@@ -227,6 +229,14 @@ export default function CreatePage() {
             ))}
           </div>
         </div>
+      )}
+      {w.step === 4 && seriesCount > 1 && (
+        <input
+          value={seriesTarget}
+          onChange={(e) => setSeriesTarget(e.target.value)}
+          placeholder="Link sản phẩm (Shopee/TikTok Shop...) — gắn để ĐO biến thể nào bán chạy"
+          className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-ink-high placeholder:text-ink-low focus:border-violet-400/40 focus:outline-none"
+        />
       )}
 
       {/* footer nav (ẩn ở bước Tạo) */}

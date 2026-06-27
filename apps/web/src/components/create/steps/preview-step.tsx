@@ -21,7 +21,12 @@ export function PreviewStep() {
     ...(w.videoType === "kol_full" ? ([["KOL", w.kolName || "(chưa đặt tên)"]] as [string, string][]) : []),
     ["Thời lượng", `${w.seconds}s · ${w.resolution}`],
     ["Engine", w.videoEngine],
-    ["Giọng", w.voiceGender === "male" ? "Nam" : "Nữ"],
+    [
+      "Giọng",
+      `${w.voiceGender === "male" ? "Nam" : "Nữ"}${
+        w.voicePersona ? ` · ${w.voicePersona.charAt(0).toUpperCase()}${w.voicePersona.slice(1)}` : ""
+      }`,
+    ],
     ["Bản", w.purpose === "draft" ? "Nháp" : "Hoàn chỉnh"],
   ];
 

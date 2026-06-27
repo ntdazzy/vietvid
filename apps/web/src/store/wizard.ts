@@ -31,6 +31,7 @@ export interface WizardState {
   brief: string;
   // B3
   voiceGender: "" | "female" | "male";
+  voicePersona: string; // id persona giọng (rỗng = giọng gốc theo gender)
   kolName: string; // chỉ dùng khi videoType=kol_full
   kolStyle: string;
   consent: boolean; // KOL bắt buộc đồng ý
@@ -63,6 +64,7 @@ const initial = {
   product: { name: "", category: "", price: "", description: "", image_path: "" },
   imagePreviewUrl: "",
   voiceGender: "" as const,
+  voicePersona: "",
   kolName: "",
   kolStyle: "",
   consent: false,

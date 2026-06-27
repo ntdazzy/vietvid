@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Volume2, UserSquare2, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Volume2, UserSquare2, ShieldCheck, Loader2, AlertCircle, Play } from "lucide-react";
 import { useWizard } from "@/store/wizard";
 import { api } from "@/lib/api/endpoints";
-import { Field, ChipGroup, inputCls } from "@/components/ui/field";
+import type { VoicePersona } from "@/lib/api/types";
+import { Field, inputCls } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 
@@ -15,22 +16,44 @@ export function VoiceStep() {
   const isKol = w.videoType === "kol_full";
   const [text, setText] = useState(SAMPLE);
   const [loading, setLoading] = useState(false);
+  const [previewing, setPreviewing] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [personas, setPersonas] = useState<VoicePersona[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    api.voicePersonas().then(setPersonas).catch(() => setPersonas([]));
+  }, []);
+
+  async function playUrl(url: string) {
+    if (audioRef.current) {
+      audioRef.current.src = url;
+      await audioRef.current.play();
+    }
+  }
 
   async function play() {
     setLoading(true);
     setErr(null);
     try {
-      const url = await api.voicePreview(text.trim() || SAMPLE, w.voiceGender || "female");
-      if (audioRef.current) {
-        audioRef.current.src = url;
-        await audioRef.current.play();
-      }
+      await playUrl(await api.voicePreview(text.trim() || SAMPLE, w.voiceGender || "female", w.voicePersona));
     } catch {
       setErr("Không nghe thử được, thử lại.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function pickPersona(p: VoicePersona) {
+    w.patch({ voicePersona: p.id, voiceGender: p.gender as "female" | "male" });
+    setPreviewing(p.id);
+    setErr(null);
+    try {
+      await playUrl(await api.voicePreview(text.trim() || SAMPLE, p.gender, p.id));
+    } catch {
+      setErr("Không nghe thử được, thử lại.");
+    } finally {
+      setPreviewing(null);
     }
   }
 
@@ -43,15 +66,43 @@ export function VoiceStep() {
         </p>
       </div>
 
-      <Field label="Giọng">
-        <ChipGroup
-          value={w.voiceGender || "female"}
-          onChange={(v) => w.patch({ voiceGender: v as "female" | "male" })}
-          options={[
-            { value: "female", label: "Nữ" },
-            { value: "male", label: "Nam" },
-          ]}
-        />
+      <Field label="Giọng đọc" hint="Bấm một giọng để chọn và nghe thử ngay.">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          {personas.map((p) => {
+            const active = w.voicePersona === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => pickPersona(p)}
+                className={cn(
+                  "group flex items-center gap-3 rounded-xl border p-3 text-left transition-colors",
+                  active ? "border-violet-500/60 bg-violet-500/10" : "border-white/10 hover:border-white/25",
+                )}
+              >
+                <span className={cn(
+                  "grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold",
+                  p.gender === "female" ? "bg-rose-500/15 text-rose-200" : "bg-sky-500/15 text-sky-200",
+                )}>
+                  {previewing === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : p.name.charAt(0)}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1.5 text-sm font-medium text-ink-high">
+                    {p.name}
+                    <span className="text-[11px] font-normal text-ink-low">· {p.gender === "female" ? "Nữ" : "Nam"}</span>
+                  </span>
+                  <span className="block truncate text-xs text-ink-low">{p.vibe}</span>
+                </span>
+                <Play className={cn("h-4 w-4 shrink-0", active ? "text-violet-300" : "text-ink-low opacity-0 transition-opacity group-hover:opacity-100")} />
+              </button>
+            );
+          })}
+        </div>
+        {w.voicePersona && (
+          <p className="mt-2 text-xs text-ink-low">
+            {personas.find((p) => p.id === w.voicePersona)?.blurb}
+          </p>
+        )}
       </Field>
 
       {/* nghe thử / đọc thử câu của tôi */}

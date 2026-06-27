@@ -29,6 +29,7 @@ import type {
   Template,
   TopupResponse,
   VariantPerf,
+  VoicePersona,
   WalletResponse,
 } from "./types";
 
@@ -145,12 +146,14 @@ export const api = {
     return res.json();
   },
 
-  async voicePreview(text: string, gender: string): Promise<string> {
+  voicePersonas: () => apiGet<VoicePersona[]>("/v1/voice/personas"),
+
+  async voicePreview(text: string, gender: string, persona = ""): Promise<string> {
     const token = await getToken();
     const res = await fetch(`${API_BASE_URL}/v1/voice/preview`, {
       method: "POST",
       headers: { "content-type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({ text, gender }),
+      body: JSON.stringify({ text, gender, persona }),
     });
     if (!res.ok) throw new Error("Tạo giọng lỗi");
     return URL.createObjectURL(await res.blob());

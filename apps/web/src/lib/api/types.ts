@@ -237,6 +237,16 @@ export interface AdminStats {
   credits_issued: number;
 }
 
+export interface VoicePersona {
+  id: string;
+  name: string;
+  gender: string;
+  vibe: string;
+  blurb: string;
+  rate: number;
+  pitch: number;
+}
+
 export interface ScriptBeat {
   label: string;
   t_start: number;

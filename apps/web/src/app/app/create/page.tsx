@@ -123,6 +123,7 @@ export default function CreatePage() {
       params: {
         brief: w.brief,
         voice_gender: w.voiceGender || "female",
+        voice_persona: w.voicePersona,
         video_engine: w.videoEngine,
         clean_clip: false,
       },
@@ -153,6 +154,7 @@ export default function CreatePage() {
         resolution: w.resolution,
         brief: w.brief,
         voice_gender: w.voiceGender || "female",
+        voice_persona: w.voicePersona,
         product: {
           name: w.product.name,
           category: w.product.category,

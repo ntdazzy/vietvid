@@ -1,0 +1,121 @@
+"use client";
+
+import { Zap, Clapperboard, Gauge, Lock, Loader2 } from "lucide-react";
+import { useWizard } from "@/store/wizard";
+import { useEstimate } from "@/lib/query/hooks";
+import { Field, ChipGroup, inputCls } from "@/components/ui/field";
+import { CreditValue } from "@/components/ui/credit-value";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils/cn";
+
+const ENGINES = [
+  { id: "seedance", name: "Seedance", note: "Rẻ, nhanh, hợp bản nháp", icon: Zap, available: true },
+  { id: "veo", name: "Veo 3.1", note: "Chất lượng hero", icon: Clapperboard, available: false },
+  { id: "kling", name: "Kling 3.0", note: "Điện ảnh", icon: Clapperboard, available: false },
+  { id: "hailuo", name: "Hailuo", note: "Nhanh, rẻ", icon: Gauge, available: false },
+];
+
+export function StyleStep() {
+  const w = useWizard();
+  const est = useEstimate({
+    mode: w.videoType,
+    purpose: w.purpose,
+    seconds: w.seconds,
+    resolution: w.resolution,
+  });
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="text-xl font-bold text-ink-high">Phong cách & engine</h2>
+        <p className="mt-1 text-sm text-ink-low">Chọn thời lượng, độ phân giải và engine tạo video.</p>
+      </div>
+
+      <Field label="Mục đích">
+        <ChipGroup
+          value={w.purpose}
+          onChange={(v) => w.patch({ purpose: v })}
+          options={[
+            { value: "final", label: "Bản hoàn chỉnh" },
+            { value: "draft", label: "Bản nháp (rẻ hơn)" },
+          ]}
+        />
+      </Field>
+
+      <Field label="Thời lượng">
+        <ChipGroup
+          value={w.seconds}
+          onChange={(v) => w.patch({ seconds: v })}
+          options={[5, 8, 10, 15].map((s) => ({ value: s, label: `${s}s` }))}
+        />
+      </Field>
+
+      <Field label="Độ phân giải">
+        <ChipGroup
+          value={w.resolution}
+          onChange={(v) => w.patch({ resolution: v })}
+          options={[
+            { value: "480p", label: "480p" },
+            { value: "720p", label: "720p" },
+            { value: "1080p", label: "1080p" },
+          ]}
+        />
+      </Field>
+
+      <Field label="Engine tạo video" hint="Veo/Kling/Hailuo sẽ mở ở bản M2.">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {ENGINES.map((e) => {
+            const active = w.videoEngine === e.id;
+            return (
+              <button
+                key={e.id}
+                type="button"
+                disabled={!e.available}
+                onClick={() => e.available && w.patch({ videoEngine: e.id })}
+                className={cn(
+                  "relative flex flex-col items-start gap-1.5 rounded-xl border p-3 text-left transition-colors",
+                  active
+                    ? "border-violet-500/60 bg-violet-500/10 shadow-glow-sm"
+                    : "border-white/10",
+                  e.available ? "hover:border-white/20" : "opacity-50",
+                )}
+              >
+                <e.icon className={cn("h-5 w-5", active ? "text-violet-300" : "text-ink-low")} />
+                <span className="text-sm font-medium text-ink-high">{e.name}</span>
+                <span className="text-[11px] leading-tight text-ink-low">{e.note}</span>
+                {!e.available && (
+                  <Badge tone="neutral" className="absolute right-2 top-2 gap-1 px-2 py-0.5">
+                    <Lock className="h-2.5 w-2.5" /> M2
+                  </Badge>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </Field>
+
+      <Field label="Ý tưởng / brief (tuỳ chọn)">
+        <textarea
+          className={cn(inputCls, "min-h-[72px] resize-y")}
+          value={w.brief}
+          onChange={(e) => w.patch({ brief: e.target.value })}
+          placeholder="Nhấn mạnh chống ồn + pin trâu, giọng trẻ trung."
+        />
+      </Field>
+
+      {/* live estimate */}
+      <div className="glass flex items-center justify-between rounded-xl px-4 py-3">
+        <span className="text-sm text-ink-low">Ước tính cho cấu hình này</span>
+        {est.isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin text-ink-low" />
+        ) : est.data ? (
+          <span className="font-numeric font-semibold text-ink-high">
+            ~<CreditValue value={est.data.est_credits} />
+          </span>
+        ) : (
+          <span className="text-sm text-ink-low">…</span>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -37,10 +37,10 @@ function Wave() {
 
 export function VoiceRail() {
   return (
-    <div className="flex flex-wrap justify-center gap-3 lg:flex-nowrap lg:justify-start lg:overflow-x-auto lg:pb-2">
+    <div className="flex flex-wrap justify-center gap-3">
       {VOICES.map((v, i) => (
-        <Reveal key={v.name} delay={0.06 * i} className={cn("shrink-0", i % 2 === 1 && "lg:translate-y-4")}>
-          <div className="group glass w-[220px] rounded-2xl p-4">
+        <Reveal key={v.name} delay={0.06 * i} className={cn(i % 2 === 1 && "sm:translate-y-3")}>
+          <div className="group glass w-[200px] rounded-2xl p-4 sm:w-[220px]">
             <div className="flex items-center gap-3">
               <span
                 className={cn(

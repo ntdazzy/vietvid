@@ -30,7 +30,7 @@ export function SampleMarquee({
         )}
       >
         {doubled.map((t, i) => (
-          <div key={`${t.file}-${i}`} className="relative mr-4 h-[380px] shrink-0">
+          <div key={`${t.file}-${i}`} className="relative mr-4 h-[300px] shrink-0 sm:h-[380px]">
             <span className="absolute left-2.5 top-2.5 z-10 rounded-md bg-black/55 px-1.5 py-0.5 font-numeric text-[10px] font-semibold text-white/90 backdrop-blur-sm">
               {t.ratio ?? "9:16"}
             </span>

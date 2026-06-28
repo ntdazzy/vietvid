@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hmac
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -15,6 +16,7 @@ from app_api.deps import Tenant, get_tenant
 from app_api.models import Payment
 
 router = APIRouter(prefix="/v1/billing", tags=["billing"])
+log = logging.getLogger("vietvid")
 
 
 class TopupRequest(BaseModel):
@@ -153,7 +155,10 @@ async def sepay_webhook(request: Request) -> dict:
         return {"success": True, "message": "Không có mã đối soát"}  # ack, không phải của ta
     org_id = billing.resolve_bank_payment_org(memo)
     if org_id is None:
-        return {"success": True, "message": "Không có payment chờ"}  # ack (có thể đã xử lý)
+        # Có mã đối soát nhưng không khớp payment PENDING nào — có thể đã xử lý, hoặc memo lạ.
+        # Log để quan sát (tránh "rơi tiền" âm thầm); vẫn ack để SePay không gửi lại dồn dập.
+        log.warning("sepay: memo %s không khớp payment PENDING nào", memo)
+        return {"success": True, "message": "Không có payment chờ"}
 
     try:
         amount = int(float(body.get("transferAmount") or 0))
@@ -169,6 +174,10 @@ async def sepay_webhook(request: Request) -> dict:
             return {"success": True}  # idempotent
         if amount != int(p.amount_vnd):
             # Sai số tiền → KHÔNG tự cộng (admin xử lý); ack để SePay không gửi lại dồn dập.
+            log.warning(
+                "sepay: memo %s số tiền lệch — nhận %s, cần %s (payment %s)",
+                memo, amount, int(p.amount_vnd), p.id,
+            )
             return {"success": True, "message": "Số tiền không khớp"}
         billing.apply_topup(s, provider="bank_qr", ext_ref=memo)
     return {"success": True}

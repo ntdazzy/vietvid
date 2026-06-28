@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle, Layers } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useWizard, freshKey, type WizardStep } from "@/store/wizard";
+import { useQuery } from "@tanstack/react-query";
+import { useWizard, freshKey, type WizardStep, type VideoType } from "@/store/wizard";
 import { FEATURE_PRESETS } from "@/lib/features";
 import { api } from "@/lib/api/endpoints";
 import { useCreateJob } from "@/lib/query/mutations";
@@ -14,9 +15,19 @@ import { StyleStep } from "@/components/create/steps/style-step";
 import { VoiceStep } from "@/components/create/steps/voice-step";
 import { PreviewStep } from "@/components/create/steps/preview-step";
 import { RenderTimeline } from "@/components/create/render-timeline";
+import { TemplateGallery } from "@/components/create/template-gallery";
+import { PreviewRail } from "@/components/create/preview-rail";
+import { MobileCostBar } from "@/components/create/mobile-cost-bar";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api/client";
-import type { JobCreateRequest } from "@/lib/api/types";
+import type { JobCreateRequest, Template } from "@/lib/api/types";
+
+// có tín hiệu preset trên URL → vào thẳng configurator, bỏ qua launchpad.
+function hasPresetSignal() {
+  if (typeof window === "undefined") return false;
+  const q = new URLSearchParams(window.location.search);
+  return Boolean(q.get("feature") || q.get("template") || q.get("kol") || q.get("brand"));
+}
 
 export default function CreatePage() {
   const w = useWizard();
@@ -27,6 +38,26 @@ export default function CreatePage() {
   const [seriesCount, setSeriesCount] = useState(1);
   const [seriesTarget, setSeriesTarget] = useState("");
   const [seriesBusy, setSeriesBusy] = useState(false);
+  // Moment 0 (launchpad) vs Moment 1 (configurator). Bỏ qua launchpad nếu có preset URL
+  // hoặc phiên dở đang có ảnh/mẫu (sessionStorage rehydrate) — không nháy về gallery.
+  const [launched, setLaunched] = useState(
+    () => hasPresetSignal() || Boolean(w.product.image_path || w.templateId),
+  );
+
+  const templates = useQuery({ queryKey: ["templates"], queryFn: api.templates, staleTime: 300_000 });
+  const templateName = templates.data?.find((t) => t.id === w.templateId)?.name ?? "";
+
+  // áp một mẫu vào wizard (dùng chung cho click gallery + deep-link ?template=).
+  function applyTemplate(t: Template) {
+    const p = (t.preset ?? {}) as { videoType?: string; brief?: string; frameMode?: string };
+    w.patch({
+      templateId: t.id,
+      videoType: (p.videoType as VideoType) ?? w.videoType,
+      brief: typeof p.brief === "string" ? p.brief : w.brief,
+      frameMode: (p.frameMode as "upload" | "ai") ?? "upload",
+      step: 1,
+    });
+  }
 
   // đảm bảo có idempotency_key cho lần tạo này
   useEffect(() => {
@@ -53,16 +84,7 @@ export default function CreatePage() {
     (async () => {
       if (templateId) {
         const t = (await api.templates().catch(() => [])).find((x) => x.id === templateId);
-        if (t) {
-          const p = (t.preset ?? {}) as { videoType?: string; brief?: string; frameMode?: string };
-          w.patch({
-            templateId: t.id,
-            videoType: (p.videoType as "product_ad" | "kol_full") ?? w.videoType,
-            brief: typeof p.brief === "string" ? p.brief : w.brief,
-            frameMode: (p.frameMode as "upload" | "ai") ?? "upload",
-            step: 1,
-          });
-        }
+        if (t) applyTemplate(t);
       }
       if (kolId) {
         const k = (await api.kolPersonas().catch(() => [])).find((x) => x.id === kolId);
@@ -98,6 +120,7 @@ export default function CreatePage() {
     w.reset();
     setError(null);
     setInsufficient(false);
+    setLaunched(false);
   }
 
   function handleCreate() {
@@ -178,110 +201,161 @@ export default function CreatePage() {
     }
   }
 
-  return (
-    <div className="flex flex-col gap-8">
-      <Stepper step={w.step} />
-
-      <div className="min-h-[320px]">
-        {w.step === 1 && <SourceStep />}
-        {w.step === 2 && <StyleStep />}
-        {w.step === 3 && <VoiceStep />}
-        {w.step === 4 && <PreviewStep />}
-        {w.step === 5 && w.jobId && <RenderTimeline jobId={w.jobId} onReset={handleReset} />}
-      </div>
-
-      {insufficient && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-hold/30 bg-hold/[0.1] px-4 py-3 text-sm text-hold">
-          <span className="flex items-center gap-2">
-            <AlertCircle className="h-4 w-4" /> Không đủ credit cho video này.
+  // ── MOMENT 0 — Launchpad: cửa trước chọn mẫu ──────────────────────────
+  if (w.step === 1 && !launched) {
+    return (
+      <div className="mx-auto flex max-w-5xl flex-col gap-7">
+        <div className="flex items-center gap-3">
+          <span className="grid h-11 w-11 place-items-center rounded-xl bg-grad-brand-soft">
+            <Sparkles className="h-5 w-5 text-violet-300" />
           </span>
-          <Link href="/app/billing" className="font-medium underline">
-            Nạp thêm
-          </Link>
-        </div>
-      )}
-      {error && (
-        <p className="flex items-center gap-2 text-sm text-danger">
-          <AlertCircle className="h-4 w-4" /> {error}
-        </p>
-      )}
-
-      {/* auto-series: số biến thể (chỉ ở bước Tạo) */}
-      {w.step === 4 && (
-        <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-          <Layers className="h-5 w-5 shrink-0 text-violet-300" />
-          <div className="flex-1">
-            <div className="text-sm font-medium text-ink-high">Số biến thể (auto-series)</div>
-            <div className="text-xs text-ink-low">
-              Tạo nhiều video từ 1 sản phẩm, mỗi bản một góc nhìn khác (A/B).
-            </div>
-          </div>
-          <div className="flex gap-1">
-            {[1, 2, 3, 5].map((n) => (
-              <button
-                key={n}
-                onClick={() => setSeriesCount(n)}
-                className={`grid h-9 w-9 place-items-center rounded-lg text-sm font-medium transition-colors ${
-                  seriesCount === n
-                    ? "bg-violet-500/20 text-ink-high"
-                    : "text-ink-low hover:bg-white/[0.05]"
-                }`}
-              >
-                {n}
-              </button>
-            ))}
+          <div>
+            <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Bắt đầu một video</h1>
+            <p className="mt-1 text-ink-low">Chọn một mẫu để bắt đầu thật nhanh, hoặc dựng từ đầu theo ý bạn.</p>
           </div>
         </div>
-      )}
-      {w.step === 4 && seriesCount > 1 && (
-        <input
-          value={seriesTarget}
-          onChange={(e) => setSeriesTarget(e.target.value)}
-          placeholder="Link sản phẩm (Shopee/TikTok Shop...) — gắn để ĐO biến thể nào bán chạy"
-          className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-ink-high placeholder:text-ink-low focus:border-violet-400/40 focus:outline-none"
+        <TemplateGallery
+          onPick={(t) => {
+            if (t) applyTemplate(t);
+            else w.patch({ templateId: "", step: 1 });
+            setLaunched(true);
+          }}
         />
-      )}
+      </div>
+    );
+  }
 
-      {/* footer nav (ẩn ở bước Tạo) */}
-      {w.step !== 5 && (
-        <div className="flex items-center justify-between border-t border-white/[0.06] pt-5">
-          <Button variant="ghost" onClick={back} disabled={w.step === 1} className="gap-1.5">
-            <ArrowLeft className="h-4 w-4" /> Quay lại
-          </Button>
+  // ── Render surface (sau khi tạo) — full width ─────────────────────────
+  if (w.step === 5 && w.jobId) {
+    return <RenderTimeline jobId={w.jobId} onReset={handleReset} />;
+  }
 
-          {w.step < 4 ? (
-            <Button onClick={next} disabled={!canNext} className="gap-1.5">
-              Tiếp tục <ArrowRight className="h-4 w-4" />
+  // ── MOMENT 1 — Configurator: hai cột (controls + preview rail) ─────────
+  return (
+    <>
+      <div className="grid grid-cols-1 gap-8 pb-32 lg:grid-cols-12 lg:gap-8 lg:pb-0">
+        {/* LEFT — điều khiển */}
+        <div className="flex flex-col gap-8 lg:col-span-7">
+          <Stepper
+            step={w.step}
+            templateName={templateName}
+            onChangeTemplate={() => {
+              w.setStep(1);
+              setLaunched(false);
+            }}
+          />
+
+          <div className="min-h-[320px]">
+            {w.step === 1 && <SourceStep />}
+            {w.step === 2 && <StyleStep />}
+            {w.step === 3 && <VoiceStep />}
+            {w.step === 4 && <PreviewStep />}
+          </div>
+
+          {insufficient && (
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-hold/30 bg-hold/[0.1] px-4 py-3 text-sm text-hold">
+              <span className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" /> Không đủ credit cho video này.
+              </span>
+              <Link href="/app/billing" className="font-medium underline">
+                Nạp thêm
+              </Link>
+            </div>
+          )}
+          {error && (
+            <p className="flex items-center gap-2 text-sm text-danger">
+              <AlertCircle className="h-4 w-4" /> {error}
+            </p>
+          )}
+
+          {/* auto-series: số biến thể (chỉ ở bước Tạo) */}
+          {w.step === 4 && (
+            <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <Layers className="h-5 w-5 shrink-0 text-violet-300" />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-ink-high">Số biến thể (auto-series)</div>
+                <div className="text-xs text-ink-low">
+                  Tạo nhiều video từ 1 sản phẩm, mỗi bản một góc nhìn khác (A/B).
+                </div>
+              </div>
+              <div className="flex gap-1">
+                {[1, 2, 3, 5].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setSeriesCount(n)}
+                    aria-pressed={seriesCount === n}
+                    aria-label={`Tạo ${n} biến thể`}
+                    className={`grid h-9 w-9 place-items-center rounded-lg text-sm font-medium transition-colors ${
+                      seriesCount === n
+                        ? "bg-violet-500/20 text-ink-high"
+                        : "text-ink-low hover:bg-white/[0.05]"
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {w.step === 4 && seriesCount > 1 && (
+            <input
+              value={seriesTarget}
+              onChange={(e) => setSeriesTarget(e.target.value)}
+              placeholder="Link sản phẩm (Shopee/TikTok Shop...) — gắn để ĐO biến thể nào bán chạy"
+              className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-ink-high placeholder:text-ink-low focus:border-violet-400/40 focus:outline-none"
+            />
+          )}
+
+          {/* footer nav */}
+          <div className="flex items-center justify-between border-t border-white/[0.06] pt-5">
+            <Button variant="ghost" onClick={back} disabled={w.step === 1} className="gap-1.5">
+              <ArrowLeft className="h-4 w-4" /> Quay lại
             </Button>
-          ) : (
-            <Button
-              onClick={() => (seriesCount > 1 ? handleSeries() : handleCreate())}
-              disabled={create.isPending || seriesBusy || needsConsent}
-              className="gap-2"
-            >
-              {create.isPending || seriesBusy ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4" />
-              )}
-              {create.isPending || seriesBusy
-                ? "Đang tạo…"
-                : seriesCount > 1
-                  ? `Tạo ${seriesCount} video`
-                  : "Tạo video"}
-            </Button>
+
+            {w.step < 4 ? (
+              <Button onClick={next} disabled={!canNext} className="gap-1.5">
+                Tiếp tục <ArrowRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                onClick={() => (seriesCount > 1 ? handleSeries() : handleCreate())}
+                disabled={create.isPending || seriesBusy || needsConsent}
+                className="gap-2"
+              >
+                {create.isPending || seriesBusy ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+                {create.isPending || seriesBusy
+                  ? "Đang tạo…"
+                  : seriesCount > 1
+                    ? `Tạo ${seriesCount} video`
+                    : "Tạo video"}
+              </Button>
+            )}
+          </div>
+
+          {w.step === 1 && !w.product.image_path && (
+            <p className="text-center text-xs text-ink-low">Tải ảnh sản phẩm để tiếp tục.</p>
+          )}
+          {w.step === 3 && needsConsent && (
+            <p className="text-center text-xs text-hold">
+              Tích ô đồng ý ở phần "Nhân vật KOL" để tiếp tục.
+            </p>
           )}
         </div>
-      )}
 
-      {w.step === 1 && !w.product.image_path && (
-        <p className="text-center text-xs text-ink-low">Tải ảnh sản phẩm để tiếp tục.</p>
-      )}
-      {w.step === 3 && needsConsent && (
-        <p className="text-center text-xs text-hold">
-          Tích ô đồng ý ở phần "Nhân vật KOL" để tiếp tục.
-        </p>
-      )}
-    </div>
+        {/* RIGHT — preview rail dính (desktop) */}
+        <div className="hidden lg:col-span-5 lg:block">
+          <div className="lg:sticky lg:top-28">
+            <PreviewRail />
+          </div>
+        </div>
+      </div>
+
+      {/* mobile: thanh chi phí dính đáy */}
+      <MobileCostBar />
+    </>
   );
 }

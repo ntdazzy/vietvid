@@ -1,14 +1,33 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, LayoutTemplate, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { WizardStep } from "@/store/wizard";
 
 const STEPS = ["Nguồn", "Phong cách", "Giọng", "Xem trước", "Tạo"];
 
-export function Stepper({ step }: { step: WizardStep }) {
+export function Stepper({
+  step,
+  templateName,
+  onChangeTemplate,
+}: {
+  step: WizardStep;
+  templateName?: string;
+  onChangeTemplate?: () => void;
+}) {
   return (
     <div>
+      {templateName && (
+        <button
+          type="button"
+          onClick={onChangeTemplate}
+          className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-violet-400/25 bg-violet-500/[0.08] px-3 py-1 text-xs text-violet-200 transition-colors hover:border-violet-400/50"
+        >
+          <LayoutTemplate className="h-3.5 w-3.5" /> Mẫu: <span className="font-medium text-ink-high">{templateName}</span>
+          <span className="mx-0.5 text-violet-400/50">·</span>
+          <RefreshCw className="h-3 w-3" /> Đổi
+        </button>
+      )}
       <ol className="flex items-center gap-2">
       {STEPS.map((label, i) => {
         const n = (i + 1) as WizardStep;

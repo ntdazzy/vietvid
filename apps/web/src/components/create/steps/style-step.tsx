@@ -1,10 +1,8 @@
 "use client";
 
-import { Zap, Clapperboard, Gauge, Lock, Loader2 } from "lucide-react";
+import { Zap, Clapperboard, Gauge, Lock } from "lucide-react";
 import { useWizard } from "@/store/wizard";
-import { useEstimate } from "@/lib/query/hooks";
 import { Field, ChipGroup, inputCls } from "@/components/ui/field";
-import { CreditValue } from "@/components/ui/credit-value";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
 import { ScriptStudio } from "./script-studio";
@@ -25,12 +23,6 @@ const ASPECTS = [
 
 export function StyleStep() {
   const w = useWizard();
-  const est = useEstimate({
-    mode: w.videoType,
-    purpose: w.purpose,
-    seconds: w.seconds,
-    resolution: w.resolution,
-  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -96,6 +88,10 @@ export function StyleStep() {
         </div>
       </Field>
 
+      <div className="border-t border-white/[0.06] pt-6 font-display text-base font-semibold text-ink-high">
+        Engine &amp; kịch bản
+      </div>
+
       <Field label="Engine tạo video" hint="Veo/Kling/Hailuo sẽ mở ở bản M2.">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {ENGINES.map((e) => {
@@ -137,20 +133,6 @@ export function StyleStep() {
           placeholder="Nhấn mạnh chống ồn + pin trâu, giọng trẻ trung."
         />
       </Field>
-
-      {/* live estimate */}
-      <div className="glass flex items-center justify-between rounded-xl px-4 py-3">
-        <span className="text-sm text-ink-low">Ước tính cho cấu hình này</span>
-        {est.isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin text-ink-low" />
-        ) : est.data ? (
-          <span className="font-numeric font-semibold text-ink-high">
-            ~<CreditValue value={est.data.est_credits} />
-          </span>
-        ) : (
-          <span className="text-sm text-ink-low">…</span>
-        )}
-      </div>
     </div>
   );
 }

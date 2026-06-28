@@ -7,6 +7,8 @@ import { useUploadImage } from "@/lib/query/mutations";
 import { api } from "@/lib/api/endpoints";
 import { Field, ChipGroup, inputCls } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
+import { AdvancedDisclosure } from "@/components/create/advanced-disclosure";
+import { BrandKitPicker } from "@/components/create/brand-kit-picker";
 import { cn } from "@/lib/utils/cn";
 
 export function SourceStep() {
@@ -148,6 +150,7 @@ export function SourceStep() {
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
+            aria-label="Tải hoặc đổi ảnh sản phẩm"
             className={cn(
               "relative grid aspect-video w-full place-items-center overflow-hidden rounded-xl border border-dashed transition-colors",
               w.imagePreviewUrl ? "border-violet-500/40" : "border-white/15 hover:border-violet-500/40 hover:bg-white/[0.02]",
@@ -197,6 +200,12 @@ export function SourceStep() {
           <textarea className={cn(inputCls, "min-h-[80px] resize-y")} value={w.product.description} onChange={(e) => w.patchProduct({ description: e.target.value })} placeholder="Chống ồn chủ động, pin 30h, mic đàm thoại rõ." />
         </Field>
       </div>
+
+      <AdvancedDisclosure label="Tuỳ chọn nâng cao">
+        <Field label="Bộ nhận diện thương hiệu (tuỳ chọn)" hint="Gắn logo, màu, watermark & dòng công bố vào video.">
+          <BrandKitPicker />
+        </Field>
+      </AdvancedDisclosure>
     </div>
   );
 }

@@ -394,6 +394,13 @@ export interface CreditPack {
   credits: number;
 }
 
+export interface BankInfo {
+  name: string;
+  bin: string;
+  account_number: string;
+  account_name: string;
+}
+
 export interface TopupResponse {
   payment_id: string;
   provider: string;
@@ -402,4 +409,22 @@ export interface TopupResponse {
   amount_vnd: number;
   balance_credits?: number;
   pay_url?: string;
+  // bank_qr
+  qr_image_url?: string;
+  memo?: string;
+  bank?: BankInfo;
+}
+
+export interface PaymentStatusResponse {
+  id: string;
+  status: string;
+  provider: string;
+  credits: number;
+  amount_vnd: number;
+}
+
+export interface TopupRequestBody {
+  pack_id?: string;
+  amount_vnd?: number;
+  provider?: string;
 }

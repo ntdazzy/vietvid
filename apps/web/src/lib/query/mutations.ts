@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/endpoints";
-import type { JobCreateRequest } from "@/lib/api/types";
+import type { JobCreateRequest, TopupRequestBody } from "@/lib/api/types";
 
 export function useUploadImage() {
   return useMutation({ mutationFn: (file: File) => api.uploadImage(file) });
@@ -22,14 +22,15 @@ export function useCreateJob() {
 export function useTopup() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ packId, provider = "dev" }: { packId: string; provider?: string }) =>
-      api.topup(packId, provider),
+    mutationFn: (body: TopupRequestBody) => api.topup({ provider: "dev", ...body }),
     onSuccess: (res) => {
-      // dev: cộng ngay → refresh ví + sổ cái; vnpay: redirect sang cổng.
-      if (res.provider === "vnpay" && res.pay_url) {
+      // vnpay/momo: redirect sang cổng. bank_qr: trang tự mở panel QR (poll riêng).
+      if ((res.provider === "vnpay" || res.provider === "momo") && res.pay_url) {
         window.location.href = res.pay_url;
         return;
       }
+      if (res.provider === "bank_qr") return; // page mở QrPayPanel + poll trạng thái
+      // dev: cộng ngay → refresh ví + sổ cái.
       qc.invalidateQueries({ queryKey: ["wallet"] });
       qc.invalidateQueries({ queryKey: ["ledger"] });
     },

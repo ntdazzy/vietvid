@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { ArrowRight, Mic, Clock, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScriptPlayground } from "@/components/marketing/script-playground";
@@ -16,13 +16,23 @@ const fadeUp = {
 };
 
 export function LandingHero() {
+  const reduce = useReducedMotion();
+  const { scrollY } = useScroll();
+  const glowYRaw = useTransform(scrollY, [0, 500], [0, -80]);
+  const glowY = reduce ? 0 : glowYRaw;
+
   return (
     <section className="relative isolate overflow-hidden pt-28 pb-20">
-      {/* glow tím 1-điểm (nguồn sáng tím duy nhất của hero) */}
-      <div
-        className="pointer-events-none absolute right-[6%] top-[2%] h-[440px] w-[560px] opacity-60"
-        style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(124,58,237,0.20), transparent 70%)" }}
-      />
+      {/* glow tím 1-điểm (nguồn sáng tím duy nhất của hero) — parallax nhẹ khi cuộn */}
+      <motion.div
+        style={{ y: glowY }}
+        className="pointer-events-none absolute right-[6%] top-[2%] h-[440px] w-[560px] opacity-60 will-change-transform"
+      >
+        <div
+          className="h-full w-full"
+          style={{ background: "radial-gradient(50% 50% at 50% 50%, rgba(124,58,237,0.20), transparent 70%)" }}
+        />
+      </motion.div>
 
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
         {/* cột trái — copy canh trái */}

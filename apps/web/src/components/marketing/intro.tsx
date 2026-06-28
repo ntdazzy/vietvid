@@ -21,8 +21,18 @@ export function Intro() {
       /* private mode → vẫn cho chạy 1 lần */
     }
     setShow(true);
-    const t = setTimeout(() => setShow(false), 2600);
-    return () => clearTimeout(t);
+    const t = setTimeout(() => setShow(false), 1800);
+    const skip = (e: Event) => {
+      if (e.type === "keydown" && (e as KeyboardEvent).key !== "Escape") return;
+      setShow(false);
+    };
+    window.addEventListener("keydown", skip);
+    window.addEventListener("wheel", skip, { passive: true });
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("keydown", skip);
+      window.removeEventListener("wheel", skip);
+    };
   }, [reduce]);
 
   return (
@@ -31,7 +41,7 @@ export function Intro() {
         <motion.div
           key="vyra-intro"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          exit={{ opacity: 0, scale: 1.04 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           onClick={() => setShow(false)}
           className="fixed inset-0 z-[100] grid cursor-pointer place-items-center bg-[#06070d]"
@@ -46,11 +56,21 @@ export function Intro() {
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.15, duration: 0.5 }}
+              transition={{ delay: 1.0, duration: 0.5 }}
               className="mt-5 text-center"
             >
-              <div className="font-display text-3xl font-extrabold tracking-tight text-ink-high">Vyra</div>
-              <div className="mt-1 text-sm tracking-wide text-ink-low">Video viral ra đơn · giọng Việt thật</div>
+              {/* wordmark + vệt sáng quét qua */}
+              <div className="relative inline-block overflow-hidden">
+                <span className="font-display text-3xl font-extrabold tracking-tight text-ink-high">Vyra</span>
+                <motion.span
+                  aria-hidden
+                  initial={{ x: "-120%" }}
+                  animate={{ x: "120%" }}
+                  transition={{ delay: 0.9, duration: 0.7, ease: "easeInOut" }}
+                  className="absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-white/20 mix-blend-overlay"
+                />
+              </div>
+              <div className="mt-1 text-sm tracking-wide text-ink-low">Viral có chủ đích · giọng Việt thật</div>
             </motion.div>
           </div>
 

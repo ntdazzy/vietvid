@@ -5,13 +5,18 @@ import { SiteHeader } from "@/components/marketing/site-header";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { SectionHeading } from "@/components/marketing/section-heading";
 import { SampleMarquee } from "@/components/marketing/sample-marquee";
+import { CapabilityGrid } from "@/components/marketing/capability-grid";
+import { CinematicAct } from "@/components/marketing/cinematic-act";
 import { BeforeAfter } from "@/components/marketing/before-after";
+import { MiniReel } from "@/components/marketing/mini-reel";
 import { VariantLeaderboard } from "@/components/marketing/winner-loop";
+import { LoopStrip } from "@/components/marketing/loop-strip";
 import { VoiceRail } from "@/components/marketing/voice-rail";
 import { ScriptEngineMock } from "@/components/marketing/script-engine-mock";
 import { RatioBento } from "@/components/marketing/ratio-bento";
-import { IntegrationBand } from "@/components/marketing/integration-band";
-import { Reveal } from "@/components/marketing/reveal";
+import { LogoTickerBand } from "@/components/marketing/logo-ticker-band";
+import { HowItWorks } from "@/components/marketing/how-it-works";
+import { CompareTable } from "@/components/marketing/compare-table";
 import { Intro } from "@/components/marketing/intro";
 
 const SAMPLES = [
@@ -31,100 +36,125 @@ export default function LandingPage() {
       {/* S0 — HERO */}
       <LandingHero />
 
-      {/* S1 — MARQUEE mẫu output thật */}
-      <section className="py-20 lg:py-28">
+      {/* S1 — MARQUEE 2 chiều: mẫu output thật */}
+      <section className="py-16 lg:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <h2 className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-ink-low">
-            Mẫu thật từ engine · 9:16
+            Mẫu output thật · chưa qua chỉnh sửa · 9:16
           </h2>
         </div>
-        <div className="mt-8">
-          <SampleMarquee tiles={SAMPLES} />
+        <div className="mt-7 flex flex-col gap-4">
+          <SampleMarquee tiles={SAMPLES} direction="left" />
+          <SampleMarquee tiles={[...SAMPLES].reverse()} direction="right" />
         </div>
       </section>
 
-      {/* S2 — BEFORE → AFTER */}
-      <section className="mx-auto max-w-6xl px-4 py-24 lg:py-32">
-        <div className="grid items-center gap-10 lg:grid-cols-12">
-          <Reveal className="flex justify-center lg:col-span-5 lg:justify-start">
+      {/* S2 — LƯỚI 6 NĂNG LỰC 01–06 (đấu autovis, demo sống) */}
+      <section id="nang-luc" className="mx-auto max-w-6xl px-4 py-24 lg:py-28">
+        <SectionHeading
+          align="center"
+          eyebrow="Bên trong studio"
+          title={<>Sáu năng lực. <span className="text-gradient italic">Không cái nào đứng yên</span> để bạn xem.</>}
+          sub="Mỗi ô tự chạy ngay tại đây — bấm, kéo, đổi. Không phải ảnh chụp màn hình."
+        />
+        <div className="mt-12">
+          <CapabilityGrid />
+        </div>
+      </section>
+
+      {/* S3 — ACT · Photo → Video (01) */}
+      <CinematicAct
+        index={1}
+        side="right"
+        badge={{ tone: "core", label: "Năng lực lõi" }}
+        eyebrow="01 · Ảnh → Video"
+        title={<>Ảnh sản phẩm nằm im. <span className="text-gradient">Vyra cho nó nói tiếng Việt.</span></>}
+        bullets={[
+          "Chọn 1 trong 7 giọng Việt thật",
+          "Phụ đề khớp khung — timing lấy từ kịch bản, không đoán bằng ASR",
+          "Xuất đủ 3 tỉ lệ: dọc 9:16 · vuông 1:1 · ngang 16:9",
+        ]}
+        cta={{ label: "Thử với ảnh của bạn", href: "/login" }}
+        demo={
+          <div className="grid grid-cols-2 gap-4">
             <BeforeAfter />
-          </Reveal>
-          <div className="lg:col-span-7">
-            <SectionHeading
-              title={<>Ảnh sản phẩm nằm im. <span className="text-gradient">Vyra cho nó nói tiếng Việt.</span></>}
-            />
-            <ul className="mt-6 flex flex-col gap-3">
-              {[
-                "Chọn 1 trong 7 giọng Việt thật",
-                "Phụ đề khớp từng khung — timing lấy từ kịch bản, không đoán bằng ASR",
-                "Xuất đủ 3 tỉ lệ: dọc 9:16 · vuông 1:1 · ngang 16:9",
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-3 text-ink-medium">
-                  <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-violet-500/15 text-xs font-bold text-violet-300">✓</span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-            <Link href="/login" className="mt-6 inline-block">
-              <Button variant="glass">Thử với ảnh của bạn</Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* S3 — THE WINNER LOOP (MOAT) */}
-      <section id="winner-loop" className="relative py-24 lg:py-32">
-        <div className="glow-radial pointer-events-none absolute inset-x-0 -top-10 mx-auto h-56 max-w-3xl" />
-        <div className="relative mx-auto max-w-6xl px-4">
-          <SectionHeading
-            align="center"
-            eyebrow="Chỉ Vyra có"
-            title={<>Đối thủ tạo video. <span className="text-gradient">Vyra tìm ra video ra đơn.</span></>}
-            sub="Tạo nhiều biến thể từ một sản phẩm → mỗi bản một short-link riêng → đo click thật → xếp hạng → nhân bản bản thắng."
-          />
-          <Reveal className="mt-10">
-            <VariantLeaderboard />
-          </Reveal>
-        </div>
-      </section>
-
-      {/* S4 — 7 GIỌNG VIỆT */}
-      <section className="py-24 lg:py-32">
-        <div className="mx-auto max-w-6xl px-4">
-          <SectionHeading
-            title={<><span className="text-gradient">7 giọng Việt</span> có cá tính. Mỗi giọng một tính cách.</>}
-            sub="Trẻ trung, nhẹ nhàng, trầm ấm, dí dỏm… chọn giọng hợp ngành hàng, nghe thử ngay trong app."
-          />
-          <div className="mt-10">
-            <VoiceRail />
-          </div>
-        </div>
-      </section>
-
-      {/* S5 — BỘ MÁY KỊCH BẢN */}
-      <section className="mx-auto max-w-6xl px-4 py-24 lg:py-32">
-        <div className="grid items-center gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <SectionHeading
-              title={<>Nhập sản phẩm. <span className="text-gradient">Nhận kịch bản theo timecode.</span> Sửa được từng câu.</>}
-              sub="Chọn 1 trong 6 góc thuyết phục. Engine trả về hook + từng beat theo timecode — sửa tay trước khi dựng. Phụ đề lấy timing thẳng từ kịch bản."
+            <MiniReel
+              poster="/samples/tech.png"
+              className="w-full"
+              captions={["Mở hộp em này nè…", "Chống ồn đỉnh thật sự!", "Bấm giỏ hàng nha!"]}
             />
           </div>
-          <Reveal delay={0.1} className="lg:col-span-7">
-            <ScriptEngineMock />
-          </Reveal>
-        </div>
+        }
+      />
+
+      {/* S4 — ACT-LỚN · MOAT (climax) — id winner-loop */}
+      <section id="winner-loop" className="relative">
+        <div className="glow-radial pointer-events-none absolute inset-x-0 -top-10 mx-auto h-64 max-w-3xl" />
+        <CinematicAct
+          index={2}
+          side="center"
+          badge={{ tone: "moat", label: "Độc quyền" }}
+          eyebrow="· Không đối thủ Việt nào có"
+          title={<>Đối thủ tạo video. <span className="text-gradient">Vyra tìm ra video ra đơn.</span></>}
+          sub="Tạo nhiều biến thể từ một sản phẩm → mỗi bản một short-link riêng → đo click thật → xếp hạng → nhân bản bản thắng."
+          demo={
+            <div>
+              <VariantLeaderboard />
+              <LoopStrip />
+            </div>
+          }
+        />
       </section>
 
-      {/* S6 — ĐA TỈ LỆ */}
-      <section className="mx-auto max-w-6xl px-4 py-24 lg:py-32">
-        <SectionHeading title={<>Một lần dựng. <span className="text-gradient">Dọc, vuông, ngang.</span></>} />
-        <div className="mt-10">
-          <RatioBento />
-        </div>
+      {/* S5 — ACT · Kịch bản 6 góc (04) */}
+      <CinematicAct
+        index={4}
+        side="left"
+        badge={{ tone: "new", label: "Kịch bản AI" }}
+        eyebrow="04 · Bộ máy kịch bản"
+        title={<>Nhập sản phẩm. <span className="text-gradient">Nhận kịch bản theo timecode.</span> Sửa từng câu.</>}
+        sub="Chọn 1 trong 6 góc thuyết phục. Engine trả về hook + từng beat theo timecode — sửa tay trước khi dựng. Phụ đề lấy timing thẳng từ kịch bản."
+        demo={<ScriptEngineMock />}
+      />
+
+      {/* S6 — ACT · 7 giọng Việt (03) */}
+      <CinematicAct
+        index={3}
+        side="right"
+        badge={{ tone: "hot", label: "Giọng Việt" }}
+        eyebrow="03 · Giọng đọc"
+        title={<><span className="text-gradient">7 giọng Việt</span> có cá tính. Mỗi giọng một tính cách.</>}
+        sub="Mai, Linh, Trang, Bống, Khoa, Hùng, Tú — trẻ trung, nhẹ nhàng, trầm ấm, dí dỏm. Chọn giọng hợp ngành hàng, nghe thử trong app."
+        demo={<VoiceRail />}
+      />
+
+      {/* S7 — TICKER tích hợp */}
+      <div className="py-6">
+        <LogoTickerBand />
+      </div>
+
+      {/* S8 — ACT · Đa tỉ lệ (05) */}
+      <CinematicAct
+        index={5}
+        side="right"
+        badge={{ tone: "new", label: "Xuất file" }}
+        eyebrow="05 · Đa tỉ lệ"
+        title={<>Một lần dựng. <span className="text-gradient">Dọc, vuông, ngang.</span></>}
+        sub="Dọc 9:16 cho TikTok/Reels, vuông 1:1 cho feed, ngang 16:9 cho YouTube — từ cùng một lần dựng."
+        demo={<RatioBento />}
+      />
+
+      {/* S9 — Cách Vyra hoạt động */}
+      <section className="py-24 lg:py-28">
+        <HowItWorks />
       </section>
 
-      {/* S7 — MINH BẠCH CREDIT */}
+      {/* S10 — So sánh */}
+      <section className="py-20 lg:py-24">
+        <CompareTable />
+      </section>
+
+      {/* S11 — Minh bạch credit */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="glass-bordered relative overflow-hidden p-8 lg:p-12">
           <div className="relative grid items-center gap-8 lg:grid-cols-12">
@@ -159,24 +189,26 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* S8 — DÁN LINK + API */}
-      <section className="mx-auto max-w-6xl px-4 py-24 lg:py-32">
-        <IntegrationBand />
-      </section>
-
-      {/* S9 — CTA cuối */}
-      <section className="mx-auto max-w-3xl px-4 py-24 text-center">
-        <div className="mx-auto mb-8 h-px max-w-xs bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
-        <h2 className="font-display text-[clamp(2rem,5vw,3.4rem)] font-extrabold tracking-[-0.02em] text-ink-high">
-          Đừng đoán video nào ra đơn. <span className="text-gradient">Để số liệu chỉ.</span>
-        </h2>
-        <p className="mx-auto mt-4 max-w-md text-ink-medium">
-          Tặng 300 credit, không cần thẻ. 7 giọng Việt thật. Không watermark ở gói trả phí.
-        </p>
-        <div className="mt-8 flex justify-center">
-          <Link href="/login">
-            <Button size="lg">Tạo loạt video đầu tiên</Button>
-          </Link>
+      {/* S11b — CTA đóng phim */}
+      <section className="relative overflow-hidden px-4 py-28 text-center">
+        <div className="glow-radial pointer-events-none absolute inset-x-0 -top-10 mx-auto h-64 max-w-2xl" />
+        <span className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 -translate-y-1/2 select-none text-center font-display text-[clamp(5rem,22vw,18rem)] font-extrabold leading-none text-white/[0.03]">
+          VYRA
+        </span>
+        <div className="relative mx-auto max-w-3xl">
+          <div className="mx-auto mb-8 h-px max-w-xs bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
+          <h2 className="font-display text-[clamp(2rem,5vw,3.4rem)] font-extrabold tracking-[-0.02em] text-ink-high">
+            Đừng đoán video nào ra đơn. <span className="text-gradient">Để số liệu chỉ.</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-md text-ink-medium">
+            Tặng 300 credit, không cần thẻ. 7 giọng Việt thật. Không watermark ở gói trả phí.
+          </p>
+          <div className="mt-8 flex justify-center">
+            <Link href="/login">
+              <Button size="lg">Tạo loạt video đầu tiên</Button>
+            </Link>
+          </div>
+          <p className="mt-3 text-xs text-ink-low">Mất ~60 giây để có video đầu tiên.</p>
         </div>
       </section>
 

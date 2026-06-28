@@ -48,7 +48,7 @@ export function LandingHero() {
             custom={2} variants={fadeUp} initial="hidden" animate="show"
             className="mt-6 max-w-md text-lg leading-relaxed text-ink-medium"
           >
-            Từ 1 ảnh sản phẩm, VietVid viết hook + kịch bản theo timecode, lồng 1 trong 7 giọng
+            Từ 1 ảnh sản phẩm, Vyra viết hook + kịch bản theo timecode, lồng 1 trong 7 giọng
             Việt thật, rồi dựng video 60 giây. Thử ngay bên cạnh — chưa cần tài khoản.
           </motion.p>
 

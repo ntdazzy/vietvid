@@ -62,7 +62,7 @@ export function VoiceStep() {
       <div>
         <h2 className="text-xl font-bold text-ink-high">{isKol ? "Giọng & nhân vật KOL" : "Giọng đọc"}</h2>
         <p className="mt-1 text-sm text-ink-low">
-          Giọng Việt thật là điểm mạnh của VietVid. Nghe thử trước khi tạo.
+          Giọng Việt thật là điểm mạnh của Vyra. Nghe thử trước khi tạo.
         </p>
       </div>
 

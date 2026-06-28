@@ -25,7 +25,7 @@ const numeric = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "VietVid - Tạo video bán hàng, giọng Việt thật",
+  title: "Vyra - Tạo video bán hàng, giọng Việt thật",
   description:
     "1 ảnh sản phẩm → video quảng cáo 60 giây. Giọng Việt thật, minh bạch từng credit, hoàn 100% nếu lỗi hệ thống.",
 };

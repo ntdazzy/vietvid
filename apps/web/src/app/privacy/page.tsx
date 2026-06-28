@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/marketing/site-header";
 
-export const metadata = { title: "Chính sách bảo mật — VietVid" };
+export const metadata = { title: "Chính sách bảo mật — Vyra" };
 
 export default function PrivacyPage() {
   return (

@@ -47,7 +47,7 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="mt-auto px-2 text-[11px] text-ink-disabled">VietVid · M1 · dark cinematic</div>
+      <div className="mt-auto px-2 text-[11px] text-ink-disabled">Vyra · M1 · dark cinematic</div>
     </aside>
   );
 }

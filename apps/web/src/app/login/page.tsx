@@ -106,7 +106,7 @@ export default function LoginPage() {
             {mode === "register" ? "Tạo tài khoản" : "Đăng nhập"}
           </h2>
           <p className="mt-1 text-sm text-ink-low">
-            {mode === "register" ? "Tặng 300 credit để tạo video đầu tiên." : "Chào mừng trở lại VietVid."}
+            {mode === "register" ? "Tặng 300 credit để tạo video đầu tiên." : "Chào mừng trở lại Vyra."}
           </p>
 
           <div className="mt-6 grid grid-cols-2 gap-1 rounded-lg border border-white/10 bg-white/[0.02] p-1">

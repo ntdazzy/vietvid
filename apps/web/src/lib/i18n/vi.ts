@@ -1,6 +1,6 @@
 // Copy tiếng Việt tập trung (mục §8.5 plan). Copy cụ-thể-số-Việt, KHÔNG sáo rỗng.
 export const vi = {
-  brand: "VietVid",
+  brand: "Vyra",
   tagline: "Tạo video bán hàng, giọng Việt thật.",
   nav: {
     product: "Sản phẩm",
@@ -38,7 +38,7 @@ export const vi = {
     error: "Có lỗi xảy ra",
   },
   login: {
-    title: "Đăng nhập VietVid",
+    title: "Đăng nhập Vyra",
     dev: "Đăng nhập nhanh (Dev)",
     devHint: "Chế độ dev: tạo phiên thử nghiệm + tặng credit free để trải nghiệm ngay.",
     google: "Tiếp tục với Google",

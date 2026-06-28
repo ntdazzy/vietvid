@@ -189,7 +189,7 @@ export default function SettingsPage() {
           <KeyRound className="h-4 w-4" /> API keys (cho nhà phát triển)
         </div>
         <p className="text-sm text-ink-low">
-          Gọi engine VietVid qua API / white-label. <Badge tone="neutral">Sắp có (M5)</Badge>
+          Gọi engine Vyra qua API / white-label. <Badge tone="neutral">Sắp có (M5)</Badge>
         </p>
       </GlassCard>
 

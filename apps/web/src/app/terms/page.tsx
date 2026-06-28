@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/marketing/site-header";
 
-export const metadata = { title: "Điều khoản sử dụng — VietVid" };
+export const metadata = { title: "Điều khoản sử dụng — Vyra" };
 
 export default function TermsPage() {
   return (
@@ -12,11 +12,11 @@ export default function TermsPage() {
         <p className="mt-2 text-sm text-ink-low">Cập nhật: 27/06/2026</p>
 
         <Section title="1. Chấp nhận điều khoản">
-          Khi tạo tài khoản và sử dụng VietVid, bạn đồng ý với các điều khoản này. Nếu không đồng ý,
+          Khi tạo tài khoản và sử dụng Vyra, bạn đồng ý với các điều khoản này. Nếu không đồng ý,
           vui lòng ngừng sử dụng dịch vụ.
         </Section>
         <Section title="2. Dịch vụ">
-          VietVid cung cấp công cụ tạo video marketing bằng AI với giọng đọc tiếng Việt. Dịch vụ vận
+          Vyra cung cấp công cụ tạo video marketing bằng AI với giọng đọc tiếng Việt. Dịch vụ vận
           hành theo mô hình credit: bạn nạp credit và tiêu khi tạo video. Chúng tôi hoàn 100% credit
           nếu lỗi phát sinh từ hệ thống.
         </Section>
@@ -31,7 +31,7 @@ export default function TermsPage() {
           hoàn, trừ lỗi hệ thống. Mọi giao dịch được ghi vào sổ cái minh bạch trong tài khoản.
         </Section>
         <Section title="5. Giới hạn trách nhiệm">
-          Dịch vụ cung cấp "nguyên trạng". VietVid không chịu trách nhiệm cho thiệt hại gián tiếp phát
+          Dịch vụ cung cấp "nguyên trạng". Vyra không chịu trách nhiệm cho thiệt hại gián tiếp phát
           sinh từ việc sử dụng video được tạo ra.
         </Section>
         <Section title="6. Liên hệ">

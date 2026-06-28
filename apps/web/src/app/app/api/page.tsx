@@ -70,7 +70,7 @@ export default function ApiPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-bold text-ink-high sm:text-2xl lg:text-[34px]">API & Webhook</h1>
-        <p className="mt-1 text-ink-low">Tạo video bằng code. Tích hợp VietVid vào hệ thống của bạn.</p>
+        <p className="mt-1 text-ink-low">Tạo video bằng code. Tích hợp Vyra vào hệ thống của bạn.</p>
       </div>
 
       {/* API keys */}
@@ -136,7 +136,7 @@ export default function ApiPage() {
           <Webhook className="h-4 w-4 text-violet-300" /> Webhook
         </div>
         <p className="mb-3 text-sm text-ink-low">
-          Nhận thông báo khi video xong (READY/FAILED), payload ký HMAC qua header <code className="text-ink-medium">X-VietVid-Signature</code>.
+          Nhận thông báo khi video xong (READY/FAILED), payload ký HMAC qua header <code className="text-ink-medium">X-Vyra-Signature</code>.
         </p>
 
         {newSecret && (

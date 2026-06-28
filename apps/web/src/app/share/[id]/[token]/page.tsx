@@ -46,7 +46,7 @@ export default function SharePage({
         </div>
 
         <p className="text-center text-sm text-ink-low">
-          Video được tạo bằng <span className="text-gradient font-semibold">VietVid</span> — AI tạo video bán hàng giọng Việt thật.
+          Video được tạo bằng <span className="text-gradient font-semibold">Vyra</span> — AI tạo video bán hàng giọng Việt thật.
         </p>
       </main>
     </div>

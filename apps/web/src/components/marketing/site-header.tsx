@@ -263,7 +263,7 @@ function MegaPanel({ groups, cols }: { groups: FeatureGroup[]; cols: number }) {
           cols === 3 ? "w-[860px]" : "w-[620px]",
         )}
       >
-        {/* dải accent tím mảnh trên đỉnh — chữ ký riêng của panel VietVid */}
+        {/* dải accent tím mảnh trên đỉnh — chữ ký riêng của panel Vyra */}
         <div className="h-px w-full bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
 
         <div

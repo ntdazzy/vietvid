@@ -129,6 +129,30 @@
     from { transform: scale(1); }
     to { transform: scale(1.07); }
   }
+
+  /* ── Intro Vyra: vẽ-dần logo (stroke draw-on) ───────────────────────── */
+  .vyra-orbit {
+    stroke-dasharray: 92;
+    stroke-dashoffset: 92;
+    animation: vyra-draw 1s ease-out forwards;
+  }
+  .vyra-stroke {
+    stroke-dasharray: 46;
+    stroke-dashoffset: 46;
+    animation: vyra-draw 0.85s 0.25s ease-out forwards;
+  }
+  .vyra-node {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: vyra-pop 0.5s 1s ease-out forwards;
+  }
+  @keyframes vyra-draw { to { stroke-dashoffset: 0; } }
+  @keyframes vyra-pop {
+    0% { opacity: 0; transform: scale(0); }
+    70% { opacity: 1; transform: scale(1.35); }
+    100% { opacity: 1; transform: scale(1); }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

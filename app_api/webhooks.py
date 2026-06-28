@@ -62,8 +62,8 @@ def notify_terminal(org_id: str, job_id, status: str) -> int:
     for url, secret in targets:
         headers = {
             "content-type": "application/json",
-            "X-VietVid-Signature": f"sha256={sign(secret, body)}",
-            "X-VietVid-Event": payload["event"],
+            "X-Vyra-Signature": f"sha256={sign(secret, body)}",
+            "X-Vyra-Event": payload["event"],
         }
         try:
             httpx.post(url, content=body, headers=headers, timeout=4.0)

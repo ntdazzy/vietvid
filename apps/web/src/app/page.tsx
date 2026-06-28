@@ -12,6 +12,7 @@ import { ScriptEngineMock } from "@/components/marketing/script-engine-mock";
 import { RatioBento } from "@/components/marketing/ratio-bento";
 import { IntegrationBand } from "@/components/marketing/integration-band";
 import { Reveal } from "@/components/marketing/reveal";
+import { Intro } from "@/components/marketing/intro";
 
 const SAMPLES = [
   { file: "fashion", label: "Thời trang" },
@@ -24,6 +25,7 @@ const SAMPLES = [
 export default function LandingPage() {
   return (
     <div className="relative min-h-dvh mesh-bg">
+      <Intro />
       <SiteHeader />
 
       {/* S0 — HERO */}
@@ -49,7 +51,7 @@ export default function LandingPage() {
           </Reveal>
           <div className="lg:col-span-7">
             <SectionHeading
-              title={<>Ảnh sản phẩm nằm im. <span className="text-gradient">VietVid cho nó nói tiếng Việt.</span></>}
+              title={<>Ảnh sản phẩm nằm im. <span className="text-gradient">Vyra cho nó nói tiếng Việt.</span></>}
             />
             <ul className="mt-6 flex flex-col gap-3">
               {[
@@ -76,8 +78,8 @@ export default function LandingPage() {
         <div className="relative mx-auto max-w-6xl px-4">
           <SectionHeading
             align="center"
-            eyebrow="Chỉ VietVid có"
-            title={<>Đối thủ tạo video. <span className="text-gradient">VietVid tìm ra video ra đơn.</span></>}
+            eyebrow="Chỉ Vyra có"
+            title={<>Đối thủ tạo video. <span className="text-gradient">Vyra tìm ra video ra đơn.</span></>}
             sub="Tạo nhiều biến thể từ một sản phẩm → mỗi bản một short-link riêng → đo click thật → xếp hạng → nhân bản bản thắng."
           />
           <Reveal className="mt-10">
@@ -131,7 +133,7 @@ export default function LandingPage() {
                 Bạn luôn biết tốn bao nhiêu, <span className="text-gradient">trước</span> khi tiêu credit.
               </h2>
               <p className="mt-4 text-ink-medium">
-                Khác nỗi lo "tự trừ tiền": VietVid ước tính trước, chỉ tạm giữ, dùng bao nhiêu tính
+                Khác nỗi lo "tự trừ tiền": Vyra ước tính trước, chỉ tạm giữ, dùng bao nhiêu tính
                 bấy nhiêu, và hoàn 100% nếu lỗi hệ thống.
               </p>
               <Link href="/login" className="mt-6 inline-block">
@@ -181,7 +183,7 @@ export default function LandingPage() {
       <footer className="border-t border-white/[0.06] px-4 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-sm text-ink-low sm:flex-row">
           <Logo />
-          <p className="text-ink-disabled">© 2026 VietVid · Video AI giọng Việt</p>
+          <p className="text-ink-disabled">© 2026 Vyra · Video AI giọng Việt</p>
         </div>
       </footer>
     </div>

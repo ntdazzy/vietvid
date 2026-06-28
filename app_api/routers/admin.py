@@ -19,7 +19,7 @@ from app_api.db import session_scope, tenant_session
 from app_api.deps import require_admin
 from app_api.models import (
     AuditLog, Job, JobStatus, LedgerEntry, LedgerKind, Membership, Org, Payment,
-    PaymentStatus, User, VvKolPersona, Video,
+    PaymentStatus, User, VvKolPersona, Video, Wallet,
 )
 
 router = APIRouter(prefix="/v1/admin", tags=["admin"], dependencies=[Depends(require_admin)])
@@ -52,7 +52,8 @@ def stats() -> dict:
 # ── Economics: doanh thu vs chi phí provider → biên lợi nhuận ──────────────
 @router.get("/economics")
 def economics() -> dict:
-    issued = consumed = revenue_vnd = 0
+    issued = revenue_vnd = held_total = 0
+    spent = 0  # -(HOLD+SETTLE+REFUND): tiền job đã trừ ròng (SETTLE/REFUND là phần HOÀN, mang dấu +)
     cost_usd = 0.0
     by_status: dict[str, int] = {}
     for org_id in _org_ids():
@@ -61,9 +62,13 @@ def economics() -> dict:
                 select(func.coalesce(func.sum(LedgerEntry.delta_credits), 0))
                 .where(LedgerEntry.entry_type.in_([LedgerKind.TOPUP, LedgerKind.BONUS]))
             ).scalar_one())
-            consumed += int(-s.execute(
+            spent += int(-s.execute(
                 select(func.coalesce(func.sum(LedgerEntry.delta_credits), 0))
-                .where(LedgerEntry.entry_type == LedgerKind.SETTLE)
+                .where(LedgerEntry.entry_type.in_(
+                    [LedgerKind.HOLD, LedgerKind.SETTLE, LedgerKind.REFUND]))
+            ).scalar_one())
+            held_total += int(s.execute(
+                select(func.coalesce(func.sum(Wallet.held_credits), 0))
             ).scalar_one())
             cost_usd += float(s.execute(
                 select(func.coalesce(func.sum(Job.actual_cost_usd), 0))
@@ -77,7 +82,7 @@ def economics() -> dict:
     cost_vnd = int(cost_usd * config.USD_TO_VND)
     total = sum(by_status.values()) or 1
     return {
-        "credits_issued": issued, "credits_consumed": consumed,
+        "credits_issued": issued, "credits_consumed": max(0, spent - held_total),
         "provider_cost_usd": round(cost_usd, 2), "provider_cost_vnd": cost_vnd,
         "revenue_vnd": revenue_vnd, "margin_vnd": revenue_vnd - cost_vnd,
         "jobs_total": sum(by_status.values()), "jobs_by_status": by_status,

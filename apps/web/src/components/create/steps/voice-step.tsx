@@ -7,6 +7,7 @@ import { api } from "@/lib/api/endpoints";
 import type { VoicePersona } from "@/lib/api/types";
 import { Field, inputCls } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
+import { KolPicker } from "@/components/create/kol-picker";
 import { cn } from "@/lib/utils/cn";
 
 const SAMPLE = "Da bạn sẽ căng mướt và rạng rỡ chỉ sau bảy ngày sử dụng.";
@@ -137,6 +138,13 @@ export function VoiceStep() {
           <div className="flex items-center gap-2 text-sm font-medium text-violet-200">
             <UserSquare2 className="h-4 w-4" /> Nhân vật KOL
           </div>
+
+          {/* chọn gương mặt KOL — như autovis */}
+          <div>
+            <p className="mb-2 text-xs text-ink-low">Chọn gương mặt KOL (giữ nhất quán qua mọi video):</p>
+            <KolPicker />
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Tên KOL">
               <input

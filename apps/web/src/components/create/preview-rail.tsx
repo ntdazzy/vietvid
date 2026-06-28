@@ -8,6 +8,7 @@ import { useWizard } from "@/store/wizard";
 import { useEstimate, useWallet } from "@/lib/query/hooks";
 import { api } from "@/lib/api/endpoints";
 import { CreditValue } from "@/components/ui/credit-value";
+import { kolFace } from "@/lib/kol-faces";
 import { HoldMeter } from "./hold-meter";
 import { cn } from "@/lib/utils/cn";
 
@@ -26,6 +27,11 @@ export function AspectFrame({ compact = false }: { compact?: boolean }) {
   const size = FRAME_SIZE[w.aspect] ?? FRAME_SIZE["9:16"];
   const scale = compact ? 0.18 : 1;
   const briefLine = (w.brief || "").split("\n")[0].trim();
+
+  const isKol = !compact && w.videoType === "kol_full";
+  const kols = useQuery({ queryKey: ["kol-personas"], queryFn: api.kolPersonas, staleTime: 300_000, enabled: isKol });
+  const kol = kols.data?.find((k) => k.id === w.kolPersonaId);
+  const kolFaceUrl = kol ? kolFace(kol.name, kol.avatar_url) : "";
 
   return (
     <div className="grid w-full place-items-center" style={{ minHeight: compact ? 64 : 392 }}>
@@ -49,6 +55,13 @@ export function AspectFrame({ compact = false }: { compact?: boolean }) {
               <span className="text-[11px] text-ink-low">Khung sẽ hiện ở đây</span>
             </div>
           )
+        )}
+
+        {isKol && kolFaceUrl && (
+          <span className="absolute left-2 top-2 h-12 w-12 overflow-hidden rounded-full shadow-lg ring-2 ring-white/70">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={kolFaceUrl} alt={kol?.name ?? "KOL"} className="h-full w-full object-cover" />
+          </span>
         )}
 
         {!compact && (

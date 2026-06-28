@@ -107,6 +107,25 @@ def momo_configured() -> bool:
     return bool(MOMO_PARTNER_CODE and MOMO_ACCESS_KEY and MOMO_SECRET_KEY)
 
 
+# ── Chuyển khoản ngân hàng VietQR + tự đối soát SePay (Sóng 3B). ──────────
+# QR sinh keyless qua img.vietqr.io; SePay đọc biến động số dư bank → webhook tự cộng.
+# Trống = chưa cấu hình → cổng bank báo "chưa bật".
+BANK_BIN: str = _str("VIETVID_BANK_BIN")               # mã BIN/định danh ngân hàng (vd 970436 = VCB)
+BANK_ACCOUNT_NUMBER: str = _str("VIETVID_BANK_ACCOUNT")
+BANK_ACCOUNT_NAME: str = _str("VIETVID_BANK_ACCOUNT_NAME")
+BANK_NAME: str = _str("VIETVID_BANK_NAME")             # tên hiển thị (vd "Vietcombank")
+BANK_QR_TEMPLATE: str = _str("VIETVID_BANK_QR_TEMPLATE", "compact2")
+SEPAY_API_TOKEN: str = _str("VIETVID_SEPAY_TOKEN")     # token xác thực webhook SePay
+
+# Nạp số tiền tuỳ ý (ngoài gói): chặn dưới/trên.
+TOPUP_MIN_VND: int = _int("VIETVID_TOPUP_MIN_VND", 20_000)
+TOPUP_MAX_VND: int = _int("VIETVID_TOPUP_MAX_VND", 50_000_000)
+
+
+def bank_configured() -> bool:
+    return bool(BANK_BIN and BANK_ACCOUNT_NUMBER and BANK_ACCOUNT_NAME)
+
+
 # ── Quan sát + an toàn prod (Sóng 1A) ───────────────────────────────────
 # Log: mức + định dạng. JSON cho prod (máy đọc), text cho dev (người đọc).
 LOG_LEVEL: str = _str("VIETVID_LOG_LEVEL", "INFO").upper()

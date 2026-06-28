@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hmac
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -17,8 +18,9 @@ router = APIRouter(prefix="/v1/billing", tags=["billing"])
 
 
 class TopupRequest(BaseModel):
-    pack_id: str
-    provider: str = "dev"  # dev | vnpay | momo
+    pack_id: str | None = None         # gói có sẵn
+    amount_vnd: int | None = None      # hoặc số tiền tuỳ ý
+    provider: str = "dev"  # dev | vnpay | momo | bank_qr
 
 
 @router.get("/packs")
@@ -31,34 +33,145 @@ def list_packs() -> list[dict]:
 @router.post("/topup")
 def create_topup(req: TopupRequest, tenant: Tenant = Depends(get_tenant)) -> dict:
     org_uuid = uuid.UUID(tenant.org_id)
-    if req.provider == "dev" and not config.BILLING_DEV_ENABLED:
+    provider = req.provider
+    if provider == "dev" and not config.BILLING_DEV_ENABLED:
         raise HTTPException(status_code=404, detail="Cổng dev đã tắt")
-    if req.provider not in ("dev", "vnpay", "momo"):
+    if provider not in ("dev", "vnpay", "momo", "bank_qr"):
         raise HTTPException(status_code=422, detail="Cổng không hỗ trợ")
+    if provider == "bank_qr" and not config.bank_configured():
+        raise HTTPException(status_code=400, detail="Chuyển khoản ngân hàng chưa được cấu hình")
+
+    # Số tiền tuỳ ý (khi không chọn gói): chặn dưới/trên.
+    custom_amount = None
+    if not req.pack_id:
+        if req.amount_vnd is None:
+            raise HTTPException(status_code=422, detail="Thiếu pack_id hoặc amount_vnd")
+        custom_amount = int(req.amount_vnd)
+        if custom_amount < config.TOPUP_MIN_VND or custom_amount > config.TOPUP_MAX_VND:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Số tiền nạp từ {config.TOPUP_MIN_VND:,}đ đến {config.TOPUP_MAX_VND:,}đ",
+            )
 
     pay_url = None
     balance = None
     try:
         with tenant_session(tenant.org_id) as s:
-            p = billing.create_topup(s, org_uuid, tenant.uid, pack_id=req.pack_id, provider=req.provider)
+            if custom_amount is not None:
+                p = billing.create_payment(
+                    s, org_uuid, tenant.uid, provider=provider,
+                    amount_vnd=custom_amount, credits=billing.credits_for_amount(custom_amount),
+                )
+            else:
+                p = billing.create_topup(s, org_uuid, tenant.uid, pack_id=req.pack_id, provider=provider)
             payment_id, ext_ref, credits, amount = str(p.id), p.ext_ref, int(p.credits_granted), int(p.amount_vnd)
-            if req.provider == "dev":
+            if provider == "dev":
                 # nạp tức thì (local) — cộng credit ngay trong cùng txn.
                 billing.apply_topup(s, provider="dev", ext_ref=ext_ref)
-                w = wallet.ensure_wallet(s, org_uuid)
-                balance = int(w.balance_credits)
-            elif req.provider == "vnpay":
+                balance = int(wallet.ensure_wallet(s, org_uuid).balance_credits)
+            elif provider == "vnpay":
                 pay_url = billing.build_vnpay_url(p)
-            else:  # momo
+            elif provider == "momo":
                 pay_url = billing.build_momo_payment(p)
     except billing.BillingError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    if req.provider == "dev":
+    if provider == "dev":
         return {"payment_id": payment_id, "provider": "dev", "status": "succeeded",
                 "credits": credits, "amount_vnd": amount, "balance_credits": balance}
-    return {"payment_id": payment_id, "provider": req.provider, "status": "pending",
+    if provider == "bank_qr":
+        # ext_ref CHÍNH LÀ nội dung chuyển khoản (memo) hiện trên QR.
+        return {
+            "payment_id": payment_id, "provider": "bank_qr", "status": "pending",
+            "credits": credits, "amount_vnd": amount,
+            "qr_image_url": billing.vietqr_image_url(amount, ext_ref),
+            "memo": ext_ref,
+            "bank": {
+                "name": config.BANK_NAME, "bin": config.BANK_BIN,
+                "account_number": config.BANK_ACCOUNT_NUMBER,
+                "account_name": config.BANK_ACCOUNT_NAME,
+            },
+        }
+    return {"payment_id": payment_id, "provider": provider, "status": "pending",
             "credits": credits, "amount_vnd": amount, "pay_url": pay_url}
+
+
+@router.get("/payment/{payment_id}")
+def get_payment(payment_id: str, tenant: Tenant = Depends(get_tenant)) -> dict:
+    """Poll trạng thái 1 payment (UI QR chờ tự cộng). RLS đã giới hạn theo org."""
+    try:
+        pid = uuid.UUID(payment_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail="payment_id không hợp lệ") from exc
+    with tenant_session(tenant.org_id) as s:
+        p = s.get(Payment, pid)
+        if p is None:
+            raise HTTPException(status_code=404, detail="Không tìm thấy")
+        return {"id": str(p.id), "status": p.status, "provider": p.provider,
+                "credits": int(p.credits_granted), "amount_vnd": int(p.amount_vnd)}
+
+
+@router.post("/payment/{payment_id}/dev-confirm")
+def dev_confirm(payment_id: str, tenant: Tenant = Depends(get_tenant)) -> dict:
+    """Giả lập 'đã nhận tiền' để thử luồng QR khi chưa nối SePay. Chỉ bật ở chế độ dev."""
+    if not config.BILLING_DEV_ENABLED:
+        raise HTTPException(status_code=404, detail="Đã tắt")
+    try:
+        pid = uuid.UUID(payment_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail="payment_id không hợp lệ") from exc
+    with tenant_session(tenant.org_id) as s:
+        p = s.get(Payment, pid)
+        if p is None:
+            raise HTTPException(status_code=404, detail="Không tìm thấy")
+        if p.status == "PENDING":
+            billing.apply_topup(s, provider=p.provider, ext_ref=p.ext_ref)
+        balance = int(wallet.ensure_wallet(s, uuid.UUID(tenant.org_id)).balance_credits)
+    return {"status": "succeeded", "balance_credits": balance}
+
+
+@router.post("/ipn/sepay")
+async def sepay_webhook(request: Request) -> dict:
+    """SePay đọc biến động số dư bank → POST về đây. Auth bằng Apikey token; đối soát memo + SỐ TIỀN.
+
+    apply_topup idempotent (FOR UPDATE) → không cộng 2 lần dù SePay gửi lại."""
+    if not config.SEPAY_API_TOKEN:
+        raise HTTPException(status_code=503, detail="SePay chưa cấu hình")
+    auth = request.headers.get("authorization", "")
+    if not hmac.compare_digest(auth, f"Apikey {config.SEPAY_API_TOKEN}"):
+        raise HTTPException(status_code=401, detail="Token không hợp lệ")
+    try:
+        body = await request.json()
+    except Exception:  # noqa: BLE001
+        return {"success": False, "message": "Bad payload"}
+
+    if str(body.get("transferType")) != "in":
+        return {"success": True}  # tiền ra — bỏ qua
+    content = str(body.get("content") or body.get("description") or "")
+    memo = billing.parse_sepay_memo(content)
+    if not memo:
+        return {"success": True, "message": "Không có mã đối soát"}  # ack, không phải của ta
+    org_id = billing.resolve_bank_payment_org(memo)
+    if org_id is None:
+        return {"success": True, "message": "Không có payment chờ"}  # ack (có thể đã xử lý)
+
+    try:
+        amount = int(float(body.get("transferAmount") or 0))
+    except (TypeError, ValueError):
+        return {"success": True, "message": "Số tiền không đọc được"}
+
+    with tenant_session(org_id) as s:
+        p = s.execute(
+            select(Payment).where(Payment.provider == "bank_qr", Payment.ext_ref == memo)
+            .with_for_update()
+        ).scalar_one_or_none()
+        if p is None or p.status == "SUCCEEDED":
+            return {"success": True}  # idempotent
+        if amount != int(p.amount_vnd):
+            # Sai số tiền → KHÔNG tự cộng (admin xử lý); ack để SePay không gửi lại dồn dập.
+            return {"success": True, "message": "Số tiền không khớp"}
+        billing.apply_topup(s, provider="bank_qr", ext_ref=memo)
+    return {"success": True}
 
 
 @router.get("/payments")

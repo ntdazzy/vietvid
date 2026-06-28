@@ -9,6 +9,7 @@ from __future__ import annotations
 import datetime as _dt
 import hashlib
 import hmac
+import re
 import uuid
 from urllib.parse import quote
 
@@ -41,24 +42,97 @@ def _pack_by_code(session: Session, code: str) -> CreditPack | None:
     ).scalar_one_or_none()
 
 
-def create_topup(session: Session, org_id, user_id, *, pack_id: str, provider: str) -> Payment:
-    pack = _pack_by_code(session, pack_id)
-    if pack is None:
-        raise BillingError(f"Gói không hợp lệ: {pack_id}")
-    # VNPay/MoMo: nhúng org vào ext_ref để IPN (không-auth) resolve được tenant; dev = uuid ngẫu nhiên.
-    ext_ref = (
-        uuid.UUID(str(org_id)).hex + uuid.uuid4().hex[:8]
-        if provider in ("vnpay", "momo")
-        else uuid.uuid4().hex
-    )
+_MEMO_RE = re.compile(r"VYRA[0-9A-F]{8}")
+
+
+def credits_for_amount(amount_vnd: int) -> int:
+    """Quy đổi VND → credit theo giá gốc (1 credit = CREDIT_PRICE_VND đ)."""
+    return max(1, round(int(amount_vnd) / config.CREDIT_PRICE_VND))
+
+
+def _bank_memo() -> str:
+    """Nội dung chuyển khoản duy nhất để đối soát — ngắn, không dấu, dễ gõ."""
+    return "VYRA" + uuid.uuid4().hex[:8].upper()
+
+
+def _ext_ref_for(provider: str, org_id) -> str:
+    # bank_qr: ext_ref = memo (ngắn, hiện trên QR). VNPay/MoMo: nhúng org để IPN không-auth resolve.
+    if provider == "bank_qr":
+        return _bank_memo()
+    if provider in ("vnpay", "momo"):
+        return uuid.UUID(str(org_id)).hex + uuid.uuid4().hex[:8]
+    return uuid.uuid4().hex  # dev
+
+
+def create_payment(
+    session: Session, org_id, user_id, *,
+    provider: str, amount_vnd: int, credits: int, credit_pack_id=None,
+) -> Payment:
+    """Tạo Payment PENDING (gói hoặc số tiền tuỳ ý). ext_ref theo provider."""
     p = Payment(
-        org_id=org_id, user_id=user_id, provider=provider, ext_ref=ext_ref,
-        amount_vnd=int(pack.amount_vnd), credits_granted=int(pack.credits),
-        credit_pack_id=pack.id, status=PaymentStatus.PENDING,
+        org_id=org_id, user_id=user_id, provider=provider, ext_ref=_ext_ref_for(provider, org_id),
+        amount_vnd=int(amount_vnd), credits_granted=int(credits),
+        credit_pack_id=credit_pack_id, status=PaymentStatus.PENDING,
     )
     session.add(p)
     session.flush()
     return p
+
+
+def create_topup(session: Session, org_id, user_id, *, pack_id: str, provider: str) -> Payment:
+    pack = _pack_by_code(session, pack_id)
+    if pack is None:
+        raise BillingError(f"Gói không hợp lệ: {pack_id}")
+    return create_payment(
+        session, org_id, user_id, provider=provider,
+        amount_vnd=int(pack.amount_vnd), credits=int(pack.credits), credit_pack_id=pack.id,
+    )
+
+
+# ── VietQR (chuyển khoản ngân hàng) — keyless, quét bằng app bank bất kỳ ───
+def vietqr_image_url(amount_vnd: int, memo: str) -> str:
+    """Ảnh VietQR (napas247) sinh từ thông tin tài khoản nhận — không cần API key."""
+    base = (
+        f"https://img.vietqr.io/image/"
+        f"{config.BANK_BIN}-{config.BANK_ACCOUNT_NUMBER}-{config.BANK_QR_TEMPLATE}.png"
+    )
+    return (
+        f"{base}?amount={int(amount_vnd)}"
+        f"&addInfo={quote(memo, safe='')}"
+        f"&accountName={quote(config.BANK_ACCOUNT_NAME, safe='')}"
+    )
+
+
+def parse_sepay_memo(content: str) -> str | None:
+    """Bóc mã VYRAxxxxxxxx khỏi nội dung chuyển khoản SePay gửi về."""
+    if not content:
+        return None
+    m = _MEMO_RE.search(content.upper())
+    return m.group(0) if m else None
+
+
+def resolve_bank_payment_org(memo: str) -> str | None:
+    """Tìm org của 1 payment bank_qr PENDING theo memo (ext_ref unique toàn cục per-provider).
+
+    TODO(scale): thay vòng lặp org bằng bảng GLOBAL memo→org (mẫu webhook_events trong
+    SYSTEM_DESIGN) trước khi mở bán — O(orgs) chỉ chấp nhận được khi webhook tần suất thấp."""
+    from app_api.db import session_scope, tenant_session
+    from app_api.models import Org
+
+    with session_scope() as s:
+        org_ids = [str(x) for x in s.execute(select(Org.id)).scalars().all()]
+    for org_id in org_ids:
+        with tenant_session(org_id) as s:
+            hit = s.execute(
+                select(Payment.id).where(
+                    Payment.provider == "bank_qr",
+                    Payment.ext_ref == memo,
+                    Payment.status == PaymentStatus.PENDING,
+                )
+            ).scalar_one_or_none()
+            if hit is not None:
+                return org_id
+    return None
 
 
 def apply_topup(session: Session, *, provider: str, ext_ref: str) -> Payment | None:

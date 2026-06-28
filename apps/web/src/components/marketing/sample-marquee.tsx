@@ -38,7 +38,13 @@ export function SampleMarquee({
             <span className="absolute left-2.5 top-2.5 z-10 rounded-md bg-black/55 px-1.5 py-0.5 font-numeric text-[10px] font-semibold text-white/90 backdrop-blur-sm">
               {t.ratio ?? "9:16"}
             </span>
-            <DemoTile poster={`/samples/${t.file}.png`} label={t.label} className="h-full w-auto aspect-[9/16]" />
+            <DemoTile
+              poster={`/samples/${t.file}.png`}
+              video={`/samples/${t.file}.mp4`}
+              hoverOnly
+              label={t.label}
+              className="h-full w-auto aspect-[9/16]"
+            />
           </div>
         ))}
       </div>

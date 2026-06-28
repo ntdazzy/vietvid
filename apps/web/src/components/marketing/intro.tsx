@@ -9,10 +9,10 @@ import { VyraMark } from "@/components/brand/logo";
 // Vẫn cho click/cuộn để tắt sớm; reduced-motion → hiện logo tĩnh, tắt nhanh hơn.
 export function Intro() {
   const reduce = useReducedMotion();
-  const [show, setShow] = useState(false);
+  // show=true ngay từ SSR → overlay phủ trang TỪ ĐẦU, không lộ hero 1 nhịp rồi mới ra intro.
+  const [show, setShow] = useState(true);
 
   useEffect(() => {
-    setShow(true);
     const t = setTimeout(() => setShow(false), reduce ? 1300 : 1800);
     const skip = (e: Event) => {
       if (e.type === "keydown" && (e as KeyboardEvent).key !== "Escape") return;
@@ -64,7 +64,7 @@ export function Intro() {
                   />
                 )}
               </div>
-              <div className="mt-1 text-sm tracking-wide text-ink-low">Viral có chủ đích · giọng Việt thật</div>
+              <div className="mt-1 text-sm tracking-wide text-ink-low">Tạo video viral đẳng cấp · giọng Việt đỉnh cao</div>
             </motion.div>
           </div>
         </motion.div>

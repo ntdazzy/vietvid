@@ -17,6 +17,7 @@ import { RatioBento } from "@/components/marketing/ratio-bento";
 import { LogoTickerBand } from "@/components/marketing/logo-ticker-band";
 import { HowItWorks } from "@/components/marketing/how-it-works";
 import { CompareTable } from "@/components/marketing/compare-table";
+import { UseCases } from "@/components/marketing/use-cases";
 import { Intro } from "@/components/marketing/intro";
 
 const SAMPLES = [
@@ -47,7 +48,11 @@ export default function LandingPage() {
           <SampleMarquee tiles={SAMPLES} direction="left" />
           <SampleMarquee tiles={[...SAMPLES].reverse()} direction="right" />
         </div>
+        <p className="mt-5 text-center text-xs text-ink-low">Di chuột vào mỗi mẫu để xem clip chạy.</p>
       </section>
+
+      {/* S1.5 — LOẠI NỘI DUNG (đa dạng chủ đề, không chỉ quảng cáo SP) */}
+      <UseCases />
 
       {/* S2 — LƯỚI 6 NĂNG LỰC 01–06 (đấu autovis, demo sống) */}
       <section id="nang-luc" className="mx-auto max-w-6xl px-4 py-24 lg:py-28">

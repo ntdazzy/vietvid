@@ -13,17 +13,19 @@ export function DemoTile({
   video,
   label,
   className,
+  hoverOnly = false,
 }: {
   poster: string;
   video?: string;
   label: string;
   className?: string;
+  hoverOnly?: boolean; // chỉ phát khi hover (cho marquee — tránh hàng chục video chạy cùng lúc)
 }) {
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || !video) return;
+    if (!el || !video || hoverOnly) return; // hoverOnly → bỏ auto-play-khi-lọt-khung
     const io = new IntersectionObserver(
       ([e]) => {
         if (e.isIntersecting) el.play().catch(() => {});
@@ -33,7 +35,7 @@ export function DemoTile({
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [video]);
+  }, [video, hoverOnly]);
 
   return (
     <div
@@ -44,7 +46,13 @@ export function DemoTile({
         className,
       )}
       onMouseEnter={() => video && ref.current?.play().catch(() => {})}
-      onMouseLeave={() => video && ref.current?.pause()}
+      onMouseLeave={() => {
+        const el = ref.current;
+        if (video && el) {
+          el.pause();
+          el.currentTime = 0; // về poster khi rời chuột
+        }
+      }}
     >
       {video ? (
         <video

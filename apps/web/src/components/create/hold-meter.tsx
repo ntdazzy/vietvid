@@ -40,7 +40,14 @@ export function HoldMeter({
       </div>
 
       {/* meter bar */}
-      <div className="mt-4 h-3 w-full overflow-hidden rounded-full bg-white/[0.06]">
+      <div
+        role="progressbar"
+        aria-valuenow={Math.round(holdPct)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Tỷ lệ credit tạm giữ"
+        className="mt-4 h-3 w-full overflow-hidden rounded-full bg-white/[0.06]"
+      >
         <motion.div
           className={cn(
             "h-full rounded-full",

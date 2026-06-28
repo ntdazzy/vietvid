@@ -21,7 +21,7 @@ const PANEL =
   "rounded-2xl border border-white/[0.1] bg-bg-elevated/95 backdrop-blur-2xl shadow-[0_24px_70px_-20px_rgba(0,0,0,0.8)]";
 
 export function SiteHeader({ authed = false }: { authed?: boolean }) {
-  const [open, setOpen] = useState<null | "content" | "tools" | "support">(null);
+  const [open, setOpen] = useState<null | "content" | "tools" | "support" | "manage">(null);
   const [mobile, setMobile] = useState(false);
   const router = useRouter();
   const me = useQuery({ queryKey: ["me"], queryFn: api.me, enabled: authed });
@@ -31,7 +31,7 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
   const cancelClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
   };
-  const openMenu = (k: "content" | "tools" | "support" | null) => {
+  const openMenu = (k: "content" | "tools" | "support" | "manage" | null) => {
     cancelClose();
     setOpen(k);
   };
@@ -59,51 +59,44 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
           <Link
             href={authed ? "/app/kol" : "/login"}
             onMouseEnter={() => openMenu(null)}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-violet-200 transition-colors hover:bg-white/[0.05]"
+            className="flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-violet-200 transition-colors hover:bg-white/[0.05]"
           >
             KOL AI <Flame className="h-3.5 w-3.5 text-orange-400" />
           </Link>
 
           <Trigger label="Tạo nội dung" active={open === "content"} onEnter={() => openMenu("content")} />
           <Trigger label="Công cụ" active={open === "tools"} onEnter={() => openMenu("tools")} />
-          {authed && (
-            <NavLink href="/app/templates" onEnter={() => openMenu(null)}>
-              Mẫu
-            </NavLink>
-          )}
-          <NavLink href="/app/library" onEnter={() => openMenu(null)}>
-            Thư viện
-          </NavLink>
-          {authed && (
-            <NavLink href="/app/affiliate" onEnter={() => openMenu(null)}>
-              Affiliate
-            </NavLink>
-          )}
-          {authed && (
-            <NavLink href="/app/reports" onEnter={() => openMenu(null)}>
-              Báo cáo
-            </NavLink>
-          )}
-          {authed && (
-            <NavLink href="/app/api" onEnter={() => openMenu(null)}>
-              API
-            </NavLink>
-          )}
-          {authed && me.data?.is_admin && (
-            <NavLink href="/app/admin" onEnter={() => openMenu(null)}>
-              Admin
-            </NavLink>
-          )}
-          {!authed && (
-            <NavLink href="/pricing" onEnter={() => openMenu(null)}>
-              Bảng giá
-            </NavLink>
+          {authed ? (
+            <Trigger label="Quản lý" active={open === "manage"} onEnter={() => openMenu("manage")} />
+          ) : (
+            <>
+              <NavLink href="/app/library" onEnter={() => openMenu(null)}>Thư viện</NavLink>
+              <NavLink href="/pricing" onEnter={() => openMenu(null)}>Bảng giá</NavLink>
+            </>
           )}
           <Trigger label="Hỗ trợ" active={open === "support"} onEnter={() => openMenu("support")} />
 
           {/* mega panels */}
           {open === "content" && <MegaPanel groups={CONTENT_GROUPS} cols={3} />}
           {open === "tools" && <MegaPanel groups={TOOLS_GROUPS} cols={2} />}
+          {open === "manage" && (
+            <div className="absolute left-1/2 top-full z-50 w-56 -translate-x-1/2 pt-3">
+              <div className={cn(PANEL, "overflow-hidden p-2")}>
+                {[
+                  ["Thư viện video", "/app/library"],
+                  ["Mẫu", "/app/templates"],
+                  ["Affiliate", "/app/affiliate"],
+                  ["Báo cáo", "/app/reports"],
+                  ["API & Webhook", "/app/api"],
+                  ...(me.data?.is_admin ? ([["Quản trị", "/app/admin"]] as [string, string][]) : []),
+                ].map(([t, h]) => (
+                  <Link key={h} href={h} className="block rounded-lg px-3 py-2 text-sm text-ink-medium hover:bg-white/[0.05] hover:text-ink-high">
+                    {t}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
           {open === "support" && (
             <div className="absolute left-1/2 top-full z-50 w-56 -translate-x-1/2 pt-3">
               <div className={cn(PANEL, "overflow-hidden p-2")}>
@@ -236,7 +229,7 @@ function NavLink({
     <Link
       href={href}
       onMouseEnter={onEnter}
-      className="rounded-lg px-3 py-2 text-sm font-medium text-ink-medium transition-colors hover:bg-white/[0.05] hover:text-ink-high"
+      className="whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-ink-medium transition-colors hover:bg-white/[0.05] hover:text-ink-high"
     >
       {children}
     </Link>
@@ -248,7 +241,7 @@ function Trigger({ label, active, onEnter }: { label: string; active: boolean; o
     <button
       onMouseEnter={onEnter}
       className={cn(
-        "flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-white/[0.05]",
+        "flex items-center gap-1 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-white/[0.05]",
         active ? "text-ink-high" : "text-ink-medium hover:text-ink-high",
       )}
     >

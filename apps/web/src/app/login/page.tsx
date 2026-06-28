@@ -11,11 +11,15 @@ import { registerLocal, loginLocal } from "@/lib/auth/local";
 import { devLogin } from "@/lib/auth/dev";
 import { supabaseConfigured } from "@/lib/config";
 
+// đồng bộ với ProofStrip trang chủ (không lệch "9 công cụ").
 const STATS = [
-  { v: "60s", l: "mỗi video" },
-  { v: "9", l: "công cụ AI" },
+  { v: "~60s", l: "mỗi video" },
+  { v: "7", l: "giọng Việt thật" },
   { v: "300", l: "credit tặng" },
 ];
+
+// ảnh output mẫu THẬT — khoe sản phẩm ở panel trái (autovis khoe mặt KOL).
+const SHOWCASE = ["fashion", "tech", "beauty"];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -68,13 +72,30 @@ export default function LoginPage() {
         />
         <div className="glow-radial pointer-events-none absolute -left-20 top-0 h-[420px] w-[420px]" />
 
+        {/* cụm ảnh output mẫu thật — nổi nghiêng góc phải, có scrim để chữ vẫn đọc rõ */}
+        <div className="pointer-events-none absolute -right-10 top-1/2 hidden -translate-y-1/2 xl:block">
+          <div className="relative flex gap-4">
+            {SHOWCASE.map((f, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={f}
+                src={`/samples/${f}.png`}
+                alt=""
+                className="h-[300px] w-[169px] rounded-[20px] object-cover ring-1 ring-white/[0.08] shadow-[0_30px_80px_-30px_rgba(124,58,237,0.5)]"
+                style={{ transform: `rotate(${i === 1 ? -3 : 3}deg) translateY(${i === 1 ? -16 : 12}px)` }}
+              />
+            ))}
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-bg-surface via-bg-surface/60 to-transparent" />
+        </div>
+
         <Logo />
 
-        <div className="relative">
-          <h1 className="max-w-md text-[clamp(2rem,3.4vw,3rem)] font-extrabold leading-[1.08] tracking-[-0.02em] text-ink-high">
-            Video bán hàng AI,
+        <div className="relative max-w-md">
+          <h1 className="text-[clamp(2rem,3.4vw,3rem)] font-extrabold leading-[1.08] tracking-[-0.02em] text-ink-high">
+            Tạo video viral đẳng cấp,
             <br />
-            <span className="text-gradient">giọng Việt thật.</span>
+            <span className="text-gradient">giọng Việt đỉnh cao.</span>
           </h1>
           <p className="mt-4 max-w-sm text-ink-medium">
             Từ 1 ảnh sản phẩm tới video chốt đơn trong 60 giây. Minh bạch giá, hoàn 100% nếu lỗi hệ thống.

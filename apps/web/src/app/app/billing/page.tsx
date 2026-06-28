@@ -11,6 +11,7 @@ import {
   ArrowDownToLine,
   Loader2,
   Sparkles,
+  Wallet,
 } from "lucide-react";
 import { useWallet, useLedger } from "@/lib/query/hooks";
 import { useTopup } from "@/lib/query/mutations";
@@ -45,7 +46,12 @@ export default function BillingPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold text-ink-high lg:text-[34px]">Ví & Sổ cái</h1>
+      <div className="flex items-center gap-2">
+        <span className="grid h-10 w-10 place-items-center rounded-xl bg-grad-brand-soft">
+          <Wallet className="h-5 w-5 text-violet-300" />
+        </span>
+        <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Ví & Sổ cái</h1>
+      </div>
 
       {/* balance */}
       <GlassCard bordered className="relative overflow-hidden p-7">

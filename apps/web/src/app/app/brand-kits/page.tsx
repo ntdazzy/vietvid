@@ -32,7 +32,12 @@ export default function BrandKitsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink-high lg:text-[34px]">Bộ thương hiệu</h1>
+          <div className="flex items-center gap-2">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-grad-brand-soft">
+              <Palette className="h-5 w-5 text-violet-300" />
+            </span>
+            <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Bộ thương hiệu</h1>
+          </div>
           <p className="mt-1 text-ink-low">Logo, màu, watermark & dòng công bố cho video của bạn.</p>
         </div>
         <Button onClick={() => setEditing(editing ? null : { ...EMPTY })} variant={editing ? "glass" : "primary"}>

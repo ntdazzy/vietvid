@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Mic, KeyRound, LogOut, Lock, Users, Loader2, BadgeCheck } from "lucide-react";
+import { User, Mic, KeyRound, LogOut, Lock, Users, Loader2, BadgeCheck, Settings, ArrowRight } from "lucide-react";
 import { useMe } from "@/lib/query/hooks";
 import { api } from "@/lib/api/endpoints";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -70,7 +70,12 @@ export default function SettingsPage() {
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
-      <h1 className="text-2xl font-bold text-ink-high lg:text-[34px]">Cài đặt</h1>
+      <div className="flex items-center gap-3">
+        <span className="grid h-11 w-11 place-items-center rounded-xl bg-grad-brand-soft">
+          <Settings className="h-5 w-5 text-violet-300" />
+        </span>
+        <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Cài đặt</h1>
+      </div>
 
       {/* tài khoản */}
       <GlassCard className="p-5">
@@ -183,14 +188,17 @@ export default function SettingsPage() {
         </div>
       </GlassCard>
 
-      {/* API keys (Product C) */}
-      <GlassCard className="p-5">
-        <div className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-ink-low">
-          <KeyRound className="h-4 w-4" /> API keys (cho nhà phát triển)
+      {/* API keys — đã ship, dẫn tới trang quản lý */}
+      <GlassCard className="flex items-center justify-between gap-4 p-5">
+        <div>
+          <div className="mb-1 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-ink-low">
+            <KeyRound className="h-4 w-4" /> API keys & webhook
+          </div>
+          <p className="text-sm text-ink-low">Gọi engine Vyra bằng code: tạo khoá API + webhook báo khi video xong.</p>
         </div>
-        <p className="text-sm text-ink-low">
-          Gọi engine Vyra qua API / white-label. <Badge tone="neutral">Sắp có (M5)</Badge>
-        </p>
+        <Link href="/app/api">
+          <Button variant="glass" size="sm" className="gap-1.5">Mở <ArrowRight className="h-4 w-4" /></Button>
+        </Link>
       </GlassCard>
 
       <Button

@@ -69,7 +69,12 @@ export default function ApiPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-bold text-ink-high sm:text-2xl lg:text-[34px]">API & Webhook</h1>
+        <div className="flex items-center gap-2">
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-grad-brand-soft">
+            <KeyRound className="h-5 w-5 text-violet-300" />
+          </span>
+          <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">API & Webhook</h1>
+        </div>
         <p className="mt-1 text-ink-low">Tạo video bằng code. Tích hợp Vyra vào hệ thống của bạn.</p>
       </div>
 

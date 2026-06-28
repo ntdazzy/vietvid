@@ -96,7 +96,12 @@ export default function AdminPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink-high lg:text-[34px]">Quản trị</h1>
+        <div className="flex items-center gap-2">
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-grad-brand-soft">
+            <ShieldAlert className="h-5 w-5 text-violet-300" />
+          </span>
+          <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Quản trị</h1>
+        </div>
         <p className="mt-1 text-ink-low">Vận hành nền tảng: người dùng, credit, kiểm duyệt.</p>
       </div>
 

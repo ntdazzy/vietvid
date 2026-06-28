@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, inputCls, ChipGroup } from "@/components/ui/field";
+import { HoverVideo } from "@/components/ui/hover-video";
 import { cn } from "@/lib/utils/cn";
 
 // Gương mặt AI mẫu cho persona hệ thống (avatar_url rỗng).
@@ -118,25 +119,32 @@ export default function KolPage() {
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {personas.map((k) => {
               const face = k.avatar_url || SYSTEM_FACES[k.name] || "";
+              const faceVideo = face.startsWith("/kol/") ? face.replace(/\.jpg$/, ".mp4") : undefined;
+              const overlays = (
+                <>
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base/85 to-transparent" />
+                  <div className="absolute right-2 top-2 flex flex-col items-end gap-1">
+                    {k.is_system && <Badge tone="neutral" className="bg-black/40"><Lock className="mr-1 h-3 w-3" />Hệ thống</Badge>}
+                    {k.moderation_status === "PENDING" && <Badge tone="hold" className="bg-black/40">Chờ duyệt</Badge>}
+                  </div>
+                  <div className="absolute inset-x-3 bottom-2">
+                    <div className="font-display text-sm font-semibold text-white">{k.name}</div>
+                    <div className="line-clamp-1 text-[11px] text-white/70">{k.description}</div>
+                  </div>
+                </>
+              );
               return (
                 <GlassCard key={k.id} className="flex flex-col overflow-hidden p-0">
-                  <div className="relative aspect-[3/4] overflow-hidden bg-bg-surface">
-                    {face ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={face} alt={k.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="grid h-full w-full place-items-center"><UserSquare2 className="h-10 w-10 text-violet-300/60" /></div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-bg-base/85 to-transparent" />
-                    <div className="absolute right-2 top-2 flex flex-col items-end gap-1">
-                      {k.is_system && <Badge tone="neutral" className="bg-black/40"><Lock className="mr-1 h-3 w-3" />Hệ thống</Badge>}
-                      {k.moderation_status === "PENDING" && <Badge tone="hold" className="bg-black/40">Chờ duyệt</Badge>}
+                  {face ? (
+                    <HoverVideo poster={face} video={faceVideo} alt={k.name} className="aspect-[3/4] bg-bg-surface">
+                      {overlays}
+                    </HoverVideo>
+                  ) : (
+                    <div className="relative grid aspect-[3/4] place-items-center overflow-hidden bg-bg-surface">
+                      <UserSquare2 className="h-10 w-10 text-violet-300/60" />
+                      {overlays}
                     </div>
-                    <div className="absolute inset-x-3 bottom-2">
-                      <div className="font-display text-sm font-semibold text-white">{k.name}</div>
-                      <div className="line-clamp-1 text-[11px] text-white/70">{k.description}</div>
-                    </div>
-                  </div>
+                  )}
                   <div className="flex items-center gap-1.5 p-2.5">
                     <Link href={`/app/create?kol=${k.id}`} className="flex-1">
                       <Button className="w-full gap-1.5" size="sm" disabled={k.moderation_status === "PENDING"}>
@@ -181,16 +189,14 @@ export default function KolPage() {
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {presets.map((p) => (
             <GlassCard key={p.id} className="flex flex-col overflow-hidden p-0">
-              <div className="relative aspect-[3/4] overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.img} alt={p.name} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-bg-base/85 to-transparent" />
+              <HoverVideo poster={p.img} video={p.img.replace(/\.jpg$/, ".mp4")} alt={p.name} className="aspect-[3/4]">
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base/85 to-transparent" />
                 <span className="absolute left-2 top-2 rounded-md bg-black/40 px-2 py-0.5 text-[10px] font-medium text-violet-200">{p.cat}</span>
                 <div className="absolute inset-x-3 bottom-2">
                   <div className="font-display text-sm font-semibold text-white">{p.name}</div>
                   <div className="text-[11px] text-white/70">{p.gender === "male" ? "Nam" : "Nữ"}</div>
                 </div>
-              </div>
+              </HoverVideo>
               <div className="p-2.5">
                 <Button onClick={() => usePreset(p)} disabled={usingId !== null} size="sm" className="w-full gap-1.5">
                   {usingId === p.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clapperboard className="h-4 w-4" />}

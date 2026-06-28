@@ -6,6 +6,7 @@ import { SectionHeading } from "@/components/marketing/section-heading";
 import { MiniReel } from "@/components/marketing/mini-reel";
 import { ActBadge } from "@/components/marketing/act-badge";
 import { Reveal } from "@/components/marketing/reveal";
+import { HoverVideo } from "@/components/ui/hover-video";
 import { cn } from "@/lib/utils/cn";
 
 // "FEATURED KOL" — gương mặt KOL do AI tạo (đúng thứ sản phẩm làm: KOL AI), giữ nhất quán mọi video.
@@ -43,13 +44,16 @@ export function FeaturedKol() {
         {/* card lớn — gương mặt KOL AI + clip SP thật */}
         <Reveal className="lg:col-span-7">
           <div className="flex h-full flex-col gap-4 rounded-[24px] border border-white/[0.08] bg-white/[0.02] p-5 sm:flex-row sm:gap-5">
-            <div className="relative w-[150px] shrink-0 overflow-hidden rounded-2xl">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={FEATURED.img} alt={`KOL AI ${FEATURED.name}`} className="aspect-[3/4] w-full object-cover" />
+            <HoverVideo
+              poster={FEATURED.img}
+              video={FEATURED.img.replace(/\.jpg$/, ".mp4")}
+              alt={`KOL AI ${FEATURED.name}`}
+              className="aspect-[3/4] w-[150px] shrink-0 rounded-2xl"
+            >
               <span className="absolute bottom-2 left-2 rounded-md bg-bg-base/70 px-2 py-0.5 text-[10px] font-medium text-ink-high backdrop-blur-sm">
                 Gương mặt AI
               </span>
-            </div>
+            </HoverVideo>
             <div className="flex min-w-0 flex-col">
               <ActBadge tone="new" label="Giữ outfit nhất quán" className="w-fit" />
               <div className="mt-3 flex items-center gap-2.5">

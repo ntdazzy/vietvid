@@ -306,6 +306,12 @@ export interface ScriptAngle {
   label: string;
 }
 
+export interface AdminConfig {
+  video_provider_chain: string;
+  max_api_jobs_per_day: number;
+  feature_flags: Record<string, Record<string, boolean>>;
+}
+
 export interface AdminEconomics {
   credits_issued: number;
   credits_consumed: number;

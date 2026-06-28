@@ -1,7 +1,8 @@
 import { API_BASE_URL } from "@/lib/config";
 import { getToken } from "@/lib/auth/session";
-import { apiDelete, apiGet, apiPatch, apiPost } from "./client";
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "./client";
 import type {
+  AdminConfig,
   AdminEconomics,
   AdminStats,
   AdminUser,
@@ -122,6 +123,8 @@ export const api = {
   adminEconomics: () => apiGet<AdminEconomics>("/v1/admin/economics"),
   adminBroadcast: (title: string, body = "") =>
     apiPost<{ ok: boolean; sent: number }>("/v1/admin/broadcast", { title, body }),
+  adminConfig: () => apiGet<AdminConfig>("/v1/admin/config"),
+  adminSetConfig: (patch: Partial<AdminConfig>) => apiPut<AdminConfig>("/v1/admin/config", patch),
 
   // affiliate
   affiliateLinks: () => apiGet<AffiliateLink[]>("/v1/affiliate/links"),

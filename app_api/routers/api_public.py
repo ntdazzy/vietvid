@@ -8,11 +8,12 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import func, select
 
-from app_api.db import tenant_session
+from app_api import platform, tenancy
+from app_api.db import session_scope, tenant_session
 from app_api.deps import Tenant, get_api_tenant
 from app_api.models import Job, Video
 from app_api.routers.jobs import create_job as _create_job_handler
@@ -36,12 +37,35 @@ class GenerateReq(BaseModel):
 @router.post("/videos", status_code=201)
 def generate(req: GenerateReq, background_tasks: BackgroundTasks,
              tenant: Tenant = Depends(get_api_tenant)) -> dict:
-    """Tạo video qua API. Trả {id, status, est_credits}. HOLD credit như tạo trong app."""
+    """Tạo video qua API. Trả {id, status, est_credits}. HOLD credit như tạo trong app.
+
+    Gác cổng theo cấu hình runtime: feature-flag api_access theo gói + quota/ngày mỗi org.
+    """
+    plan_code = tenancy.org_plan_code(tenant.org_id)
+    with session_scope() as s:
+        cfg = platform.get_config(s)
+        if not platform.plan_flag(s, plan_code, "api_access"):
+            raise HTTPException(status.HTTP_403_FORBIDDEN,
+                                f"Gói {plan_code} chưa bật quyền API")
+    cap = int(cfg.get("max_api_jobs_per_day") or 0)
+    if cap > 0:
+        with tenant_session(tenant.org_id) as s:
+            used = s.execute(
+                select(func.count()).select_from(Job).where(
+                    Job.org_id == uuid.UUID(tenant.org_id),
+                    Job.created_at >= func.date_trunc("day", func.now()),
+                    Job.params["params"]["source"].astext == "api",
+                )
+            ).scalar_one()
+        if used >= cap:
+            raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS,
+                                f"Vượt quota API {cap} video/ngày — thử lại ngày mai hoặc nâng gói")
+
     job_req = JobCreateRequest(
         idempotency_key=req.idempotency_key, mode="product_ad", purpose=req.purpose,
         seconds=req.seconds, resolution=req.resolution, product=req.product,
         params={"brief": req.brief, "voice_gender": req.voice_gender,
-                "voice_persona": req.voice_persona, "aspect": req.aspect},
+                "voice_persona": req.voice_persona, "aspect": req.aspect, "source": "api"},
     )
     resp = _create_job_handler(job_req, background_tasks, tenant)
     return {"id": resp.job_id, "status": resp.status, "est_credits": resp.est_credits,

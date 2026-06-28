@@ -250,6 +250,20 @@ class CreditPack(Base):
 
 
 # ── [M2] affiliate loop (vượt autovis: video → click → doanh thu) ────────
+class VvPlatformConfig(Base):
+    """Cấu hình nền tảng SỬA ĐƯỢC LÚC CHẠY (admin, không cần deploy). GLOBAL, 1 hàng id=1.
+
+    data JSONB giữ: video_provider_chain (override), quota (max_api_jobs_per_day),
+    feature_flags theo gói. Đọc qua platform.get_config() (merge default). Chỉ admin ghi."""
+
+    __tablename__ = "vv_platform_config"
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=False)
+    data: Mapped[dict] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
 class VvAffiliateLink(Base):
     """Short-link gắn vào đuôi CTA video. /r/{code} → redirect target_url + ghi click."""
 

@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 
-from app_api import audit, config, notify, wallet
+from app_api import audit, config, notify, platform, wallet
 from app_api.auth import Principal
 from app_api.db import session_scope, tenant_session
 from app_api.deps import require_admin
@@ -83,6 +83,29 @@ def economics() -> dict:
         "jobs_total": sum(by_status.values()), "jobs_by_status": by_status,
         "success_rate": round(by_status.get(JobStatus.READY, 0) / total * 100, 1),
     }
+
+
+# ── Cấu hình nền tảng runtime (sửa không cần deploy) ──────────────────────
+@router.get("/config")
+def get_platform_config() -> dict:
+    with session_scope() as s:
+        return platform.get_config(s)
+
+
+class ConfigPatch(BaseModel):
+    video_provider_chain: str | None = Field(default=None, max_length=200)
+    max_api_jobs_per_day: int | None = Field(default=None, ge=0, le=100000)
+    feature_flags: dict | None = None
+
+
+@router.put("/config")
+def set_platform_config(req: ConfigPatch, admin: Principal = Depends(require_admin)) -> dict:
+    patch = {k: v for k, v in req.model_dump().items() if v is not None}
+    with session_scope() as s:
+        out = platform.set_config(s, patch)
+        audit.record(s, action="config.update", actor_email=admin.email,
+                     actor_user_id=admin.user_id, detail={"keys": list(patch.keys())})
+    return out
 
 
 # ── Broadcast: gửi 1 thông báo tới mọi workspace ───────────────────────────

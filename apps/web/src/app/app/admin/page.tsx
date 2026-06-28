@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Users, Building2, Film, Clapperboard, Coins, ShieldAlert, Search, Loader2, Ban, CircleCheck, Plus, Megaphone, Send, TrendingUp, TrendingDown } from "lucide-react";
+import { Users, Building2, Film, Clapperboard, Coins, ShieldAlert, Search, Loader2, Ban, CircleCheck, Plus, Megaphone, Send, TrendingUp, TrendingDown, Settings2 } from "lucide-react";
 import { api } from "@/lib/api/endpoints";
 import { useMe } from "@/lib/query/hooks";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -20,7 +20,11 @@ export default function AdminPage() {
 
   const stats = useQuery({ queryKey: ["admin-stats"], queryFn: api.adminStats, enabled: !!isAdmin });
   const econ = useQuery({ queryKey: ["admin-econ"], queryFn: api.adminEconomics, enabled: !!isAdmin });
+  const cfg = useQuery({ queryKey: ["admin-config"], queryFn: api.adminConfig, enabled: !!isAdmin });
   const moderation = useQuery({ queryKey: ["admin-mod"], queryFn: api.adminModeration, enabled: !!isAdmin });
+  const [chain, setChain] = useState<string | null>(null);
+  const [quota, setQuota] = useState<string | null>(null);
+  const [cfgMsg, setCfgMsg] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const users = useQuery({ queryKey: ["admin-users", q], queryFn: () => api.adminUsers(q), enabled: !!isAdmin });
   const [bcTitle, setBcTitle] = useState("");
@@ -69,8 +73,25 @@ export default function AdminPage() {
     }
   }
 
+  async function saveConfig() {
+    const patch: { video_provider_chain?: string; max_api_jobs_per_day?: number } = {};
+    if (chain !== null) patch.video_provider_chain = chain.trim();
+    if (quota !== null) {
+      const n = parseInt(quota, 10);
+      if (Number.isFinite(n) && n >= 0) patch.max_api_jobs_per_day = n;
+    }
+    if (Object.keys(patch).length === 0) return;
+    await api.adminSetConfig(patch);
+    setCfgMsg("Đã lưu — áp dụng ngay, không cần deploy.");
+    setChain(null);
+    setQuota(null);
+    qc.invalidateQueries({ queryKey: ["admin-config"] });
+    setTimeout(() => setCfgMsg(null), 2500);
+  }
+
   const S = stats.data;
   const E = econ.data;
+  const C = cfg.data;
 
   return (
     <div className="flex flex-col gap-6">
@@ -139,6 +160,40 @@ export default function AdminPage() {
           </div>
         </GlassCard>
       </div>
+
+      {/* cấu hình runtime — đổi không cần deploy */}
+      <GlassCard className="p-5">
+        <div className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-ink-low">
+          <Settings2 className="h-4 w-4 text-violet-300" /> Cấu hình vận hành (áp dụng ngay, không deploy)
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm text-ink-medium">Chuỗi provider video (override)</span>
+            <input
+              className={inputCls}
+              value={chain ?? C?.video_provider_chain ?? ""}
+              onChange={(e) => setChain(e.target.value)}
+              placeholder="vd: fal,kling,seedance (rỗng = mặc định env)"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm text-ink-medium">Quota API (video/ngày mỗi org, 0 = không giới hạn)</span>
+            <input
+              className={inputCls}
+              type="number"
+              min={0}
+              value={quota ?? (C ? String(C.max_api_jobs_per_day) : "")}
+              onChange={(e) => setQuota(e.target.value)}
+            />
+          </label>
+        </div>
+        <div className="mt-4 flex items-center gap-3">
+          <Button size="sm" variant="glass" className="gap-1.5" onClick={saveConfig}>
+            <Settings2 className="h-4 w-4 text-violet-300" /> Lưu cấu hình
+          </Button>
+          {cfgMsg && <span className="text-xs text-success">{cfgMsg}</span>}
+        </div>
+      </GlassCard>
 
       {/* moderation */}
       {(moderation.data?.length ?? 0) > 0 && (

@@ -11,6 +11,13 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, inputCls, ChipGroup } from "@/components/ui/field";
 
+// Gương mặt AI mẫu cho persona hệ thống (avatar_url rỗng). User tự tải sẽ đè lên.
+const SYSTEM_FACES: Record<string, string> = {
+  Linh: "/kol/linh.jpg",
+  Minh: "/kol/an.jpg",
+  Hà: "/kol/mai.jpg",
+};
+
 export default function KolPage() {
   const qc = useQueryClient();
   const kol = useQuery({ queryKey: ["kol"], queryFn: api.kolPersonas });
@@ -48,12 +55,14 @@ export default function KolPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {(kol.data ?? []).map((k) => (
+          {(kol.data ?? []).map((k) => {
+            const face = k.avatar_url || SYSTEM_FACES[k.name] || "";
+            return (
             <GlassCard key={k.id} className="flex flex-col p-4">
               <div className="relative mb-3 grid aspect-square place-items-center overflow-hidden rounded-xl bg-bg-surface">
-                {k.avatar_url ? (
+                {face ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={k.avatar_url} alt={k.name} className="h-full w-full object-cover" />
+                  <img src={face} alt={k.name} className="h-full w-full object-cover" />
                 ) : (
                   <UserSquare2 className="h-10 w-10 text-violet-300/60" />
                 )}
@@ -85,7 +94,8 @@ export default function KolPage() {
                 )}
               </div>
             </GlassCard>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

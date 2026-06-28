@@ -18,8 +18,8 @@ const STATS = [
   { v: "300", l: "credit tặng" },
 ];
 
-// ảnh output mẫu THẬT — khoe sản phẩm ở panel trái (autovis khoe mặt KOL).
-const SHOWCASE = ["fashion", "tech", "beauty"];
+// khung KOL/output mẫu — khoe gương mặt + nội dung ở panel trái (như autovis khoe mặt KOL).
+const SHOWCASE = ["lookbook", "kol_review", "food_review"];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -61,6 +61,15 @@ export default function LoginPage() {
     <div className="grid min-h-dvh lg:grid-cols-2">
       {/* LEFT — branding (ẩn trên mobile) */}
       <div className="relative hidden flex-col justify-between overflow-hidden bg-bg-surface p-10 lg:flex">
+        {/* nền điện ảnh mờ — thêm chiều sâu, không lộ AI */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/bg/desk.jpg"
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.14]"
+          style={{ maskImage: "radial-gradient(120% 90% at 30% 40%, black, transparent 80%)" }}
+        />
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.35]"
           style={{

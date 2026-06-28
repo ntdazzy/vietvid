@@ -21,6 +21,7 @@ import { UseCases } from "@/components/marketing/use-cases";
 import { FeaturedKol } from "@/components/marketing/featured-kol";
 import { ProofStrip } from "@/components/marketing/proof-strip";
 import { Manifesto } from "@/components/marketing/manifesto";
+import { Faq } from "@/components/marketing/faq";
 import { Intro } from "@/components/marketing/intro";
 
 const SAMPLES = [
@@ -207,6 +208,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* §FAQ — câu hỏi thường gặp (fix link /#faq ở header) */}
+      <Faq />
 
       {/* S11b — CTA đóng phim */}
       <section className="relative overflow-hidden px-4 py-28 text-center">

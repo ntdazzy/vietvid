@@ -44,8 +44,8 @@ export function FeaturedKol() {
       <div className="mt-10 grid gap-5 lg:grid-cols-12">
         {/* card lớn — clip SP thật + khung persona (slot chờ ảnh) */}
         <Reveal className="lg:col-span-7">
-          <div className="flex h-full gap-5 rounded-[24px] border border-dashed border-violet-400/30 bg-white/[0.02] p-5">
-            <div className="w-[150px] shrink-0">
+          <div className="flex h-full flex-col gap-4 rounded-[24px] border border-dashed border-violet-400/30 bg-white/[0.02] p-5 sm:flex-row sm:gap-5">
+            <div className="w-[140px] shrink-0 sm:w-[150px]">
               <MiniReel
                 poster="/samples/fashion.png"
                 video="/samples/fashion.mp4"

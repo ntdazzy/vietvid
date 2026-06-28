@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Layers, Loader2, Download, Plus, AlertCircle } from "lucide-react";
+import { Layers, Loader2, Download, Plus, AlertCircle, Lightbulb } from "lucide-react";
 import { api } from "@/lib/api/endpoints";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
@@ -57,11 +57,19 @@ export default function ComposePage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink-high lg:text-[34px]">Ghép Video & Hình ảnh</h1>
-        <p className="mt-1 text-ink-low">Chọn nhiều ảnh, ghép thành một video slideshow dọc.</p>
+        <div className="flex items-center gap-2">
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-grad-brand-soft">
+            <Layers className="h-5 w-5 text-violet-300" />
+          </span>
+          <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Ghép Video & Hình ảnh</h1>
+        </div>
+        <p className="mt-2 text-ink-low">Chọn nhiều ảnh (2–8 tấm), Vyra ghép thành một video slideshow dọc có chuyển cảnh, xuất MP4 đăng được ngay.</p>
       </div>
 
       <GlassCard className="flex flex-col gap-4 p-5">
+        {items.length === 0 && (
+          <p className="text-sm text-ink-low">Bấm ô <span className="text-ink-medium">＋</span> để thêm ảnh — cần ít nhất 2 ảnh để ghép.</p>
+        )}
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
           {items.map((it, i) => (
             <div key={i} className="relative aspect-[9/16] overflow-hidden rounded-lg border border-white/10">
@@ -110,13 +118,31 @@ export default function ComposePage() {
       {videoUrl && (
         <GlassCard bordered className={cn("flex flex-col items-center gap-4 p-6")}>
           <video src={videoUrl} controls autoPlay loop className="max-h-[60vh] w-auto rounded-xl border border-white/10" />
-          <a href={videoUrl} download="vietvid-compose.mp4">
+          <a href={videoUrl} download="vyra-compose.mp4">
             <Button className="gap-2">
               <Download className="h-4 w-4" /> Tải MP4
             </Button>
           </a>
         </GlassCard>
       )}
+
+      {/* tips */}
+      <GlassCard className="p-5">
+        <div className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-ink-high">
+          <Lightbulb className="h-4 w-4 text-hold" /> Mẹo ghép đẹp
+        </div>
+        <ul className="grid gap-2.5 sm:grid-cols-3">
+          {[
+            "Dùng ảnh CÙNG tỉ lệ dọc 9:16 để video không bị viền đen.",
+            "3–5 ảnh là vừa đẹp; mỗi ảnh 2–3 giây cho nhịp mượt.",
+            "Muốn có giọng đọc + kịch bản? Dùng 'Tạo video' thay vì ghép.",
+          ].map((t) => (
+            <li key={t} className="flex items-start gap-2 text-sm text-ink-low">
+              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-violet-400" /> {t}
+            </li>
+          ))}
+        </ul>
+      </GlassCard>
     </div>
   );
 }

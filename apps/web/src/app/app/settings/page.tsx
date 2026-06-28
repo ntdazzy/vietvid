@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChipGroup, Field, inputCls } from "@/components/ui/field";
+import { ScreenHero } from "@/components/app/screen-hero";
 import { clearSession } from "@/lib/auth/session";
 
 const VOICE_KEY = "vietvid_default_voice";
@@ -70,12 +71,12 @@ export default function SettingsPage() {
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
-      <div className="flex items-center gap-3">
-        <span className="grid h-11 w-11 place-items-center rounded-xl bg-grad-brand-soft">
-          <Settings className="h-5 w-5 text-violet-300" />
-        </span>
-        <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Cài đặt</h1>
-      </div>
+      <ScreenHero
+        icon={Settings}
+        accent="slate"
+        title="Cài đặt"
+        sub="Tài khoản, hồ sơ, bảo mật và tuỳ chọn của bạn."
+      />
 
       {/* tài khoản */}
       <GlassCard className="p-5">

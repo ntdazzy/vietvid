@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link2, MousePointerClick, Copy, Check, Trash2, Loader2, Plus } from "lucide-react";
+import { Link2, MousePointerClick, Copy, Check, Trash2, Loader2, Plus, BarChart3 } from "lucide-react";
 import { api } from "@/lib/api/endpoints";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, inputCls } from "@/components/ui/field";
+import { ScreenHero, StatTile } from "@/components/app/screen-hero";
 
 const NETWORKS = ["", "shopee", "lazada", "tiktok"];
 
@@ -51,30 +52,24 @@ export default function AffiliatePage() {
     setTimeout(() => setCopied(null), 1800);
   }
 
+  const nLinks = stats.data?.links ?? 0;
+  const nClicks = stats.data?.clicks ?? 0;
+  const avg = nLinks ? Math.round((nClicks / nLinks) * 10) / 10 : 0;
+
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-grad-brand-soft">
-            <Link2 className="h-5 w-5 text-violet-300" />
-          </span>
-          <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Affiliate</h1>
+      <ScreenHero
+        icon={Link2}
+        accent="amber"
+        title="Affiliate"
+        sub="Gắn link rút gọn vào video, đo click thật về sàn — đóng vòng tới doanh thu."
+      >
+        <div className="grid grid-cols-3 gap-3">
+          <StatTile icon={Link2} label="Link rút gọn" value={nLinks.toLocaleString("vi-VN")} accent="amber" />
+          <StatTile icon={MousePointerClick} label="Tổng click" value={nClicks.toLocaleString("vi-VN")} accent="emerald" />
+          <StatTile icon={BarChart3} label="Click / link" value={avg.toLocaleString("vi-VN")} accent="amber" />
         </div>
-        <p className="mt-1 text-ink-low">Gắn link rút gọn vào video, đo click thật về sàn — đóng vòng tới doanh thu.</p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 sm:max-w-md">
-        <GlassCard className="p-4">
-          <Link2 className="h-5 w-5 text-violet-300" />
-          <div className="mt-3 font-numeric text-2xl font-bold text-ink-high">{stats.data?.links ?? 0}</div>
-          <div className="text-sm text-ink-low">Link</div>
-        </GlassCard>
-        <GlassCard className="p-4">
-          <MousePointerClick className="h-5 w-5 text-success" />
-          <div className="mt-3 font-numeric text-2xl font-bold text-ink-high">{stats.data?.clicks ?? 0}</div>
-          <div className="text-sm text-ink-low">Click</div>
-        </GlassCard>
-      </div>
+      </ScreenHero>
 
       <GlassCard className="p-5">
         <form onSubmit={create} className="grid gap-3 sm:grid-cols-2">

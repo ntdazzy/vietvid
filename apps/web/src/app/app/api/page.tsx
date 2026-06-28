@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { KeyRound, Webhook, Copy, Check, Trash2, Loader2, Plus, Terminal } from "lucide-react";
+import { KeyRound, Webhook, Copy, Check, Trash2, Plus, Terminal } from "lucide-react";
 import { api } from "@/lib/api/endpoints";
 import { API_BASE_URL } from "@/lib/config";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { inputCls } from "@/components/ui/field";
+import { ScreenHero, StatTile } from "@/components/app/screen-hero";
 import { cn } from "@/lib/utils/cn";
 
 export default function ApiPage() {
@@ -68,15 +69,17 @@ export default function ApiPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-grad-brand-soft">
-            <KeyRound className="h-5 w-5 text-violet-300" />
-          </span>
-          <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">API & Webhook</h1>
+      <ScreenHero
+        icon={Terminal}
+        accent="cyan"
+        title="API & Webhook"
+        sub="Tạo video bằng code. Tích hợp Vyra vào hệ thống của bạn."
+      >
+        <div className="grid grid-cols-2 gap-3 sm:max-w-sm">
+          <StatTile icon={KeyRound} label="Khoá API" value={keys.isLoading ? "" : (keys.data?.length ?? 0)} loading={keys.isLoading} accent="cyan" />
+          <StatTile icon={Webhook} label="Webhook" value={hooks.isLoading ? "" : (hooks.data?.length ?? 0)} loading={hooks.isLoading} accent="cyan" />
         </div>
-        <p className="mt-1 text-ink-low">Tạo video bằng code. Tích hợp Vyra vào hệ thống của bạn.</p>
-      </div>
+      </ScreenHero>
 
       {/* API keys */}
       <GlassCard className="p-5">

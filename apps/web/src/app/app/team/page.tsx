@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { UserPlus, Crown, Trash2, Mail, Loader2, X } from "lucide-react";
+import { UserPlus, Crown, Trash2, Mail, Loader2, X, Users, MailPlus } from "lucide-react";
 import { api } from "@/lib/api/endpoints";
 import { useMe } from "@/lib/query/hooks";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -10,6 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, inputCls } from "@/components/ui/field";
+import { ScreenHero, StatTile } from "@/components/app/screen-hero";
+
+const AV_TONES = ["bg-sky-500/20 text-sky-200", "bg-violet-500/20 text-violet-200", "bg-emerald-500/20 text-emerald-200", "bg-rose-500/20 text-rose-200", "bg-amber-500/20 text-amber-200"];
+const avTone = (s: string) => AV_TONES[(s.charCodeAt(0) || 0) % AV_TONES.length];
 
 export default function TeamPage() {
   const me = useMe();
@@ -52,17 +56,22 @@ export default function TeamPage() {
     qc.invalidateQueries({ queryKey: ["org-invites"] });
   }
 
+  const nMembers = members.data?.length ?? 0;
+  const nInvites = invites.data?.length ?? 0;
+
   return (
     <div className="flex max-w-3xl flex-col gap-6">
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-grad-brand-soft">
-            <UserPlus className="h-5 w-5 text-violet-300" />
-          </span>
-          <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Thành viên</h1>
+      <ScreenHero
+        icon={Users}
+        accent="sky"
+        title="Thành viên"
+        sub="Mời cộng sự cùng tạo video trong workspace của bạn."
+      >
+        <div className="grid grid-cols-2 gap-3 sm:max-w-sm">
+          <StatTile icon={Users} label="Đang hoạt động" value={members.isLoading ? "" : nMembers} loading={members.isLoading} accent="sky" />
+          <StatTile icon={MailPlus} label="Lời mời chờ" value={isOwner ? nInvites : "—"} accent="amber" />
         </div>
-        <p className="mt-1 text-ink-low">Quản lý người dùng trong workspace của bạn.</p>
-      </div>
+      </ScreenHero>
 
       {/* mời (chỉ owner) */}
       {isOwner && (
@@ -110,7 +119,11 @@ export default function TeamPage() {
           <div className="flex flex-col divide-y divide-white/[0.06]">
             {(members.data ?? []).map((m) => (
               <div key={m.user_id} className="flex items-center justify-between gap-3 py-3">
-                <div className="min-w-0">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold ${avTone(m.full_name || m.email)}`}>
+                    {(m.full_name || m.email).charAt(0).toUpperCase()}
+                  </span>
+                  <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="truncate text-sm font-medium text-ink-high">
                       {m.full_name || m.email}
@@ -124,6 +137,7 @@ export default function TeamPage() {
                     )}
                   </div>
                   <div className="truncate text-xs text-ink-low">{m.email}</div>
+                  </div>
                 </div>
                 {isOwner && !m.is_owner && (
                   <button

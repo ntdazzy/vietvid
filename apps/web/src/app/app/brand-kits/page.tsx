@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Palette, Trash2, Star, Loader2 } from "lucide-react";
+import { Palette, Trash2, Star, Loader2, Layers, Droplets } from "lucide-react";
 import { api } from "@/lib/api/endpoints";
 import type { BrandKit } from "@/lib/api/types";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Field, inputCls } from "@/components/ui/field";
+import { ScreenHero, StatTile } from "@/components/app/screen-hero";
 
 const EMPTY = {
   name: "", logo_url: "", primary_color: "#7C3AED", secondary_color: "#2563EB",
@@ -28,22 +29,26 @@ export default function BrandKitsPage() {
     refresh();
   }
 
+  const list = kits.data ?? [];
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-end justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-grad-brand-soft">
-              <Palette className="h-5 w-5 text-violet-300" />
-            </span>
-            <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Bộ thương hiệu</h1>
-          </div>
-          <p className="mt-1 text-ink-low">Logo, màu, watermark & dòng công bố cho video của bạn.</p>
+      <ScreenHero
+        icon={Palette}
+        accent="rose"
+        title="Bộ thương hiệu"
+        sub="Logo, màu, watermark & dòng công bố — gắn nhận diện vào mọi video."
+        action={
+          <Button onClick={() => setEditing(editing ? null : { ...EMPTY })} variant={editing ? "glass" : "primary"}>
+            {editing ? "Đóng" : "+ Tạo bộ"}
+          </Button>
+        }
+      >
+        <div className="grid grid-cols-2 gap-3 sm:max-w-sm">
+          <StatTile icon={Layers} label="Số bộ" value={kits.isLoading ? "" : list.length} loading={kits.isLoading} accent="rose" />
+          <StatTile icon={Star} label="Mặc định" value={list.find((k) => k.is_default)?.name ?? "Chưa đặt"} accent="amber" />
         </div>
-        <Button onClick={() => setEditing(editing ? null : { ...EMPTY })} variant={editing ? "glass" : "primary"}>
-          {editing ? "Đóng" : "+ Tạo bộ"}
-        </Button>
-      </div>
+      </ScreenHero>
 
       {editing && (
         <BrandKitForm
@@ -64,23 +69,42 @@ export default function BrandKitsPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {(kits.data ?? []).map((k) => (
-            <GlassCard key={k.id} className="p-5">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="h-6 w-6 rounded-md" style={{ background: k.primary_color }} />
-                  <span className="h-6 w-6 rounded-md" style={{ background: k.secondary_color }} />
-                </div>
-                <div className="flex items-center gap-1">
-                  {k.is_default && <Badge tone="brand"><Star className="mr-1 h-3 w-3" />Mặc định</Badge>}
-                  <button onClick={() => setEditing(k)} className="rounded-lg px-2 py-1 text-xs text-violet-300 hover:bg-white/[0.05]">Sửa</button>
-                  <button onClick={() => remove(k.id)} className="grid h-7 w-7 place-items-center rounded-lg text-ink-low hover:bg-danger/10 hover:text-danger" aria-label="Xoá">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+            <GlassCard key={k.id} className="overflow-hidden p-0">
+              {/* preview thương hiệu — gradient màu chính→phụ + logo + watermark */}
+              <div
+                className="relative flex h-24 items-end p-3"
+                style={{ background: `linear-gradient(135deg, ${k.primary_color || "#7C3AED"}, ${k.secondary_color || "#2563EB"})` }}
+              >
+                {k.logo_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={k.logo_url} alt="" className="absolute left-3 top-3 h-9 w-9 rounded-lg object-cover ring-1 ring-white/40" />
+                )}
+                {k.is_default && (
+                  <Badge tone="brand" className="absolute right-2 top-2 border-white/30 bg-black/30 text-white">
+                    <Star className="mr-1 h-3 w-3" /> Mặc định
+                  </Badge>
+                )}
+                {k.watermark_text && (
+                  <span className="ml-auto rounded bg-black/35 px-2 py-0.5 text-[11px] font-medium text-white/95 backdrop-blur-sm">
+                    {k.watermark_text}
+                  </span>
+                )}
               </div>
-              <div className="font-semibold text-ink-high">{k.name}</div>
-              {k.watermark_text && <div className="mt-1 text-xs text-ink-low">Watermark: {k.watermark_text}</div>}
-              {k.disclosure_text && <div className="mt-0.5 line-clamp-1 text-xs text-ink-low">Công bố: {k.disclosure_text}</div>}
+              <div className="p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 font-display font-semibold text-ink-high">{k.name}</div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button onClick={() => setEditing(k)} className="rounded-lg px-2 py-1 text-xs text-rose-300 hover:bg-white/[0.05]">Sửa</button>
+                    <button onClick={() => remove(k.id)} className="grid h-7 w-7 place-items-center rounded-lg text-ink-low hover:bg-danger/10 hover:text-danger" aria-label="Xoá">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center gap-1.5 font-numeric text-[11px] text-ink-low">
+                  <Droplets className="h-3 w-3" /> {k.primary_color} · {k.secondary_color}
+                </div>
+                {k.disclosure_text && <div className="mt-1 line-clamp-1 text-xs text-ink-low">Công bố: {k.disclosure_text}</div>}
+              </div>
             </GlassCard>
           ))}
         </div>

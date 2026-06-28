@@ -24,6 +24,9 @@ workdir/
 *.png.tmp
 # ngoại lệ: clip mẫu Ken-Burns cho landing (nhẹ, asset thật của web)
 !apps/web/public/samples/*.mp4
+# ngoại lệ: clip hover live-portrait cho KOL (đã nén ~40-95KB, asset thật của web)
+!apps/web/public/kol/*.mp4
+!apps/web/public/kol/lib/*.mp4
 
 # OS / IDE
 .DS_Store

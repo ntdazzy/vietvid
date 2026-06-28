@@ -18,6 +18,9 @@ import { LogoTickerBand } from "@/components/marketing/logo-ticker-band";
 import { HowItWorks } from "@/components/marketing/how-it-works";
 import { CompareTable } from "@/components/marketing/compare-table";
 import { UseCases } from "@/components/marketing/use-cases";
+import { FeaturedKol } from "@/components/marketing/featured-kol";
+import { ProofStrip } from "@/components/marketing/proof-strip";
+import { Manifesto } from "@/components/marketing/manifesto";
 import { Intro } from "@/components/marketing/intro";
 
 const SAMPLES = [
@@ -50,6 +53,9 @@ export default function LandingPage() {
         </div>
         <p className="mt-5 text-center text-xs text-ink-low">Di chuột vào mỗi mẫu để xem clip chạy.</p>
       </section>
+
+      {/* §5 — FEATURED KOL (mirror autovis, slot chờ ảnh thật) */}
+      <FeaturedKol />
 
       {/* S1.5 — LOẠI NỘI DUNG (đa dạng chủ đề, không chỉ quảng cáo SP) */}
       <UseCases />
@@ -92,8 +98,9 @@ export default function LandingPage() {
         }
       />
 
-      {/* S4 — ACT-LỚN · MOAT (climax) — id winner-loop */}
-      <section id="winner-loop" className="relative">
+      {/* S4 — ACT-LỚN · MOAT (climax) — id winner-loop · đóng khung CHƯƠNG RIÊNG (autovis không có) */}
+      <section id="winner-loop" className="relative bg-bg-base">
+        <div className="mx-auto h-px max-w-4xl bg-gradient-to-r from-transparent via-violet-500/60 to-transparent" />
         <div className="glow-radial pointer-events-none absolute inset-x-0 -top-10 mx-auto h-64 max-w-3xl" />
         <CinematicAct
           index={2}
@@ -109,7 +116,11 @@ export default function LandingPage() {
             </div>
           }
         />
+        <div className="mx-auto h-px max-w-4xl bg-gradient-to-r from-transparent via-violet-500/60 to-transparent" />
       </section>
+
+      {/* §10 — PROOF STRIP (số THẬT, nhịp nghỉ sau climax) */}
+      <ProofStrip />
 
       {/* S5 — ACT · Kịch bản 6 góc (04) */}
       <CinematicAct
@@ -148,6 +159,9 @@ export default function LandingPage() {
         sub="Dọc 9:16 cho TikTok/Reels, vuông 1:1 cho feed, ngang 16:9 cho YouTube — từ cùng một lần dựng."
         demo={<RatioBento />}
       />
+
+      {/* §15 — MANIFESTO (mirror "SẴN SÀNG·KHỞI TẠO·TỎA SÁNG" của autovis, giọng Vyra) */}
+      <Manifesto />
 
       {/* S9 — Cách Vyra hoạt động */}
       <section className="py-24 lg:py-28">
@@ -218,9 +232,14 @@ export default function LandingPage() {
       </section>
 
       <footer className="border-t border-white/[0.06] px-4 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-sm text-ink-low sm:flex-row">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <Logo />
-          <p className="text-ink-disabled">© 2026 Vyra · Video AI giọng Việt</p>
+          <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-ink-low">
+            <Link href="/pricing" className="hover:text-ink-medium">Bảng giá</Link>
+            <Link href="/terms" className="hover:text-ink-medium">Điều khoản</Link>
+            <Link href="/privacy" className="hover:text-ink-medium">Bảo mật</Link>
+          </nav>
+          <p className="text-xs text-ink-disabled">© 2026 Vyra · Video AI giọng Việt</p>
         </div>
       </footer>
     </div>

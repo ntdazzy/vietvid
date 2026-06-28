@@ -94,6 +94,11 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
               Admin
             </NavLink>
           )}
+          {!authed && (
+            <NavLink href="/pricing" onEnter={() => openMenu(null)}>
+              Bảng giá
+            </NavLink>
+          )}
           <Trigger label="Hỗ trợ" active={open === "support"} onEnter={() => openMenu("support")} />
 
           {/* mega panels */}

@@ -78,13 +78,22 @@ export function LandingHero() {
             </a>
           </motion.div>
 
+          {/* 3 ô stat — đối ứng "50.000+" của autovis nhưng bằng số THẬT (static, không count-up) */}
           <motion.div
             custom={4} variants={fadeUp} initial="hidden" animate="show"
-            className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-low"
+            className="mt-8 grid max-w-md grid-cols-3 gap-3"
           >
-            <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4 text-violet-300" /> ~60 giây / video</span>
-            <span className="inline-flex items-center gap-1.5"><Mic className="h-4 w-4 text-violet-300" /> 7 giọng Việt thật</span>
-            <span className="inline-flex items-center gap-1.5"><Gift className="h-4 w-4 text-violet-300" /> Tặng 300 credit, không cần thẻ</span>
+            {[
+              { n: "~60s", l: "mỗi video", I: Clock },
+              { n: "7", l: "giọng Việt thật", I: Mic },
+              { n: "300", l: "credit tặng", I: Gift },
+            ].map(({ n, l, I }) => (
+              <div key={l} className="rounded-2xl border border-white/[0.07] bg-white/[0.025] px-3 py-3">
+                <I className="h-3.5 w-3.5 text-violet-300" />
+                <div className="mt-1.5 font-numeric text-[clamp(1.4rem,3vw,1.9rem)] font-bold leading-none text-gradient">{n}</div>
+                <div className="mt-1 text-xs text-ink-low">{l}</div>
+              </div>
+            ))}
           </motion.div>
         </div>
 

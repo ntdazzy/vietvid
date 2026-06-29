@@ -3,14 +3,16 @@
 > Tài liệu ngữ cảnh ĐẦY ĐỦ cho người/agent tiếp nhận. Đọc hết trước khi làm tiếp.
 > Mọi câu trả lời với chủ dự án: **TIẾNG VIỆT**. Mọi tính năng "xong" phải **verify bằng vận hành thật** (không tin pytest/mock xanh).
 
+> 🔀 **PIVOT (chốt 2026-06-28):** Vyra mở rộng từ "clone autovis chốt đơn" → **nền tảng tạo MỌI loại video bằng AI** (studio sáng tạo: quảng cáo/affiliate, video trend, **phim ngắn AI nguyên gốc**, KOL, kể chuyện). Affiliate giờ là 1 thể loại flagship. **Định vị + thư mục thể loại + roadmap đầy đủ ở [VISION.md](VISION.md) (file đó thắng khi mâu thuẫn).** Việc đang làm: nâng cấp toàn bộ UI/UX mọi màn vượt đối thủ + chuyển IA sang đa-thể-loại.
+
 ---
 
 ## 1. DỰ ÁN NÀY LÀ GÌ
 
-**Vyra** (tên cũ: VietVid) — SaaS **đa-tenant** (multi-tenant) **tạo video marketing bằng AI, giọng Việt thật**.
-Biến **1 ảnh sản phẩm → video chốt đơn ~60 giây**, có KOL AI (gương mặt ảo), kịch bản, lồng tiếng Việt, phụ đề.
+**Vyra** (tên cũ: VietVid) — SaaS **đa-tenant** (multi-tenant) **tạo MỌI loại video bằng AI, giọng Việt thật** (creative AI video studio). Người dùng vào web → **chọn thể loại** → đưa input (ý tưởng/ảnh/link/kịch bản) → Vyra dựng video hoàn chỉnh (hình + giọng Việt + nhạc + phụ đề) → tải/chia sẻ.
+Thể loại: quảng cáo/affiliate (1 ảnh SP → video chốt đơn), video trend, **phim ngắn AI nguyên gốc**, KOL bán hàng, kể chuyện/giải thích. → chi tiết & trạng thái từng thể loại: [VISION.md §3](VISION.md).
 
-- **Định vị:** clone CẢI TIẾN của **autovis.ai** (đối thủ chính), vượt cả Arcads, KlingAI. Phải cao cấp, KHÔNG nhìn "AI generic".
+- **Định vị (sau pivot):** **studio video AI Việt-first** vượt autovis.ai, Arcads, KlingAI, CapCut, Pika/Runway. Phải cao cấp, KHÔNG nhìn "AI generic". (Trước pivot chỉ là clone autovis cho mảng quảng cáo.)
 - **Lợi thế cạnh tranh (wedge):** (A) **giọng Việt thật** (clone VieNeu, hơn TTS generic của autovis) + (D) **giá minh bạch** — hiện số credit TRƯỚC khi tiêu, **hoàn 100% khi lỗi hệ thống**, gói trả phí không watermark. KHÔNG đua giá đáy.
 - **2 sản phẩm trên MỘT engine stateless:** **B** = nền tảng web/mobile self-serve (B2C); **C** = bán engine làm **API/white-label** (B2B).
 - **Thư mục gốc:** `c:\Users\NTD\Desktop\vietvid` · branch hiện tại `master` (base là `main`).
@@ -239,7 +241,10 @@ Nguồn: `CLAUDE.md` + `.claude/CLAUDE.md` + skill `real-qa` + nếp session.
 
 ## 10. VIỆC CẦN LÀM TIẾP (ưu tiên cao → thấp)
 
-### A. Theo yêu cầu mới nhất của chủ (UI/UX + KOL) — LÀM TRƯỚC
+> Roadmap đầy đủ theo Sóng (UI → Multi-genre engine → Activation → Growth) ở [VISION.md §8](VISION.md). Mục dưới là việc cụ thể của **Sóng UI (đang làm)**.
+
+### A. SÓNG UI — nâng cấp TOÀN BỘ màn vượt đối thủ + chuyển IA đa-thể-loại (ĐANG LÀM)
+0. **Nâng cấp toàn bộ UI/UX mọi màn** theo `docs/UI-UPGRADE-BLUEPRINT.md` (sinh từ audit toàn bộ màn): design primitives dùng chung (motion/depth/micro-interaction/states) → Home (bán "tạo mọi video AI") → Create (**chọn thể loại trước**) → Dashboard → còn lại. Verify từng màn: `tsc --noEmit` + live QA screenshot.
 1. **Mặt KOL chân thực hơn** — mặt ở login showcase + casting library vẫn "hơi AI". Hướng: prompt mạnh tay hơn (đời thường, khuyết điểm da, không model, ánh sáng tự nhiên), hoặc đổi model. Ưu tiên mặt LỘ nhiều: login (lookbook/kol_review/food_review) + library (Phong, v.v.).
 2. **Hover ZOOM** — thẻ phải phóng to khi hover (thêm `group-hover:scale-[1.03]` + `transition-transform duration-300` vào `HoverVideo`/thẻ chứa), không chỉ play video.
 3. **Nâng model i2v cho nét hơn** — LTX bị móp/mờ. Đổi sang **Kling** (`fal-ai/kling-video/v1.6/standard/image-to-video`, ~$0.25/clip, nét hơn nhiều) hoặc **Gemini Veo** (cần GEMINI key). Giữ pattern queue + nén ffmpeg (`scripts/gen_kol_videos.py`); cân nhắc giữ res cao hơn (scale 512-600px) cho nét.

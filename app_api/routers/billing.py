@@ -150,37 +150,20 @@ async def sepay_webhook(request: Request) -> dict:
     if str(body.get("transferType")) != "in":
         return {"success": True}  # tiền ra — bỏ qua
     content = str(body.get("content") or body.get("description") or "")
-    memo = billing.parse_sepay_memo(content)
-    if not memo:
-        return {"success": True, "message": "Không có mã đối soát"}  # ack, không phải của ta
-    org_id = billing.resolve_bank_payment_org(memo)
-    if org_id is None:
-        # Có mã đối soát nhưng không khớp payment PENDING nào — có thể đã xử lý, hoặc memo lạ.
-        # Log để quan sát (tránh "rơi tiền" âm thầm); vẫn ack để SePay không gửi lại dồn dập.
-        log.warning("sepay: memo %s không khớp payment PENDING nào", memo)
-        return {"success": True, "message": "Không có payment chờ"}
-
     try:
         amount = int(float(body.get("transferAmount") or 0))
     except (TypeError, ValueError):
         return {"success": True, "message": "Số tiền không đọc được"}
 
-    with tenant_session(org_id) as s:
-        p = s.execute(
-            select(Payment).where(Payment.provider == "bank_qr", Payment.ext_ref == memo)
-            .with_for_update()
-        ).scalar_one_or_none()
-        if p is None or p.status == "SUCCEEDED":
-            return {"success": True}  # idempotent
-        if amount != int(p.amount_vnd):
-            # Sai số tiền → KHÔNG tự cộng (admin xử lý); ack để SePay không gửi lại dồn dập.
-            log.warning(
-                "sepay: memo %s số tiền lệch — nhận %s, cần %s (payment %s)",
-                memo, amount, int(p.amount_vnd), p.id,
-            )
-            return {"success": True, "message": "Số tiền không khớp"}
-        billing.apply_topup(s, provider="bank_qr", ext_ref=memo)
-    return {"success": True}
+    # Đối soát + cộng credit dùng CHUNG với poller email (billing.credit_bank_transfer):
+    # bóc memo → tìm đơn PENDING → check đủ tiền (>=) → cộng (idempotent).
+    result = billing.credit_bank_transfer(content, amount)
+    if result["status"] == "insufficient":
+        log.warning("bank: memo %s thiếu tiền — nhận %s, cần %s",
+                    result.get("memo"), result.get("got"), result.get("need"))
+    elif result["status"] == "no_pending":
+        log.warning("bank: memo %s không khớp payment PENDING nào", result.get("memo"))
+    return {"success": True, "message": result["status"]}
 
 
 @router.get("/payments")

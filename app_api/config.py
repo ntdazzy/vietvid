@@ -115,7 +115,16 @@ BANK_ACCOUNT_NUMBER: str = _str("VIETVID_BANK_ACCOUNT")
 BANK_ACCOUNT_NAME: str = _str("VIETVID_BANK_ACCOUNT_NAME")
 BANK_NAME: str = _str("VIETVID_BANK_NAME")             # tên hiển thị (vd "Vietcombank")
 BANK_QR_TEMPLATE: str = _str("VIETVID_BANK_QR_TEMPLATE", "compact2")
-SEPAY_API_TOKEN: str = _str("VIETVID_SEPAY_TOKEN")     # token xác thực webhook SePay
+SEPAY_API_TOKEN: str = _str("VIETVID_SEPAY_TOKEN")     # token xác thực webhook SePay (hoặc nguồn báo-có tự host)
+
+# ── Tự đối soát MIỄN PHÍ qua email báo-có (thay SePay). Poll hòm mail nhận email
+# "biến động số dư" của ngân hàng (MB Bank) qua IMAP — KHÔNG lưu mật khẩu bank,
+# chỉ cần app-password của email. Trống = poller không chạy. ───────────────────
+BANK_EMAIL_IMAP_HOST: str = _str("VIETVID_BANK_EMAIL_IMAP", "imap.gmail.com")
+BANK_EMAIL_USER: str = _str("VIETVID_BANK_EMAIL_USER")            # email nhận báo-có
+BANK_EMAIL_PASSWORD: str = _str("VIETVID_BANK_EMAIL_PASSWORD")    # APP-PASSWORD (không phải pass bank)
+BANK_EMAIL_SENDER: str = _str("VIETVID_BANK_EMAIL_SENDER")        # lọc người gửi (vd MB: no-reply@mbbank.com.vn)
+BANK_POLL_INTERVAL_S: int = _int("VIETVID_BANK_POLL_INTERVAL_S", 45)
 
 # Nạp số tiền tuỳ ý (ngoài gói): chặn dưới/trên.
 TOPUP_MIN_VND: int = _int("VIETVID_TOPUP_MIN_VND", 20_000)
@@ -124,6 +133,10 @@ TOPUP_MAX_VND: int = _int("VIETVID_TOPUP_MAX_VND", 50_000_000)
 
 def bank_configured() -> bool:
     return bool(BANK_BIN and BANK_ACCOUNT_NUMBER and BANK_ACCOUNT_NAME)
+
+
+def bank_email_configured() -> bool:
+    return bool(BANK_EMAIL_USER and BANK_EMAIL_PASSWORD)
 
 
 # ── Quan sát + an toàn prod (Sóng 1A) ───────────────────────────────────

@@ -163,6 +163,38 @@ def apply_topup(session: Session, *, provider: str, ext_ref: str) -> Payment | N
     return p
 
 
+# ── Đối soát 1 giao dịch chuyển khoản đến (dùng chung webhook SePay + poller email) ──
+def credit_bank_transfer(content: str, amount_vnd: int) -> dict:
+    """Đối soát MỘT giao dịch tiền-vào: bóc memo VYRA → tìm đơn PENDING → check ĐỦ tiền
+    (trả >= số cần) → cộng credit. Idempotent (FOR UPDATE + status). Nguồn nào gọi cũng được
+    (SePay webhook hay poller email MB). Trả {status, memo?, need?, got?}:
+      no_memo · no_pending · already · insufficient · credited
+    """
+    from sqlalchemy import select as _select
+
+    from app_api.db import tenant_session
+
+    memo = parse_sepay_memo(content)
+    if not memo:
+        return {"status": "no_memo"}
+    org_id = resolve_bank_payment_org(memo)
+    if org_id is None:
+        return {"status": "no_pending", "memo": memo}
+    with tenant_session(org_id) as s:
+        p = s.execute(
+            _select(Payment)
+            .where(Payment.provider == "bank_qr", Payment.ext_ref == memo)
+            .with_for_update()
+        ).scalar_one_or_none()
+        if p is None or p.status == PaymentStatus.SUCCEEDED:
+            return {"status": "already", "memo": memo}
+        if int(amount_vnd) < int(p.amount_vnd):
+            # Trả THIẾU → không cộng (để admin xử). Trả ĐỦ/DƯ → cộng (nhận đúng gói đã đặt).
+            return {"status": "insufficient", "memo": memo, "need": int(p.amount_vnd), "got": int(amount_vnd)}
+        apply_topup(s, provider="bank_qr", ext_ref=memo)
+    return {"status": "credited", "memo": memo}
+
+
 # ── VNPay adapter ────────────────────────────────────────────────────────
 def _sign(query: str) -> str:
     return hmac.new(config.VNPAY_HASH_SECRET.encode(), query.encode(), hashlib.sha512).hexdigest()

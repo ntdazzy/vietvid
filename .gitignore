@@ -49,3 +49,6 @@ _*_key.txt
 acc.txt
 scripts/.mb_poller_state.json
 _vietvid_config_secret.txt
+# poller MB: venv riêng + creds (user/pass MB) — KHÔNG bao giờ commit
+.venv-poller/
+_mb_creds.txt

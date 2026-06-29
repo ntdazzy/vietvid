@@ -11,12 +11,13 @@ phiên-bản-độc-lập, lỗi không làm sập API chính.
 ⚠️ BẢO MẬT: file này cần USER+PASS MB. KHUYẾN NGHỊ dùng 1 TÀI KHOẢN MB RIÊNG chỉ để thu
 tiền nạp (rút định kỳ về TK chính). Đặt creds qua ENV, KHÔNG hardcode, KHÔNG commit.
 
-Cài + chạy (venv Python 3.11/3.12):
-    py -3.11 -m venv .venv-poller
+Cài + chạy (venv Python 3.12 — mbbank-lib chưa hỗ trợ 3.14):
+    py -3.12 -m venv .venv-poller
     .venv-poller\\Scripts\\activate      (Windows)   |   source .venv-poller/bin/activate (mac/linux)
-    pip install mbbank requests
+    pip install mbbank-lib requests       # 'mbbank-lib' (tên cũ 'mbbank' đã gỡ khỏi PyPI)
     # đặt env (xem bên dưới) rồi:
     python scripts/mb_poller.py
+    # hoặc dùng runner kèm sẵn:  bash run_mb_poller.sh
 
 ENV:
     MB_USERNAME           username đăng nhập MB
@@ -41,6 +42,9 @@ from pathlib import Path
 import requests
 
 log = logging.getLogger("mbpoller")
+
+_LOCK_SOCK = None  # giữ socket single-instance sống suốt đời tiến trình
+_LOCK_PORT = 39517  # cổng localhost khoá 1-poller (tránh 2 session MB)
 
 USERNAME = os.environ.get("MB_USERNAME", "")
 PASSWORD = os.environ.get("MB_PASSWORD", "")
@@ -123,24 +127,64 @@ def _post_transfer(content: str, amount: int) -> str:
         return f"HTTP {r.status_code}"
 
 
+def _as_tx_dicts(lst) -> list[dict]:
+    """Chuẩn hoá danh sách GD về list[dict] — mỗi phần tử có thể là dict (bản cũ)
+    hoặc Transaction modal Pydantic (mbbank-lib mới, .model_dump() ra đúng tên field)."""
+    out: list[dict] = []
+    for tx in lst or []:
+        if isinstance(tx, dict):
+            out.append(tx)
+        elif hasattr(tx, "model_dump"):
+            out.append(tx.model_dump())
+        elif hasattr(tx, "__dict__"):
+            out.append(dict(tx.__dict__))
+    return out
+
+
 def fetch_recent(mb) -> list[dict]:
-    """Lấy lịch sử GD ~3 ngày gần nhất. mbbank API: getTransactionAccountHistory."""
+    """Lấy lịch sử GD ~3 ngày gần nhất. mbbank API: getTransactionAccountHistory.
+
+    mbbank-lib mới trả TransactionHistoryResponseModal (có .transactionHistoryList: list[Transaction]);
+    bản cũ trả dict thô. Hỗ trợ cả hai → list[dict]."""
     today = dt.datetime.now()
     data = mb.getTransactionAccountHistory(
         accountNo=ACCOUNT,
         from_date=today - dt.timedelta(days=3),
         to_date=today,
     )
-    # MB trả dict; danh sách GD ở 'transactionHistoryList' (tuỳ phiên bản)
+    # bản mới: modal có thuộc tính transactionHistoryList
+    lst = getattr(data, "transactionHistoryList", None)
+    if lst is not None:
+        return _as_tx_dicts(lst)
+    # bản cũ: dict — danh sách GD ở 'transactionHistoryList' / tên thay thế
     for key in ("transactionHistoryList", "transactionHistory", "historyList"):
         lst = data.get(key) if isinstance(data, dict) else None
         if isinstance(lst, list):
-            return lst
+            return _as_tx_dicts(lst)
     return []
+
+
+def _acquire_single_instance() -> bool:
+    """Khoá 1-poller race-free bằng bind cổng localhost. True nếu giành được.
+    Tránh 2 session MB (do lỡ chạy 2 lần, hoặc 1 lib spawn lại __main__ trên Windows)."""
+    global _LOCK_SOCK
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind(("127.0.0.1", _LOCK_PORT))  # OS chỉ cho 1 tiến trình bind → race-free
+    except OSError:
+        s.close()
+        return False
+    s.listen(1)
+    _LOCK_SOCK = s  # giữ tham chiếu để không bị GC đóng socket
+    return True
 
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s mbpoller: %(message)s")
+    if not _acquire_single_instance():
+        log.warning("đã có 1 poller MB đang chạy (cổng %s bận) — thoát để tránh 2 session.", _LOCK_PORT)
+        return
     if not (USERNAME and PASSWORD and ACCOUNT and TOKEN):
         log.error("Thiếu env: cần MB_USERNAME, MB_PASSWORD, MB_ACCOUNT, VYRA_WEBHOOK_TOKEN.")
         sys.exit(1)

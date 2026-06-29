@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils/cn";
 import { MiniMoney } from "@/components/admin/mini-money";
 import { Gauge3 } from "@/components/admin/gauge3";
 import { StatusBar } from "@/components/admin/status-bar";
+import { PaymentConfigCard } from "@/components/admin/payment-config-card";
 
 const A = ACCENTS.slate;
 const vnd = (n: number) => `${n.toLocaleString("vi-VN")}đ`;
@@ -235,6 +236,11 @@ export default function AdminPage() {
           </GlassCard>
         </Reveal>
       )}
+
+      {/* ── PHƯƠNG THỨC THANH TOÁN (admin cấu hình bank + key, không cần deploy) ── */}
+      <Reveal>
+        <PaymentConfigCard />
+      </Reveal>
 
       {/* ── SÀN VẬN HÀNH — 2 cột: trái (hàng đợi duyệt + danh sách user) · phải (panel điều khiển) ── */}
       <div className="grid gap-4 lg:grid-cols-3">

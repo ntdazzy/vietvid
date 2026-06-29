@@ -43,3 +43,18 @@ export interface ModItem {
   avatar_url: string;
   description: string;
 }
+
+export interface PaymentConfig {
+  bank_bin: string;
+  bank_account: string;
+  bank_account_name: string;
+  bank_name: string;
+  webhook_token: string;
+  momo_partner: string;
+  momo_access: string;
+  momo_secret: string;
+  vnpay_tmn: string;
+  vnpay_hash: string;
+  enabled: { bank_qr: boolean; momo: boolean; vnpay: boolean };
+  secrets_storage: "encrypted" | "env-only";
+}

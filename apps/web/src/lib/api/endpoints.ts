@@ -3,6 +3,7 @@ import { getToken } from "@/lib/auth/session";
 import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from "./client";
 import type {
   AdminConfig,
+  PaymentConfig,
   AdminEconomics,
   AdminStats,
   AdminUser,
@@ -129,6 +130,9 @@ export const api = {
     apiPost<{ ok: boolean; sent: number }>("/v1/admin/broadcast", { title, body }),
   adminConfig: () => apiGet<AdminConfig>("/v1/admin/config"),
   adminSetConfig: (patch: Partial<AdminConfig>) => apiPut<AdminConfig>("/v1/admin/config", patch),
+  adminPaymentConfig: () => apiGet<PaymentConfig>("/v1/admin/payment-config"),
+  adminSetPaymentConfig: (patch: Partial<PaymentConfig>) =>
+    apiPut<PaymentConfig>("/v1/admin/payment-config", patch),
 
   // affiliate
   affiliateLinks: () => apiGet<AffiliateLink[]>("/v1/affiliate/links"),

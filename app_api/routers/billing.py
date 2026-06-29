@@ -13,7 +13,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import select
 
-from app_api import billing, config, events, wallet
+from app_api import billing, config, events, payment_config, wallet
 from app_api.db import session_scope, tenant_session
 from app_api.deps import Tenant, get_tenant
 from app_api.models import Payment
@@ -43,7 +43,12 @@ def create_topup(req: TopupRequest, tenant: Tenant = Depends(get_tenant)) -> dic
         raise HTTPException(status_code=404, detail="Cổng dev đã tắt")
     if provider not in ("dev", "vnpay", "momo", "bank_qr"):
         raise HTTPException(status_code=422, detail="Cổng không hỗ trợ")
-    if provider == "bank_qr" and not config.bank_configured():
+    # Cấu hình thanh toán GLOBAL (admin sửa ở UI) — DB ⊕ env fallback.
+    with session_scope() as gs:
+        pcfg = payment_config.resolve(gs)
+    if not pcfg["enabled"].get(provider, provider == "dev"):
+        raise HTTPException(status_code=400, detail="Phương thức này đang tắt")
+    if provider == "bank_qr" and not payment_config.bank_ready(pcfg):
         raise HTTPException(status_code=400, detail="Chuyển khoản ngân hàng chưa được cấu hình")
 
     # Số tiền tuỳ ý (khi không chọn gói): chặn dưới/trên.
@@ -85,16 +90,18 @@ def create_topup(req: TopupRequest, tenant: Tenant = Depends(get_tenant)) -> dic
         return {"payment_id": payment_id, "provider": "dev", "status": "succeeded",
                 "credits": credits, "amount_vnd": amount, "balance_credits": balance}
     if provider == "bank_qr":
-        # ext_ref CHÍNH LÀ nội dung chuyển khoản (memo) hiện trên QR.
+        # ext_ref CHÍNH LÀ nội dung chuyển khoản (memo) hiện trên QR. Bank info từ config động.
         return {
             "payment_id": payment_id, "provider": "bank_qr", "status": "pending",
             "credits": credits, "amount_vnd": amount,
-            "qr_image_url": billing.vietqr_image_url(amount, ext_ref),
+            "qr_image_url": billing.vietqr_image_url(
+                amount, ext_ref,
+                bank_bin=pcfg["bank_bin"], account=pcfg["bank_account"], account_name=pcfg["bank_account_name"],
+            ),
             "memo": ext_ref,
             "bank": {
-                "name": config.BANK_NAME, "bin": config.BANK_BIN,
-                "account_number": config.BANK_ACCOUNT_NUMBER,
-                "account_name": config.BANK_ACCOUNT_NAME,
+                "name": pcfg["bank_name"], "bin": pcfg["bank_bin"],
+                "account_number": pcfg["bank_account"], "account_name": pcfg["bank_account_name"],
             },
         }
     return {"payment_id": payment_id, "provider": provider, "status": "pending",
@@ -173,10 +180,12 @@ async def sepay_webhook(request: Request) -> dict:
     """SePay đọc biến động số dư bank → POST về đây. Auth bằng Apikey token; đối soát memo + SỐ TIỀN.
 
     apply_topup idempotent (FOR UPDATE) → không cộng 2 lần dù SePay gửi lại."""
-    if not config.SEPAY_API_TOKEN:
-        raise HTTPException(status_code=503, detail="SePay chưa cấu hình")
+    with session_scope() as gs:
+        token = payment_config.resolve(gs)["webhook_token"]
+    if not token:
+        raise HTTPException(status_code=503, detail="Webhook chưa cấu hình token")
     auth = request.headers.get("authorization", "")
-    if not hmac.compare_digest(auth, f"Apikey {config.SEPAY_API_TOKEN}"):
+    if not hmac.compare_digest(auth, f"Apikey {token}"):
         raise HTTPException(status_code=401, detail="Token không hợp lệ")
     try:
         body = await request.json()

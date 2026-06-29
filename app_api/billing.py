@@ -90,16 +90,14 @@ def create_topup(session: Session, org_id, user_id, *, pack_id: str, provider: s
 
 
 # ── VietQR (chuyển khoản ngân hàng) — keyless, quét bằng app bank bất kỳ ───
-def vietqr_image_url(amount_vnd: int, memo: str) -> str:
-    """Ảnh VietQR (napas247) sinh từ thông tin tài khoản nhận — không cần API key."""
-    base = (
-        f"https://img.vietqr.io/image/"
-        f"{config.BANK_BIN}-{config.BANK_ACCOUNT_NUMBER}-{config.BANK_QR_TEMPLATE}.png"
-    )
+def vietqr_image_url(amount_vnd: int, memo: str, *, bank_bin: str, account: str, account_name: str) -> str:
+    """Ảnh VietQR (napas247) sinh từ thông tin tài khoản nhận — không cần API key.
+    Bank info truyền vào (từ payment_config động) thay vì đọc env tĩnh."""
+    base = f"https://img.vietqr.io/image/{bank_bin}-{account}-{config.BANK_QR_TEMPLATE}.png"
     return (
         f"{base}?amount={int(amount_vnd)}"
         f"&addInfo={quote(memo, safe='')}"
-        f"&accountName={quote(config.BANK_ACCOUNT_NAME, safe='')}"
+        f"&accountName={quote(account_name, safe='')}"
     )
 
 

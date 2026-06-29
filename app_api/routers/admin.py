@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 
-from app_api import audit, config, notify, platform, wallet
+from app_api import audit, config, notify, payment_config, platform, wallet
 from app_api.auth import Principal
 from app_api.db import session_scope, tenant_session
 from app_api.deps import require_admin
@@ -110,6 +110,41 @@ def set_platform_config(req: ConfigPatch, admin: Principal = Depends(require_adm
         out = platform.set_config(s, patch)
         audit.record(s, action="config.update", actor_email=admin.email,
                      actor_user_id=admin.user_id, detail={"keys": list(patch.keys())})
+    return out
+
+
+# ── Cấu hình phương thức thanh toán (bank + key, admin sửa không cần deploy) ──
+@router.get("/payment-config")
+def get_payment_config() -> dict:
+    """Trả config (secret dạng MASK '••••' — không lộ plaintext)."""
+    with session_scope() as s:
+        return payment_config.masked(s)
+
+
+class PaymentConfigPatch(BaseModel):
+    bank_bin: str | None = Field(default=None, max_length=20)
+    bank_account: str | None = Field(default=None, max_length=40)
+    bank_account_name: str | None = Field(default=None, max_length=120)
+    bank_name: str | None = Field(default=None, max_length=60)
+    webhook_token: str | None = Field(default=None, max_length=200)
+    momo_partner: str | None = Field(default=None, max_length=60)
+    momo_access: str | None = Field(default=None, max_length=200)
+    momo_secret: str | None = Field(default=None, max_length=200)
+    vnpay_tmn: str | None = Field(default=None, max_length=60)
+    vnpay_hash: str | None = Field(default=None, max_length=200)
+    enabled: dict | None = None
+
+
+@router.put("/payment-config")
+def set_payment_config(req: PaymentConfigPatch, admin: Principal = Depends(require_admin)) -> dict:
+    patch = {k: v for k, v in req.model_dump().items() if v is not None}
+    try:
+        with session_scope() as s:
+            out = payment_config.save(s, patch)
+            audit.record(s, action="payment_config.update", actor_email=admin.email,
+                         actor_user_id=admin.user_id, detail={"keys": list(patch.keys())})
+    except RuntimeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return out
 
 

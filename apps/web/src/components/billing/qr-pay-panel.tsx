@@ -53,17 +53,17 @@ function Corner({ className }: { className: string }) {
 export function QrPayPanel({ payment, onClose }: { payment: TopupResponse; onClose: () => void }) {
   const t = useTranslations("billing");
   const qc = useQueryClient();
+  // SSE đẩy "đã thanh toán" tức thì; poll 3s chỉ là backup → dừng poll NGAY khi SSE báo (khỏi phí request).
+  const [ssePaid, setSsePaid] = useState(false);
   const status = useQuery({
     queryKey: ["payment", payment.payment_id],
     queryFn: () => api.paymentStatus(payment.payment_id),
     refetchInterval: (q) => {
       const st = q.state.data?.status;
-      return st === "SUCCEEDED" || st === "FAILED" ? false : 3000;
+      return ssePaid || st === "SUCCEEDED" || st === "FAILED" ? false : 3000;
     },
   });
 
-  // SSE: nhận "đã thanh toán" TỨC THÌ (server đẩy ngay khi cộng credit), poll 3s ở trên là backup.
-  const [ssePaid, setSsePaid] = useState(false);
   useEffect(() => {
     const es = new EventSource(`${API_BASE_URL}/v1/billing/payment/${payment.payment_id}/stream`);
     es.onmessage = (e) => {

@@ -174,11 +174,11 @@ def main() -> None:
                 log.info("GD ref=%s +%s → backend: %s", ref, amount, msg)
                 if msg == "credited":
                     new_credited += 1
+            if len(seen) > 4000:  # chặn phình RAM khi poller chạy 24/7 (idempotency vẫn là lưới chính)
+                seen = set(list(seen)[-2000:])
+            _save_seen(seen)
             if new_credited:
-                _save_seen(seen)
                 log.info("đã cộng credit cho %s giao dịch", new_credited)
-            else:
-                _save_seen(seen)
         except Exception as exc:  # noqa: BLE001 — lỗi mạng/session hết hạn → login lại vòng sau
             log.warning("vòng poll lỗi (%s) — sẽ đăng nhập lại", str(exc)[:120])
             mb = None

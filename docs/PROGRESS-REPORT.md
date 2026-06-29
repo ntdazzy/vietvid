@@ -2,6 +2,26 @@
 
 > Trạng thái thật, có verify. Đọc nhanh để biết: ĐÃ XONG gì · CÒN gì · CẦN BẠN cấp gì.
 
+## ⚙️ PHIÊN 2026-06-29 (tối) — TỐI ƯU / TÁI CẤU TRÚC (audit 39 agent → 4 wave, committed)
+
+**Nguyên tắc giữ xuyên suốt: tối ưu = nhẹ + dễ bảo trì + đúng, KHÔNG cắt UI/UX hay giảm chất lượng nhìn.**
+
+- **Audit** workflow 39 agent (FE+BE), mỗi finding verify thật/an-toàn → 28 confirmed + 40 P2; 2 false-positive bị loại.
+- **Wave 1**: ảnh sample PNG→JPG · xoá dead code (sidebar/top-bar/screen-hero) · gộp `vi.ts`→next-intl · job-status SSoT · sửa cuộn-ngang mobile (`overflow-x-clip`).
+- **Wave 2**: decompose 6 page dài (admin/brand-kits/kol/affiliate/reports/site-header) → `components/<feature>/` (di chuyển nguyên văn, 0 đổi pixel) + tách `api/types.ts` thành domain + barrel.
+- **Wave 3**: `Reveal` 91 instance framer-motion → IntersectionObserver+CSS (cùng animation, nhẹ runtime) · nén ảnh.
+- **Wave 4 (BE)**: prod-gate khẳng định app KHÔNG kết nối DB bằng superuser/BYPASSRLS (siết RLS, additive, guard IS_PROD).
+- **Ảnh**: sample ~8.4MB→0.65MB + showcase 5.85MB→1.28MB (q92 near-lossless) = **~14MB→~1.9MB (−86%)**, nét nguyên ở 2x DPR (đã soi mắt).
+- **Verify mỗi wave**: tsc=0 · qa-batch 12/44 (đều benign: "chốt đơn" sales-genre + admin avatar seed) · qa-buttons 36/36 backend · screenshot crisp. 11 commit sạch trên master.
+
+**SỰ CỐ git giữa Wave-2**: một `git stash -u` (IDE/tool) đẩy toàn bộ thay đổi chưa-commit vào stash + revert. Đã phát hiện, khôi phục từ `stash@{0}`+`^3`, dọn remnant, verify. **0 mất mát.** → Commit ngay sau đó để bảo vệ.
+
+**CÒN LẠI (BE, defer/veto — KHÔNG làm để tránh phá):**
+- *Veto bởi verify (sẽ phá)*: gộp admin cross-org N+1 (query unscoped dưới FORCE RLS → 0 rows, vỡ dashboard) · bank-webhook resolver (money-adjacent) · gộp pipeline.py/render_service (2 product khác nhau).
+- *Defer (cần render-test mới an toàn)*: tách `pipeline.py` 1050 dòng → `stage_helpers.py` · gộp auth 4→1 DB-connection/request · dedup Pydantic OkResponse.
+
+---
+
 ## 🔧 PHIÊN 2026-06-29 (chiều) — CỨU LỖI 500 + HOÀN TẤT i18n + QA NÚT SÂU
 
 **Bối cảnh:** workflow i18n pha-2 (`wbd0hg9is`) **FAIL** (output rỗng, chết giữa lô) → để lại app **vỡ (trang chủ 500)** + 16 màn rò key thô. Đã chẩn đoán + sửa tận gốc:

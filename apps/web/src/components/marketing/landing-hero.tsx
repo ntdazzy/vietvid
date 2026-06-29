@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { ArrowRight, Mic, Clock, Gift } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ScriptPlayground } from "@/components/marketing/script-playground";
 
@@ -16,6 +17,7 @@ const fadeUp = {
 };
 
 export function LandingHero() {
+  const t = useTranslations("home");
   const reduce = useReducedMotion();
   const { scrollY } = useScroll();
   const glowYRaw = useTransform(scrollY, [0, 500], [0, -80]);
@@ -42,24 +44,24 @@ export function LandingHero() {
             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-[12px] font-medium text-ink-medium"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-success shadow-glow-success" />
-            Bộ máy kịch bản đang chạy ngay đây · không cần đăng nhập
+            {t("heroBadge")}
           </motion.span>
 
           <motion.h1
             custom={1} variants={fadeUp} initial="hidden" animate="show"
             className="font-display mt-6 max-w-xl text-[clamp(2.4rem,5.4vw,4.25rem)] font-bold leading-[1.0] tracking-[-0.04em] text-ink-high"
           >
-            Gõ tên sản phẩm.
-            <br />
-            <span className="text-gradient">Nhận kịch bản chốt đơn.</span>
+            {t.rich("heroTitle", {
+              br: () => <br />,
+              grad: (c) => <span className="text-gradient">{c}</span>,
+            })}
           </motion.h1>
 
           <motion.p
             custom={2} variants={fadeUp} initial="hidden" animate="show"
             className="mt-6 max-w-md text-lg leading-relaxed text-ink-medium"
           >
-            Từ 1 ảnh sản phẩm, Vyra viết hook + kịch bản theo timecode, lồng 1 trong 7 giọng
-            Việt thật, rồi dựng video 60 giây. Thử ngay bên cạnh — chưa cần tài khoản.
+            {t("heroSub")}
           </motion.p>
 
           <motion.div
@@ -68,12 +70,12 @@ export function LandingHero() {
           >
             <Link href="/login">
               <Button size="lg" className="gap-2">
-                Tạo video đầu tiên <ArrowRight className="h-4 w-4" />
+                {t("ctaCreateFirst")} <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <a href="#winner-loop">
               <Button variant="glass" size="lg">
-                Xem cách đo bản thắng
+                {t("heroSecondaryCta")}
               </Button>
             </a>
           </motion.div>
@@ -84,9 +86,9 @@ export function LandingHero() {
             className="mt-8 grid max-w-md grid-cols-3 gap-3"
           >
             {[
-              { n: "~60s", l: "mỗi video", I: Clock },
-              { n: "7", l: "giọng Việt thật", I: Mic },
-              { n: "300", l: "credit tặng", I: Gift },
+              { n: "~60s", l: t("statPerVideo"), I: Clock },
+              { n: "7", l: t("statVoices"), I: Mic },
+              { n: "300", l: t("statCredits"), I: Gift },
             ].map(({ n, l, I }) => (
               <div key={l} className="rounded-2xl border border-white/[0.07] bg-white/[0.025] px-3 py-3">
                 <I className="h-3.5 w-3.5 text-violet-300" />

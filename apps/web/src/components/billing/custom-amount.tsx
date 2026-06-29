@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Plus, Loader2, Coins } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ export function CustomAmount({
   disabled: boolean;
   onBuy: (amountVnd: number) => void;
 }) {
+  const t = useTranslations("billing");
   const [amount, setAmount] = useState(100_000);
   const credits = Math.max(1, Math.round(amount / PRICE));
   const valid = amount >= MIN && amount <= MAX;
@@ -31,9 +33,9 @@ export function CustomAmount({
     <GlassCard className="flex flex-col gap-3 p-5">
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-1.5 font-display text-base font-semibold text-ink-high">
-          <Coins className="h-4 w-4 text-violet-300" /> Số tiền khác
+          <Coins className="h-4 w-4 text-emerald-300" /> {t("customAmountTitle")}
         </h3>
-        <span className="text-xs text-ink-low">1 credit = 150đ</span>
+        <span className="text-xs text-ink-low">{t("priceHint")}</span>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -45,7 +47,7 @@ export function CustomAmount({
             className={cn(
               "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
               amount === q
-                ? "border-violet-400/40 bg-violet-500/20 text-ink-high"
+                ? "border-emerald-400/40 bg-emerald-500/15 text-ink-high"
                 : "border-white/10 text-ink-low hover:text-ink-medium",
             )}
           >
@@ -61,20 +63,20 @@ export function CustomAmount({
             inputMode="numeric"
             value={amount || ""}
             onChange={(e) => setAmount(Number(e.target.value) || 0)}
-            placeholder="Nhập số tiền"
-            aria-label="Số tiền nạp (đồng)"
+            placeholder={t("amountPlaceholder")}
+            aria-label={t("amountAria")}
             className={cn(inputCls, "font-numeric pr-8")}
           />
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-ink-low">đ</span>
         </div>
         <Button onClick={() => onBuy(amount)} disabled={disabled || !valid} className="shrink-0 gap-2">
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-          {valid ? `Nạp ${credits.toLocaleString("vi-VN")} credit` : "Nạp"}
+          {valid ? t("topupCredits", { credits: credits.toLocaleString("vi-VN") }) : t("topup")}
         </Button>
       </div>
 
       {amount > 0 && !valid && (
-        <p className="text-xs text-hold">Nạp từ {vnd(MIN)} đến {vnd(MAX)}.</p>
+        <p className="text-xs text-hold">{t("amountRange", { min: vnd(MIN), max: vnd(MAX) })}</p>
       )}
     </GlassCard>
   );

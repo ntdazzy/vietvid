@@ -1,10 +1,11 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Check, LayoutTemplate, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { WizardStep } from "@/store/wizard";
 
-const STEPS = ["Nguồn", "Phong cách", "Giọng", "Xem trước", "Tạo"];
+const STEP_KEYS = ["stepSource", "stepStyle", "stepVoice", "stepPreview", "stepCreate"] as const;
 
 export function Stepper({
   step,
@@ -15,6 +16,8 @@ export function Stepper({
   templateName?: string;
   onChangeTemplate?: () => void;
 }) {
+  const t = useTranslations("create");
+  const labels = STEP_KEYS.map((k) => t(k));
   return (
     <div>
       {templateName && (
@@ -23,13 +26,13 @@ export function Stepper({
           onClick={onChangeTemplate}
           className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-violet-400/25 bg-violet-500/[0.08] px-3 py-1 text-xs text-violet-200 transition-colors hover:border-violet-400/50"
         >
-          <LayoutTemplate className="h-3.5 w-3.5" /> Mẫu: <span className="font-medium text-ink-high">{templateName}</span>
+          <LayoutTemplate className="h-3.5 w-3.5" /> {t("templatePrefix")} <span className="font-medium text-ink-high">{templateName}</span>
           <span className="mx-0.5 text-violet-400/50">·</span>
-          <RefreshCw className="h-3 w-3" /> Đổi
+          <RefreshCw className="h-3 w-3" /> {t("change")}
         </button>
       )}
       <ol className="flex items-center gap-2">
-      {STEPS.map((label, i) => {
+      {labels.map((label, i) => {
         const n = (i + 1) as WizardStep;
         const done = n < step;
         const active = n === step;
@@ -55,7 +58,7 @@ export function Stepper({
                 {label}
               </span>
             </div>
-            {i < STEPS.length - 1 && (
+            {i < labels.length - 1 && (
               <span className={cn("h-px flex-1", done ? "bg-violet-500/50" : "bg-white/10")} />
             )}
           </li>
@@ -64,7 +67,7 @@ export function Stepper({
       </ol>
       {/* mobile: tên bước hiện tại (label desktop bị ẩn) */}
       <p className="mt-2 text-center text-xs font-medium text-ink-medium sm:hidden">
-        Bước {step}/{STEPS.length} · {STEPS[step - 1]}
+        {t("stepProgress", { step, total: labels.length, label: labels[step - 1] })}
       </p>
     </div>
   );

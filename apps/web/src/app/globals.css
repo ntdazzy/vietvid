@@ -129,6 +129,11 @@
     from { transform: scale(1); }
     to { transform: scale(1.07); }
   }
+  /* nền hero điện ảnh "thở" chậm — sống động mà không phân tán (reduced-motion kill bên dưới) */
+  .animate-kenburns {
+    transform-origin: 50% 42%;
+    animation: vv-kenburns 24s ease-in-out infinite alternate;
+  }
 
   /* ── Intro Vyra: vẽ-dần logo (stroke draw-on) ───────────────────────── */
   .vyra-orbit {

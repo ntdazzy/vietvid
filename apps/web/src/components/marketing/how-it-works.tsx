@@ -1,23 +1,21 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/marketing/reveal";
 import { SectionHeading } from "@/components/marketing/section-heading";
 
-const STEPS = [
-  { t: "Tải 1 ảnh / dán link", d: "Kéo thả ảnh, hoặc dán link Shopee/TikTok-Shop để Vyra tự bóc ảnh + giá + tên." },
-  { t: "Chọn góc & giọng", d: "1 trong 6 góc chốt đơn, 1 trong 7 giọng Việt. Sửa từng câu kịch bản." },
-  { t: "Vyra dựng video 60s", d: "Lồng giọng, ghép phụ đề khớp khung, xuất đủ 3 tỉ lệ. Khoảng 60 giây." },
-  { t: "Đo click, nhân bản bản thắng", d: "Mỗi biến thể một short-link. Đo click thật, xếp hạng, clone bản bán được." },
-];
+const STEP_KEYS = ["upload", "pick", "render", "measure"] as const;
 
 export function HowItWorks() {
+  const t = useTranslations("home");
+  const STEPS = STEP_KEYS.map((k) => ({ t: t(`step_${k}_t`), d: t(`step_${k}_d`) }));
   return (
     <div className="mx-auto max-w-6xl px-4">
       <SectionHeading
         align="center"
-        eyebrow="Từ ảnh tới đơn"
-        title={<>Bốn bước. <span className="text-gradient">Không cần biết dựng phim.</span></>}
+        eyebrow={t("howEyebrow")}
+        title={t.rich("howTitle", { grad: (c) => <span className="text-gradient">{c}</span> })}
       />
       <div className="relative mt-12 grid gap-6 md:grid-cols-4">
         {/* đường nối "vẽ" ngang (desktop) */}

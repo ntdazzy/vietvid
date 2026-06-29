@@ -1,28 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { Palette, Loader2, Download, AlertCircle, Sparkles, Lightbulb, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Palette, Loader2, Download, AlertCircle, Sparkles, Lightbulb, RefreshCw, Wand2, ImageIcon } from "lucide-react";
 import { api } from "@/lib/api/endpoints";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { Field, ChipGroup, inputCls } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FilmLabel } from "@/components/ui/cinematic";
+import { Reveal } from "@/components/marketing/reveal";
+import { ACCENTS } from "@/lib/accents";
 import { cn } from "@/lib/utils/cn";
 
-const PRESETS = [
-  "Ly trà sữa trân châu trên bàn gỗ, ánh sáng ấm, nền bokeh",
-  "Chai serum dưỡng da trên nền hồng pastel, sang trọng, cận cảnh",
-  "Tai nghe bluetooth trên bục đá, nền tối, ánh sáng viền xanh",
-  "Áo khoác phối trên ma-nơ-canh, phong cách editorial, ánh sáng studio",
-];
-const STYLES = ["ánh sáng điện ảnh", "phong cách UGC điện thoại", "tối giản nền trơn", "tông tím xanh thương hiệu"];
-const TIPS = [
-  "Mô tả đủ CHỦ THỂ + BỐI CẢNH + ÁNH SÁNG để ảnh sắc nét, đúng ý.",
-  "Thêm tông màu (vd 'tông tím xanh') để ảnh hợp nhận diện thương hiệu.",
-  "Ảnh dọc 9:16 dùng làm khung đầu rồi dựng tiếp thành video.",
-];
+const PRESET_KEYS = ["presetMilktea", "presetSerum", "presetHeadphones", "presetJacket"] as const;
+const STYLE_KEYS = ["styleCinematic", "styleUgc", "styleMinimal", "styleBrandTone"] as const;
+const TIP_KEYS = ["tipDescribe", "tipColorTone", "tipVertical"] as const;
+// Reel ảnh mẫu cho empty-state — cảm hứng, ảnh có sẵn trong /showcase.
+const REEL = [
+  { src: "/showcase/food.jpg", tagKey: "reelFood" },
+  { src: "/showcase/product.jpg", tagKey: "reelProduct" },
+  { src: "/showcase/lookbook.jpg", tagKey: "reelFashion" },
+  { src: "/showcase/affiliate.jpg", tagKey: "reelAd" },
+  { src: "/showcase/explainer.jpg", tagKey: "reelScene" },
+] as const;
+
+const ASPECT_RATIO: Record<string, string> = { "9:16": "9 / 16", "1:1": "1 / 1", "16:9": "16 / 9" };
 
 export default function ImageGenPage() {
+  const t = useTranslations("imagegen");
+  const a = ACCENTS.sky;
   const [prompt, setPrompt] = useState("");
   const [aspect, setAspect] = useState("9:16");
   const [url, setUrl] = useState<string>();
@@ -41,7 +48,7 @@ export default function ImageGenPage() {
     try {
       setUrl((await api.generateImage(prompt.trim(), aspect)).url);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Tạo ảnh lỗi");
+      setErr(e instanceof Error ? e.message : t("errGenerate"));
     } finally {
       setLoading(false);
     }
@@ -49,112 +56,200 @@ export default function ImageGenPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <div className="flex items-center gap-2">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-grad-brand-soft">
-            <Palette className="h-5 w-5 text-violet-300" />
-          </span>
-          <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Tạo ảnh nghệ thuật AI</h1>
+      {/* ── Đầu màn: dải thông tin gọn, không dùng CineHero (bố cục riêng) ── */}
+      <Reveal>
+        <div className="relative overflow-hidden rounded-3xl glass-bordered p-6 sm:p-7">
+          <div
+            className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full blur-3xl"
+            style={{ background: a.glow }}
+          />
+          <div className="relative flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <FilmLabel>{t("filmLabel")}</FilmLabel>
+              <h1 className="mt-3 font-display text-3xl font-extrabold leading-[1.05] text-ink-high lg:text-[40px]">
+                {t.rich("heroTitle", { grad: (c) => <span className={a.text}>{c}</span> })}
+              </h1>
+              <p className="mt-2 max-w-xl text-ink-medium">
+                {t("heroSubtitle")}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-ink-low">
+              <ImageIcon className={cn("h-3.5 w-3.5", a.icon)} /> {t("ratioBadge")}
+            </div>
+          </div>
         </div>
-        <p className="mt-2 text-ink-low">Mô tả ý tưởng, AI dựng ảnh. Dùng làm khung video hoặc ảnh bài đăng — đủ 3 tỉ lệ.</p>
-      </div>
+      </Reveal>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-        <GlassCard className="flex h-fit flex-col gap-4 p-5">
-          {/* gợi ý nhanh */}
-          <div>
-            <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-ink-medium">
-              <Sparkles className="h-3.5 w-3.5 text-violet-300" /> Gợi ý nhanh — bấm để điền
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {PRESETS.map((p) => (
-                <button key={p} onClick={() => setPrompt(p)}
-                  className="rounded-lg border border-white/10 px-2.5 py-1 text-left text-[11px] text-ink-low transition-colors hover:border-violet-400/40 hover:text-ink-medium">
-                  {p.split(",")[0]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <Field label="Mô tả ảnh">
-            <textarea
-              className={cn(inputCls, "min-h-[110px] resize-y")}
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              maxLength={500}
-              placeholder="Ví dụ: ly cà phê trên bàn gỗ, ánh sáng điện ảnh, tông tím xanh, độ nét cao"
-            />
-          </Field>
-
-          {/* phong cách — append vào prompt */}
-          <div className="flex flex-wrap gap-1.5">
-            {STYLES.map((s) => (
-              <button key={s} onClick={() => addStyle(s)}
-                className="rounded-full border border-violet-400/25 bg-violet-500/[0.06] px-2.5 py-1 text-[11px] text-violet-200 transition-colors hover:bg-violet-500/15">
-                + {s}
-              </button>
-            ))}
-          </div>
-
-          <Field label="Tỉ lệ">
-            <ChipGroup
-              value={aspect}
-              onChange={(v) => setAspect(v as string)}
-              options={[
-                { value: "9:16", label: "Dọc 9:16" },
-                { value: "1:1", label: "Vuông 1:1" },
-                { value: "16:9", label: "Ngang 16:9" },
-              ]}
-            />
-          </Field>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button onClick={generate} disabled={loading || prompt.trim().length < 3} className="gap-2">
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : url ? <RefreshCw className="h-4 w-4" /> : <Palette className="h-4 w-4" />}
-              {loading ? "Đang tạo ảnh…" : url ? "Tạo lại" : "Tạo ảnh"}
-            </Button>
-            {err && (
-              <span className="flex items-center gap-1.5 text-sm text-danger">
-                <AlertCircle className="h-4 w-4" /> {err}
+      {/* ── Sân khấu chính: canvas lớn (trái) + phiếu mô tả hẹp (phải) ── */}
+      <div className="grid gap-6 lg:grid-cols-[1.45fr_1fr]">
+        {/* CANVAS — chiếm sân khấu */}
+        <Reveal delay={0.05}>
+          <div className="relative flex min-h-[420px] flex-col overflow-hidden rounded-3xl glass-bordered">
+            {/* dải nhãn trên canvas */}
+            <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] px-5 py-3">
+              <span className="flex items-center gap-2 text-xs font-medium text-ink-medium">
+                <span className={cn("h-1.5 w-1.5 rounded-full", url ? "bg-emerald-400" : loading ? "bg-sky-400 animate-pulse" : a.bar)} />
+                {loading ? t("statusBuilding") : url ? t("statusResult") : t("statusEmpty")}
               </span>
-            )}
-          </div>
-        </GlassCard>
+              {url && (
+                <a href={url} download="vyra-image.png" aria-label={t("downloadAria")}>
+                  <Button variant="glass" className="h-8 gap-1.5 px-3 text-xs">
+                    <Download className="h-3.5 w-3.5" /> {t("downloadBtn")}
+                  </Button>
+                </a>
+              )}
+            </div>
 
-        <GlassCard bordered className="grid min-h-[360px] place-items-center p-4">
-          {loading ? (
-            <Skeleton className="aspect-[9/16] h-72 rounded-xl" />
-          ) : url ? (
-            <div className="flex flex-col items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="Ảnh AI" className="max-h-[60vh] w-auto rounded-xl border border-white/10" />
-              <a href={url} download="vyra-image.png">
-                <Button variant="glass" className="gap-2">
-                  <Download className="h-4 w-4" /> Tải ảnh
-                </Button>
-              </a>
+            <div className="relative grid flex-1 place-items-center p-5 sm:p-7">
+              {/* nền lưới mờ kiểu bàn dựng */}
+              <div
+                className="pointer-events-none absolute inset-0 opacity-[0.18]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)",
+                  backgroundSize: "32px 32px",
+                }}
+              />
+              <div
+                className="pointer-events-none absolute inset-x-10 -bottom-24 h-48 rounded-full blur-3xl"
+                style={{ background: a.glow }}
+              />
+
+              {loading ? (
+                <div className="relative flex flex-col items-center gap-3">
+                  <div className="h-72" style={{ aspectRatio: ASPECT_RATIO[aspect] }}>
+                    <Skeleton className="h-full w-full rounded-2xl" />
+                  </div>
+                  <span className="text-sm text-ink-low">{t("drawingFrame", { aspect })}</span>
+                </div>
+              ) : url ? (
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={url}
+                    alt={t("resultAlt")}
+                    className="max-h-[58vh] w-auto rounded-2xl border border-white/10 shadow-glow-sm"
+                  />
+                </div>
+              ) : (
+                // EMPTY-STATE — reel ảnh mẫu (signature)
+                <div className="relative flex w-full flex-col items-center gap-5">
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <span className={cn("grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br", a.tile)}>
+                      <Wand2 className={cn("h-5 w-5", a.icon)} />
+                    </span>
+                    <p className="text-sm font-medium text-ink-medium">{t("emptyTitle")}</p>
+                    <p className="max-w-xs text-xs text-ink-low">{t("emptyHint")}</p>
+                  </div>
+                  <div className="flex w-full max-w-md gap-2 overflow-x-auto pb-1">
+                    {REEL.map((r) => (
+                      <figure key={r.src} className="group relative aspect-[3/4] w-24 shrink-0 overflow-hidden rounded-xl border border-white/10">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={r.src} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-bg-surface/90 to-transparent" />
+                        <figcaption className="absolute bottom-1.5 left-2 text-[10px] font-semibold uppercase tracking-wide text-white/80">{t(r.tagKey)}</figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="flex flex-col items-center gap-2 text-ink-low">
-              <Palette className="h-8 w-8" />
-              <span className="text-sm">Ảnh sẽ hiện ở đây</span>
+          </div>
+        </Reveal>
+
+        {/* PHIẾU MÔ TẢ — cột điều khiển hẹp */}
+        <Reveal delay={0.1}>
+          <GlassCard className="flex h-fit flex-col gap-5 p-5">
+            <Field label={t("descLabel")}>
+              <textarea
+                className={cn(inputCls, "min-h-[120px] resize-y")}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                maxLength={500}
+                placeholder={t("descPlaceholder")}
+              />
+            </Field>
+
+            {/* gợi ý nhanh — bấm để điền cả câu */}
+            <div>
+              <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-ink-medium">
+                <Sparkles className={cn("h-3.5 w-3.5", a.icon)} /> {t("quickIdeas")}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {PRESET_KEYS.map((k) => (
+                  <button
+                    key={k}
+                    onClick={() => setPrompt(t(k))}
+                    className="rounded-lg border border-white/10 px-3 py-2 text-left text-[12px] text-ink-low transition-colors hover:border-sky-400/40 hover:bg-sky-500/[0.06] hover:text-ink-medium active:scale-[0.99]"
+                  >
+                    {t(`${k}Short`)}
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
-        </GlassCard>
+
+            {/* phong cách — append vào prompt */}
+            <div>
+              <div className="mb-2 text-xs font-medium text-ink-medium">{t("addStyle")}</div>
+              <div className="flex flex-wrap gap-1.5">
+                {STYLE_KEYS.map((k) => (
+                  <button
+                    key={k}
+                    onClick={() => addStyle(t(k))}
+                    className="rounded-full border border-sky-400/25 bg-sky-500/[0.06] px-2.5 py-1 text-[11px] text-sky-200 transition-colors hover:bg-sky-500/15 active:scale-[0.98]"
+                  >
+                    + {t(k)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <Field label={t("ratioLabel")}>
+              <ChipGroup
+                value={aspect}
+                onChange={(v) => setAspect(v as string)}
+                options={[
+                  { value: "9:16", label: t("ratioVertical") },
+                  { value: "1:1", label: t("ratioSquare") },
+                  { value: "16:9", label: t("ratioWide") },
+                ]}
+              />
+            </Field>
+
+            <div className="flex flex-col gap-2 border-t border-white/[0.06] pt-4">
+              <Button onClick={generate} disabled={loading || prompt.trim().length < 3} className="w-full justify-center gap-2">
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : url ? <RefreshCw className="h-4 w-4" /> : <Palette className="h-4 w-4" />}
+                {loading ? t("btnGenerating") : url ? t("btnRegenerate") : t("btnGenerate")}
+              </Button>
+              {err && (
+                <span className="flex items-center gap-1.5 text-sm text-danger">
+                  <AlertCircle className="h-4 w-4 shrink-0" /> {err}
+                </span>
+              )}
+              {!err && (
+                <p className="text-center text-[11px] text-ink-low">{t("minWordsHint")}</p>
+              )}
+            </div>
+          </GlassCard>
+        </Reveal>
       </div>
 
-      {/* tips */}
-      <GlassCard className="p-5">
-        <div className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-ink-high">
-          <Lightbulb className="h-4 w-4 text-hold" /> Mẹo viết mô tả đẹp
-        </div>
-        <ul className="grid gap-2.5 sm:grid-cols-3">
-          {TIPS.map((t) => (
-            <li key={t} className="flex items-start gap-2 text-sm text-ink-low">
-              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-violet-400" /> {t}
-            </li>
-          ))}
-        </ul>
-      </GlassCard>
+      {/* ── Mẹo viết mô tả — dải ngang dưới đáy ── */}
+      <Reveal delay={0.15}>
+        <GlassCard className="p-5">
+          <div className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-ink-high">
+            <Lightbulb className={cn("h-4 w-4", a.icon)} /> {t("tipsTitle")}
+          </div>
+          <ul className="grid gap-2.5 sm:grid-cols-3">
+            {TIP_KEYS.map((k, i) => (
+              <li key={k} className="flex items-start gap-2.5 rounded-xl border border-white/[0.05] bg-white/[0.02] p-3 text-sm text-ink-low">
+                <span className={cn("grid h-5 w-5 shrink-0 place-items-center rounded-md bg-gradient-to-br text-[11px] font-bold text-ink-high", a.tile)}>{i + 1}</span>
+                {t(k)}
+              </li>
+            ))}
+          </ul>
+        </GlassCard>
+      </Reveal>
     </div>
   );
 }

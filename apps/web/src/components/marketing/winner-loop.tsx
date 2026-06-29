@@ -57,7 +57,7 @@ export function VariantLeaderboard() {
               )}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/samples/${v.sample}.png`} alt="" className="h-12 w-9 shrink-0 rounded-lg object-cover" />
+              <img src={`/samples/${v.sample}.jpg`} alt="" className="h-12 w-9 shrink-0 rounded-lg object-cover" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="truncate text-sm font-semibold text-ink-high">{v.tag}</span>

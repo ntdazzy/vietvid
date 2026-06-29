@@ -1,11 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { useWizard } from "@/store/wizard";
 import { useEstimate, useWallet } from "@/lib/query/hooks";
 import { HoldMeter } from "@/components/create/hold-meter";
 
 export function PreviewStep() {
+  const t = useTranslations("create");
   const w = useWizard();
   const wallet = useWallet();
   const est = useEstimate({
@@ -18,9 +20,9 @@ export function PreviewStep() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-xl font-bold text-ink-high">Xem trước & chi phí</h2>
+        <h2 className="text-xl font-bold text-ink-high">{t("previewTitle")}</h2>
         <p className="mt-1 text-sm text-ink-low">
-          Đây là khoảnh khắc minh bạch: thấy rõ cấu hình bên phải và chi phí trước khi tạo.
+          {t("previewSubtitle")}
         </p>
       </div>
 
@@ -41,8 +43,7 @@ export function PreviewStep() {
       </div>
 
       <p className="hidden text-sm text-ink-low lg:block">
-        Tạm giữ tối đa, dùng bao nhiêu tính bấy nhiêu. Hoàn 100% nếu lỗi hệ thống. Bấm
-        <span className="text-ink-medium"> Tạo video </span> khi đã ưng cấu hình bên phải.
+        {t.rich("previewDesktopNote", { cta: (c) => <span className="text-ink-medium">{c}</span> })}
       </p>
     </div>
   );

@@ -18,7 +18,7 @@ export function RatioBento() {
             </span>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`/samples/${t.file}.png`}
+              src={`/samples/${t.file}.jpg`}
               alt={t.label}
               className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
             />

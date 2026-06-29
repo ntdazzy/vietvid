@@ -69,7 +69,7 @@ export function FeaturedKol() {
               </p>
               <div className="mt-4 w-[110px] shrink-0 sm:hidden">
                 <MiniReel
-                  poster="/samples/fashion.png"
+                  poster="/samples/fashion.jpg"
                   video="/samples/fashion.mp4"
                   className="w-full"
                   captions={["Linh review váy mới về…", "Outfit giữ nguyên mọi cảnh", "Bấm giỏ hàng nha!"]}
@@ -82,7 +82,7 @@ export function FeaturedKol() {
             {/* clip SP thật — chỉ desktop để không chật mobile */}
             <div className="hidden w-[130px] shrink-0 sm:block">
               <MiniReel
-                poster="/samples/fashion.png"
+                poster="/samples/fashion.jpg"
                 video="/samples/fashion.mp4"
                 className="w-full"
                 captions={["Linh review váy mới về…", "Outfit giữ nguyên mọi cảnh", "Bấm giỏ hàng nha!"]}

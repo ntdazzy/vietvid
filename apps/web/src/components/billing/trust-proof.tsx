@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Lock, Check, RotateCcw, ShieldCheck } from "lucide-react";
 import type { LedgerEntry } from "@/lib/api/types";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -51,43 +52,44 @@ export function TrustProof({
   entries: LedgerEntry[] | undefined;
   balance: number;
 }) {
-  const t = deriveTriple(entries);
+  const t = useTranslations("billing");
+  const triple = deriveTriple(entries);
   return (
     <GlassCard bordered className="flex flex-col gap-5 p-6 lg:p-7">
       <div>
         <h2 className="flex items-center gap-2 font-display text-xl font-bold text-ink-high">
-          <ShieldCheck className="h-5 w-5 text-violet-300" /> Không bao giờ trừ tiền âm thầm
+          <ShieldCheck className="h-5 w-5 text-emerald-300" /> {t("neverSilentCharge")}
         </h2>
         <p className="mt-1 text-sm text-ink-medium">
-          Tạm giữ tối đa, dùng bao nhiêu tính bấy nhiêu, hoàn 100% nếu lỗi hệ thống.
+          {t("trustProofSub")}
         </p>
       </div>
 
       {/* chú giải 3 bước — cùng màu với hàng ledger bên dưới */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
         <span className="flex items-center gap-1.5 text-hold">
-          <Lock className="h-4 w-4" /> Giữ
+          <Lock className="h-4 w-4" /> {t("stepHold")}
         </span>
         <span className="text-ink-disabled">→</span>
         <span className="flex items-center gap-1.5 text-ink-medium">
-          <Check className="h-4 w-4" /> Dùng
+          <Check className="h-4 w-4" /> {t("stepUse")}
         </span>
         <span className="text-ink-disabled">→</span>
         <span className="flex items-center gap-1.5 text-refund">
-          <RotateCcw className="h-4 w-4" /> Hoàn
+          <RotateCcw className="h-4 w-4" /> {t("stepRefund")}
         </span>
         <Badge tone="neutral" className="ml-auto">
-          {t.real ? "Giao dịch thật của bạn" : "Ví dụ minh hoạ"}
+          {triple.real ? t("yourRealTransaction") : t("illustrativeExample")}
         </Badge>
       </div>
 
       <HoldMeter
         phase="settled"
         balance={balance}
-        estCredits={t.hold}
-        holdCredits={t.hold}
-        usedCredits={t.used}
-        refundedCredits={t.refunded}
+        estCredits={triple.hold}
+        holdCredits={triple.hold}
+        usedCredits={triple.used}
+        refundedCredits={triple.refunded}
       />
     </GlassCard>
   );

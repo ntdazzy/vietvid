@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Volume2, UserSquare2, ShieldCheck, Loader2, AlertCircle, Play } from "lucide-react";
 import { useWizard } from "@/store/wizard";
 import { api } from "@/lib/api/endpoints";
@@ -13,6 +14,7 @@ import { cn } from "@/lib/utils/cn";
 const SAMPLE = "Da bạn sẽ căng mướt và rạng rỡ chỉ sau bảy ngày sử dụng.";
 
 export function VoiceStep() {
+  const t = useTranslations("create");
   const w = useWizard();
   const isKol = w.videoType === "kol_full";
   const [text, setText] = useState(SAMPLE);
@@ -39,7 +41,7 @@ export function VoiceStep() {
     try {
       await playUrl(await api.voicePreview(text.trim() || SAMPLE, w.voiceGender || "female", w.voicePersona));
     } catch {
-      setErr("Không nghe thử được, thử lại.");
+      setErr(t("previewVoiceError"));
     } finally {
       setLoading(false);
     }
@@ -52,7 +54,7 @@ export function VoiceStep() {
     try {
       await playUrl(await api.voicePreview(text.trim() || SAMPLE, p.gender, p.id));
     } catch {
-      setErr("Không nghe thử được, thử lại.");
+      setErr(t("previewVoiceError"));
     } finally {
       setPreviewing(null);
     }
@@ -61,13 +63,13 @@ export function VoiceStep() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-xl font-bold text-ink-high">{isKol ? "Giọng & nhân vật KOL" : "Giọng đọc"}</h2>
+        <h2 className="text-xl font-bold text-ink-high">{isKol ? t("voiceKolTitle") : t("voiceTitle")}</h2>
         <p className="mt-1 text-sm text-ink-low">
-          Giọng Việt thật là điểm mạnh của Vyra. Nghe thử trước khi tạo.
+          {t("voiceSubtitle")}
         </p>
       </div>
 
-      <Field label="Giọng đọc" hint="Bấm một giọng để chọn và nghe thử ngay.">
+      <Field label={t("voiceLabel")} hint={t("voiceFieldHint")}>
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {personas.map((p) => {
             const active = w.voicePersona === p.id;
@@ -90,7 +92,7 @@ export function VoiceStep() {
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1.5 text-sm font-medium text-ink-high">
                     {p.name}
-                    <span className="text-[11px] font-normal text-ink-low">· {p.gender === "female" ? "Nữ" : "Nam"}</span>
+                    <span className="text-[11px] font-normal text-ink-low">· {p.gender === "female" ? t("genderFemale") : t("genderMale")}</span>
                   </span>
                   <span className="block truncate text-xs text-ink-low">{p.vibe}</span>
                 </span>
@@ -109,19 +111,19 @@ export function VoiceStep() {
       {/* nghe thử / đọc thử câu của tôi */}
       <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-4">
         <div className="flex items-center gap-2 text-sm font-medium text-ink-medium">
-          <Volume2 className="h-4 w-4 text-violet-300" /> Đọc thử câu của bạn
+          <Volume2 className="h-4 w-4 text-violet-300" /> {t("readYourSentence")}
         </div>
         <textarea
           className={cn(inputCls, "min-h-[64px] resize-y")}
           value={text}
           onChange={(e) => setText(e.target.value)}
           maxLength={200}
-          placeholder="Nhập câu muốn nghe thử…"
+          placeholder={t("sentencePlaceholder")}
         />
         <div className="flex items-center gap-3">
           <Button variant="glass" size="sm" onClick={play} disabled={loading} className="gap-2">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
-            {loading ? "Đang tạo giọng…" : "Nghe thử"}
+            {loading ? t("generatingVoice") : t("preview")}
           </Button>
           {err && (
             <span className="flex items-center gap-1.5 text-sm text-danger">
@@ -136,17 +138,17 @@ export function VoiceStep() {
       {isKol && (
         <div className="flex flex-col gap-4 rounded-xl border border-violet-500/25 bg-violet-500/[0.05] p-4">
           <div className="flex items-center gap-2 text-sm font-medium text-violet-200">
-            <UserSquare2 className="h-4 w-4" /> Nhân vật KOL
+            <UserSquare2 className="h-4 w-4" /> {t("kolCharacter")}
           </div>
 
           {/* chọn gương mặt KOL — như autovis */}
           <div>
-            <p className="mb-2 text-xs text-ink-low">Chọn gương mặt KOL (giữ nhất quán qua mọi video):</p>
+            <p className="mb-2 text-xs text-ink-low">{t("kolPickFace")}</p>
             <KolPicker />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Tên KOL">
+            <Field label={t("kolName")}>
               <input
                 className={inputCls}
                 value={w.kolName}
@@ -154,12 +156,12 @@ export function VoiceStep() {
                 placeholder="Mai Anh"
               />
             </Field>
-            <Field label="Phong cách">
+            <Field label={t("kolStyle")}>
               <input
                 className={inputCls}
                 value={w.kolStyle}
                 onChange={(e) => w.patch({ kolStyle: e.target.value })}
-                placeholder="Trẻ trung, năng động"
+                placeholder={t("kolStylePlaceholder")}
               />
             </Field>
           </div>
@@ -173,7 +175,7 @@ export function VoiceStep() {
             />
             <span className="flex items-start gap-2 text-sm text-ink-medium">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
-              Tôi xác nhận có quyền dùng hình ảnh/nhân vật này và đồng ý tạo nội dung KOL AI.
+              {t("consentLabel")}
             </span>
           </label>
         </div>

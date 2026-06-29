@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
+import { FilmLabel } from "@/components/ui/cinematic";
+import { Reveal } from "@/components/marketing/reveal";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { SectionHeading } from "@/components/marketing/section-heading";
@@ -24,15 +27,28 @@ import { Manifesto } from "@/components/marketing/manifesto";
 import { Faq } from "@/components/marketing/faq";
 import { Intro } from "@/components/marketing/intro";
 
-const SAMPLES = [
-  { file: "fashion", label: "Thời trang" },
-  { file: "beauty", label: "Mỹ phẩm" },
-  { file: "tech", label: "Công nghệ" },
-  { file: "home", label: "Gia dụng" },
-  { file: "food", label: "Ẩm thực" },
-];
+export default async function LandingPage() {
+  const t = await getTranslations("home");
 
-export default function LandingPage() {
+  const SAMPLES = [
+    { file: "fashion", label: t("sampleFashion") },
+    { file: "beauty", label: t("sampleBeauty") },
+    { file: "tech", label: t("sampleTech") },
+    { file: "home", label: t("sampleHome") },
+    { file: "food", label: t("sampleFood") },
+  ];
+
+  // Cuộn thể loại dùng ẢNH THẬT /showcase (candid) — "mục lục reel" của trang chủ.
+  // Bố cục bất đối xứng: 1 ô lớn + bento ô nhỏ, không hàng-thẻ-đối-xứng.
+  const REEL = [
+    { img: "/showcase/kol.jpg", title: t("reelKolTitle"), note: t("reelKolNote"), href: "/app/kol", big: true },
+    { img: "/showcase/lookbook.jpg", title: t("reelLookbookTitle"), note: t("reelLookbookNote"), href: "/login" },
+    { img: "/showcase/food.jpg", title: t("reelFoodTitle"), note: t("reelFoodNote"), href: "/login" },
+    { img: "/showcase/product.jpg", title: t("reelProductTitle"), note: t("reelProductNote"), href: "/login" },
+    { img: "/showcase/trend.jpg", title: t("reelTrendTitle"), note: t("reelTrendNote"), href: "/login" },
+    { img: "/showcase/explainer.jpg", title: t("reelExplainerTitle"), note: t("reelExplainerNote"), href: "/login" },
+  ];
+
   return (
     <div className="relative min-h-dvh mesh-bg">
       <Intro />
@@ -41,33 +57,80 @@ export default function LandingPage() {
       {/* S0 — HERO */}
       <LandingHero />
 
-      {/* S1 — MARQUEE 2 chiều: mẫu output thật */}
-      <section className="py-16 lg:py-20">
+      {/* S1 — CUỘN THỂ LOẠI (ảnh thật /showcase) — signature "mục lục reel" của trang chủ */}
+      <section className="mx-auto max-w-6xl px-4 py-20 lg:py-24">
+        <Reveal>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-xl">
+              <FilmLabel>{t("s1Label")}</FilmLabel>
+              <h2 className="mt-3 font-display text-[clamp(1.75rem,4vw,2.6rem)] font-bold leading-[1.08] tracking-tight text-ink-high">
+                {t.rich("s1Title", { grad: (c) => <span className="text-gradient">{c}</span> })}
+              </h2>
+            </div>
+            <p className="max-w-xs text-sm text-ink-low sm:text-right">
+              {t("s1Sub")}
+            </p>
+          </div>
+        </Reveal>
+
+        {/* bento bất đối xứng: ô đầu chiếm 2 cột × 2 hàng, còn lại xếp quanh */}
+        <div className="mt-9 grid auto-rows-[150px] grid-cols-2 gap-3 sm:auto-rows-[170px] lg:grid-cols-4 lg:gap-4">
+          {REEL.map((r, i) => (
+            <Reveal
+              key={r.title}
+              delay={0.05 * i}
+              className={r.big ? "col-span-2 row-span-2" : ""}
+            >
+              <Link
+                href={r.href}
+                className="group relative block h-full overflow-hidden rounded-2xl glass-bordered transition-all duration-200 hover:-translate-y-1 hover:ring-1 hover:ring-violet-400/30"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={r.img}
+                  alt=""
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover opacity-70 transition-transform duration-500 group-hover:scale-[1.05] group-hover:opacity-90"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/40 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <div className={r.big ? "font-display text-xl font-bold text-ink-high" : "font-display text-sm font-semibold text-ink-high"}>
+                    {r.title}
+                  </div>
+                  <div className="mt-0.5 text-xs text-ink-low">{r.note}</div>
+                </div>
+                <span className="absolute right-3 top-3 h-[3px] w-5 rounded-full bg-grad-brand opacity-0 transition-opacity group-hover:opacity-100" />
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* S1b — MARQUEE 2 chiều: mẫu output thật 9:16 */}
+      <section className="py-12 lg:py-16">
         <div className="mx-auto max-w-6xl px-4">
-          <h2 className="font-display text-sm font-semibold uppercase tracking-[0.18em] text-ink-low">
-            Mẫu output thật · chưa qua chỉnh sửa · 9:16
-          </h2>
+          <FilmLabel>{t("s1bLabel")}</FilmLabel>
         </div>
         <div className="mt-7 flex flex-col gap-4">
           <SampleMarquee tiles={SAMPLES} direction="left" />
           <SampleMarquee tiles={[...SAMPLES].reverse()} direction="right" />
         </div>
-        <p className="mt-5 text-center text-xs text-ink-low">Di chuột vào mỗi mẫu để xem clip chạy.</p>
+        <p className="mt-5 text-center text-xs text-ink-low">{t("s1bHint")}</p>
       </section>
 
-      {/* §5 — FEATURED KOL (mirror autovis, slot chờ ảnh thật) */}
+      {/* §5 — FEATURED KOL */}
       <FeaturedKol />
 
       {/* S1.5 — LOẠI NỘI DUNG (đa dạng chủ đề, không chỉ quảng cáo SP) */}
       <UseCases />
 
-      {/* S2 — LƯỚI 6 NĂNG LỰC 01–06 (đấu autovis, demo sống) */}
+      {/* S2 — LƯỚI 6 NĂNG LỰC 01–06 (demo sống) */}
       <section id="nang-luc" className="mx-auto max-w-6xl px-4 py-24 lg:py-28">
         <SectionHeading
           align="center"
-          eyebrow="Bên trong studio"
-          title={<>Sáu năng lực. <span className="text-gradient italic">Không cái nào đứng yên</span> để bạn xem.</>}
-          sub="Mỗi ô tự chạy ngay tại đây — bấm, kéo, đổi. Không phải ảnh chụp màn hình."
+          eyebrow={t("s2Eyebrow")}
+          title={t.rich("s2Title", { grad: (c) => <span className="text-gradient italic">{c}</span> })}
+          sub={t("s2Sub")}
         />
         <div className="mt-12">
           <CapabilityGrid />
@@ -78,38 +141,38 @@ export default function LandingPage() {
       <CinematicAct
         index={1}
         side="right"
-        badge={{ tone: "core", label: "Năng lực lõi" }}
-        eyebrow="01 · Ảnh → Video"
-        title={<>Ảnh sản phẩm nằm im. <span className="text-gradient">Vyra cho nó nói tiếng Việt.</span></>}
+        badge={{ tone: "core", label: t("act1Badge") }}
+        eyebrow={t("act1Eyebrow")}
+        title={t.rich("act1Title", { grad: (c) => <span className="text-gradient">{c}</span> })}
         bullets={[
-          "Chọn 1 trong 7 giọng Việt thật",
-          "Phụ đề khớp khung — timing lấy từ kịch bản, không đoán bằng ASR",
-          "Xuất đủ 3 tỉ lệ: dọc 9:16 · vuông 1:1 · ngang 16:9",
+          t("act1Bullet1"),
+          t("act1Bullet2"),
+          t("act1Bullet3"),
         ]}
-        cta={{ label: "Thử với ảnh của bạn", href: "/login" }}
+        cta={{ label: t("act1Cta"), href: "/login" }}
         demo={
           <div className="grid grid-cols-2 gap-4">
             <BeforeAfter />
             <MiniReel
-              poster="/samples/tech.png"
+              poster="/samples/tech.jpg"
               className="w-full"
-              captions={["Mở hộp em này nè…", "Chống ồn đỉnh thật sự!", "Bấm giỏ hàng nha!"]}
+              captions={[t("act1Caption1"), t("act1Caption2"), t("act1Caption3")]}
             />
           </div>
         }
       />
 
-      {/* S4 — ACT-LỚN · MOAT (climax) — id winner-loop · đóng khung CHƯƠNG RIÊNG (autovis không có) */}
+      {/* S4 — ACT-LỚN · MOAT (climax) — id winner-loop · đóng khung CHƯƠNG RIÊNG */}
       <section id="winner-loop" className="relative bg-bg-base">
         <div className="mx-auto h-px max-w-4xl bg-gradient-to-r from-transparent via-violet-500/60 to-transparent" />
         <div className="glow-radial pointer-events-none absolute inset-x-0 -top-10 mx-auto h-64 max-w-3xl" />
         <CinematicAct
           index={2}
           side="center"
-          badge={{ tone: "moat", label: "Độc quyền" }}
-          eyebrow="· Không đối thủ Việt nào có"
-          title={<>Đối thủ tạo video. <span className="text-gradient">Vyra tìm ra video ra đơn.</span></>}
-          sub="Tạo nhiều biến thể từ một sản phẩm → mỗi bản một short-link riêng → đo click thật → xếp hạng → nhân bản bản thắng."
+          badge={{ tone: "moat", label: t("act2Badge") }}
+          eyebrow={t("act2Eyebrow")}
+          title={t.rich("act2Title", { grad: (c) => <span className="text-gradient">{c}</span> })}
+          sub={t("act2Sub")}
           demo={
             <div>
               <VariantLeaderboard />
@@ -127,10 +190,10 @@ export default function LandingPage() {
       <CinematicAct
         index={4}
         side="left"
-        badge={{ tone: "new", label: "Kịch bản AI" }}
-        eyebrow="04 · Bộ máy kịch bản"
-        title={<>Nhập sản phẩm. <span className="text-gradient">Nhận kịch bản theo timecode.</span> Sửa từng câu.</>}
-        sub="Chọn 1 trong 6 góc thuyết phục. Engine trả về hook + từng beat theo timecode — sửa tay trước khi dựng. Phụ đề lấy timing thẳng từ kịch bản."
+        badge={{ tone: "new", label: t("act4Badge") }}
+        eyebrow={t("act4Eyebrow")}
+        title={t.rich("act4Title", { grad: (c) => <span className="text-gradient">{c}</span> })}
+        sub={t("act4Sub")}
         demo={<ScriptEngineMock />}
       />
 
@@ -138,10 +201,10 @@ export default function LandingPage() {
       <CinematicAct
         index={3}
         side="right"
-        badge={{ tone: "hot", label: "Giọng Việt" }}
-        eyebrow="03 · Giọng đọc"
-        title={<><span className="text-gradient">7 giọng Việt</span> có cá tính. Mỗi giọng một tính cách.</>}
-        sub="Mai, Linh, Trang, Bống, Khoa, Hùng, Tú — trẻ trung, nhẹ nhàng, trầm ấm, dí dỏm. Chọn giọng hợp ngành hàng, nghe thử trong app."
+        badge={{ tone: "hot", label: t("act3Badge") }}
+        eyebrow={t("act3Eyebrow")}
+        title={t.rich("act3Title", { grad: (c) => <span className="text-gradient">{c}</span> })}
+        sub={t("act3Sub")}
         demo={<VoiceRail />}
       />
 
@@ -154,14 +217,14 @@ export default function LandingPage() {
       <CinematicAct
         index={5}
         side="right"
-        badge={{ tone: "new", label: "Xuất file" }}
-        eyebrow="05 · Đa tỉ lệ"
-        title={<>Một lần dựng. <span className="text-gradient">Dọc, vuông, ngang.</span></>}
-        sub="Dọc 9:16 cho TikTok/Reels, vuông 1:1 cho feed, ngang 16:9 cho YouTube — từ cùng một lần dựng."
+        badge={{ tone: "new", label: t("act5Badge") }}
+        eyebrow={t("act5Eyebrow")}
+        title={t.rich("act5Title", { grad: (c) => <span className="text-gradient">{c}</span> })}
+        sub={t("act5Sub")}
         demo={<RatioBento />}
       />
 
-      {/* §15 — MANIFESTO (mirror "SẴN SÀNG·KHỞI TẠO·TỎA SÁNG" của autovis, giọng Vyra) */}
+      {/* §15 — MANIFESTO */}
       <Manifesto />
 
       {/* S9 — Cách Vyra hoạt động */}
@@ -174,45 +237,54 @@ export default function LandingPage() {
         <CompareTable />
       </section>
 
-      {/* S11 — Minh bạch credit */}
+      {/* S11 — Minh bạch credit — khối "bảng ví" bất đối xứng, ảnh nền /bg/desk */}
       <section className="mx-auto max-w-6xl px-4 py-12">
-        <div className="glass-bordered relative overflow-hidden p-8 lg:p-12">
-          <div className="relative grid items-center gap-8 lg:grid-cols-12">
-            <div className="lg:col-span-5">
-              <h2 className="font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold leading-tight text-ink-high">
-                Bạn luôn biết tốn bao nhiêu, <span className="text-gradient">trước</span> khi tiêu credit.
-              </h2>
-              <p className="mt-4 text-ink-medium">
-                Khác nỗi lo "tự trừ tiền": Vyra ước tính trước, chỉ tạm giữ, dùng bao nhiêu tính
-                bấy nhiêu, và hoàn 100% nếu lỗi hệ thống.
-              </p>
-              <Link href="/login" className="mt-6 inline-block">
-                <Button>Dùng thử miễn phí</Button>
-              </Link>
-            </div>
-            <div className="flex flex-col gap-3 lg:col-span-7">
-              {[
-                ["Ước tính trước", "Thấy ~bao nhiêu credit trước khi tạo."],
-                ["Chỉ giữ tạm", "Giữ tối đa, dùng bao nhiêu tính bấy nhiêu."],
-                ["Hoàn khi lỗi", "Lỗi hệ thống thì hoàn 100%, không trừ oan."],
-              ].map(([t, d]) => (
-                <div key={t} className="glass flex items-start gap-3 rounded-xl p-4">
-                  <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-violet-500/15 text-xs font-bold text-violet-300">✓</span>
-                  <div>
-                    <div className="font-medium text-ink-high">{t}</div>
-                    <div className="text-sm text-ink-low">{d}</div>
+        <Reveal>
+          <div className="glass-bordered relative overflow-hidden p-8 lg:p-12">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/bg/desk.jpg"
+              alt=""
+              className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.12]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-bg-base via-bg-base/90 to-bg-base/55" />
+            <div className="relative grid items-center gap-8 lg:grid-cols-12">
+              <div className="lg:col-span-5">
+                <FilmLabel>{t("creditLabel")}</FilmLabel>
+                <h2 className="mt-3 font-display text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold leading-tight text-ink-high">
+                  {t.rich("creditTitle", { grad: (c) => <span className="text-gradient">{c}</span> })}
+                </h2>
+                <p className="mt-4 text-ink-medium">
+                  {t("creditBody")}
+                </p>
+                <Link href="/login" className="mt-6 inline-block">
+                  <Button>{t("creditCta")}</Button>
+                </Link>
+              </div>
+              <div className="flex flex-col gap-3 lg:col-span-7">
+                {[
+                  [t("creditItem1Title"), t("creditItem1Desc")],
+                  [t("creditItem2Title"), t("creditItem2Desc")],
+                  [t("creditItem3Title"), t("creditItem3Desc")],
+                ].map(([title, d]) => (
+                  <div key={title} className="glass flex items-start gap-3 rounded-xl p-4">
+                    <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-violet-500/15 text-xs font-bold text-violet-300">✓</span>
+                    <div>
+                      <div className="font-medium text-ink-high">{title}</div>
+                      <div className="text-sm text-ink-low">{d}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
-      {/* §FAQ — câu hỏi thường gặp (fix link /#faq ở header) */}
+      {/* §FAQ */}
       <Faq />
 
-      {/* S11b — CTA đóng phim */}
+      {/* S11b — CTA đóng trang */}
       <section className="relative overflow-hidden px-4 py-28 text-center">
         <div className="glow-radial pointer-events-none absolute inset-x-0 -top-10 mx-auto h-64 max-w-2xl" />
         <span className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 -translate-y-1/2 select-none text-center font-display text-[clamp(5rem,22vw,18rem)] font-extrabold leading-none text-white/[0.03]">
@@ -221,17 +293,17 @@ export default function LandingPage() {
         <div className="relative mx-auto max-w-3xl">
           <div className="mx-auto mb-8 h-px max-w-xs bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
           <h2 className="font-display text-[clamp(2rem,5vw,3.4rem)] font-extrabold tracking-[-0.02em] text-ink-high">
-            Đừng đoán video nào ra đơn. <span className="text-gradient">Để số liệu chỉ.</span>
+            {t.rich("ctaTitle", { grad: (c) => <span className="text-gradient">{c}</span> })}
           </h2>
           <p className="mx-auto mt-4 max-w-md text-ink-medium">
-            Tặng 300 credit, không cần thẻ. 7 giọng Việt thật. Không watermark ở gói trả phí.
+            {t("ctaSub")}
           </p>
           <div className="mt-8 flex justify-center">
             <Link href="/login">
-              <Button size="lg">Tạo loạt video đầu tiên</Button>
+              <Button size="lg">{t("ctaButton")}</Button>
             </Link>
           </div>
-          <p className="mt-3 text-xs text-ink-low">Mất ~60 giây để có video đầu tiên.</p>
+          <p className="mt-3 text-xs text-ink-low">{t("ctaHint")}</p>
         </div>
       </section>
 
@@ -239,11 +311,11 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <Logo />
           <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-ink-low">
-            <Link href="/pricing" className="hover:text-ink-medium">Bảng giá</Link>
-            <Link href="/terms" className="hover:text-ink-medium">Điều khoản</Link>
-            <Link href="/privacy" className="hover:text-ink-medium">Bảo mật</Link>
+            <Link href="/pricing" className="hover:text-ink-medium">{t("footerPricing")}</Link>
+            <Link href="/terms" className="hover:text-ink-medium">{t("footerTerms")}</Link>
+            <Link href="/privacy" className="hover:text-ink-medium">{t("footerPrivacy")}</Link>
           </nav>
-          <p className="text-xs text-ink-disabled">© 2026 Vyra · Video AI giọng Việt</p>
+          <p className="text-xs text-ink-disabled">{t("footerCopyright")}</p>
         </div>
       </footer>
     </div>

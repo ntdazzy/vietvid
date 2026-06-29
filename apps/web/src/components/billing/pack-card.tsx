@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Plus, Loader2, Sparkles } from "lucide-react";
 import type { CreditPack } from "@/lib/api/types";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -30,6 +31,7 @@ export function PackCard({
   disabled: boolean;
   onBuy: () => void;
 }) {
+  const t = useTranslations("billing");
   return (
     <GlassCard
       bordered={isBest || isRecommended}
@@ -39,10 +41,10 @@ export function PackCard({
       <div className="mb-2 flex min-h-[28px] items-start">
         {isBest ? (
           <Badge tone="success">
-            <Sparkles className="h-3 w-3" /> Giá tốt nhất
+            <Sparkles className="h-3 w-3" /> {t("bestPrice")}
           </Badge>
         ) : isRecommended ? (
-          <Badge tone="brand">Phổ biến</Badge>
+          <Badge tone="brand">{t("popular")}</Badge>
         ) : null}
       </div>
 
@@ -55,9 +57,9 @@ export function PackCard({
       {/* giá trị thật — chừa chiều cao; để TRỐNG nơi lẽ ra là "giảm giá" giả */}
       <div className="mt-2 min-h-[34px]">
         <div className={cn("text-xs", isBest ? "text-success" : "text-ink-low")}>
-          <span className="font-numeric">{perCredit}</span>đ/credit
+          <span className="font-numeric">{perCredit}</span>{t("perCreditSuffix")}
         </div>
-        {savePct > 0 && <div className="text-xs text-success">Tiết kiệm {savePct}%</div>}
+        {savePct > 0 && <div className="text-xs text-success">{t("save", { pct: savePct })}</div>}
       </div>
 
       <Button
@@ -65,9 +67,9 @@ export function PackCard({
         variant={isBest ? "primary" : "glass"}
         disabled={disabled}
         onClick={onBuy}
-        aria-label={`Nạp gói ${pack.name} — ${pack.credits.toLocaleString("vi-VN")} credit`}
+        aria-label={t("buyPackAria", { name: pack.name, credits: pack.credits.toLocaleString("vi-VN") })}
       >
-        {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Nạp
+        {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} {t("topup")}
       </Button>
     </GlassCard>
   );

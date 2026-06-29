@@ -1,5 +1,16 @@
 import type { JobStatus } from "@/lib/api/types";
 
+// Nguồn sự thật DUY NHẤT cho trạng thái kết-thúc / thất-bại (tránh drift khi thêm status mới).
+export const TERMINAL_STATUSES: ReadonlySet<JobStatus> = new Set([
+  "READY",
+  "QA_FAIL",
+  "FAILED",
+  "REFUNDED",
+  "CANCELLED",
+]);
+export const isTerminal = (s: JobStatus): boolean => TERMINAL_STATUSES.has(s);
+export const isFailed = (s: JobStatus): boolean => s === "FAILED" || s === "QA_FAIL" || s === "REFUNDED";
+
 export type Tone = "neutral" | "brand" | "hold" | "success" | "refund" | "danger";
 
 const TONE: Record<string, Tone> = {

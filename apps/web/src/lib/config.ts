@@ -9,3 +9,5 @@ export const supabaseConfigured = () => Boolean(SUPABASE_URL && SUPABASE_ANON_KE
 
 export const DEV_TOKEN_KEY = "vietvid_dev_token";
 export const REFRESH_TOKEN_KEY = "vietvid_refresh_token";
+/** Cookie cờ "có phiên" (chỉ "1", không chứa token) — middleware đọc để guard /app. */
+export const AUTH_COOKIE = "vyra_auth";

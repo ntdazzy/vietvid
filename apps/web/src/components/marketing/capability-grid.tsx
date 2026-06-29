@@ -16,7 +16,7 @@ export function CapabilityGrid() {
     {
       index: 1, tone: "core" as const, badge: "Lõi", title: "Ảnh → Video 60s", href: "/login",
       desc: "Thả 1 ảnh, Vyra dựng video 60 giây có nhịp, có chốt đơn.",
-      demo: <MiniReel poster="/samples/fashion.png" className="mx-auto h-full max-h-[230px] w-auto"
+      demo: <MiniReel poster="/samples/fashion.jpg" className="mx-auto h-full max-h-[230px] w-auto"
         captions={["Mới săn được em này nè…", "Mặc lên tôn dáng ghê!", "Để giỏ hàng rồi nha!"]} />,
     },
     {

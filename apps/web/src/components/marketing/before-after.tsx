@@ -7,7 +7,7 @@ import { motion, useInView, useReducedMotion } from "framer-motion";
 // khung video nói tiếng Việt. KHÔNG bịa ảnh thứ 2. Phụ đề minh hoạ tinh thần angle transformation.
 const CAPTIONS = ["Trước nhìn chán lắm…", "Có rồi là lên đời, tự tin hẳn.", "Soi gương mà mê!"];
 
-export function BeforeAfter({ src = "/samples/fashion.png" }: { src?: string }) {
+export function BeforeAfter({ src = "/samples/fashion.jpg" }: { src?: string }) {
   const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });

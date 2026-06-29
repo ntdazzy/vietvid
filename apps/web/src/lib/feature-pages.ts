@@ -83,7 +83,7 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
     ],
     beforeAfter: {
       before: "/bg/studio.jpg", beforeLabel: "Chỉ có ảnh sản phẩm",
-      after: "/samples/lookbook.png", afterLabel: "Lookbook editorial (minh hoạ)",
+      after: "/samples/lookbook.jpg", afterLabel: "Lookbook editorial (minh hoạ)",
       note: "Vyra dựng trong ~60 giây, không cần buổi chụp.",
     },
     highlights: [
@@ -93,9 +93,9 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
       { icon: "Images", t: "Nhiều bối cảnh", d: "Đường phố, studio, editorial — một buổi 'chụp'." },
     ],
     results: [
-      { img: "/samples/lookbook.png", ratio: "9:16", caption: "Street style mùa thu" },
-      { img: "/samples/fashion.png", video: "/samples/fashion.mp4", ratio: "9:16", caption: "Clip lookbook chạy" },
-      { img: "/samples/beauty.png", ratio: "9:16", caption: "Phối phụ kiện" },
+      { img: "/samples/lookbook.jpg", ratio: "9:16", caption: "Street style mùa thu" },
+      { img: "/samples/fashion.jpg", video: "/samples/fashion.mp4", ratio: "9:16", caption: "Clip lookbook chạy" },
+      { img: "/samples/beauty.jpg", ratio: "9:16", caption: "Phối phụ kiện" },
     ],
     useCases: [
       { tag: "Shop quần áo", t: "Lên đồ cho SP mới", d: "Không cần thuê mẫu cho mỗi mẫu áo." },
@@ -145,9 +145,9 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
       { icon: "Captions", t: "Phụ đề khớp khung", d: "Timing lấy từ kịch bản, không sai chữ." },
     ],
     results: [
-      { img: "/samples/kol_review.png", ratio: "9:16", caption: "Review trên sofa" },
-      { img: "/samples/beauty.png", video: "/samples/beauty.mp4", ratio: "9:16", caption: "Review mỹ phẩm" },
-      { img: "/samples/tech.png", video: "/samples/tech.mp4", ratio: "9:16", caption: "Review công nghệ" },
+      { img: "/samples/kol_review.jpg", ratio: "9:16", caption: "Review trên sofa" },
+      { img: "/samples/beauty.jpg", video: "/samples/beauty.mp4", ratio: "9:16", caption: "Review mỹ phẩm" },
+      { img: "/samples/tech.jpg", video: "/samples/tech.mp4", ratio: "9:16", caption: "Review công nghệ" },
     ],
     comparison: {
       oldWay: ["Thuê KOL + ekip quay", "Chờ 3-5 ngày mỗi clip", "Mỗi SP một buổi quay", "Chi phí cao, khó nhân bản"],
@@ -184,8 +184,8 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
     heroVariant: "transform",
     sections: ["beforeAfter", "highlights", "comparison", "results", "proof"],
     beforeAfter: {
-      before: "/samples/tech.png", beforeLabel: "Ảnh sản phẩm phẳng",
-      after: "/samples/tech.png", afterVideo: "/samples/tech.mp4", afterLabel: "Video chốt đơn 60s (minh hoạ)",
+      before: "/samples/tech.jpg", beforeLabel: "Ảnh sản phẩm phẳng",
+      after: "/samples/tech.jpg", afterVideo: "/samples/tech.mp4", afterLabel: "Video chốt đơn 60s (minh hoạ)",
       note: "Có hook, có nhịp, có CTA — sẵn chạy ads.",
     },
     highlights: [
@@ -199,9 +199,9 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
       vyraWay: ["Engine dựng tự động", "Sửa trực tiếp, thấy giá", "Tạo nhiều biến thể đo click", "0 watermark gói trả phí"],
     },
     results: [
-      { img: "/samples/tech.png", video: "/samples/tech.mp4", ratio: "9:16", caption: "Ad công nghệ" },
-      { img: "/samples/food.png", video: "/samples/food.mp4", ratio: "9:16", caption: "Ad ẩm thực" },
-      { img: "/samples/fashion.png", video: "/samples/fashion.mp4", ratio: "9:16", caption: "Ad thời trang" },
+      { img: "/samples/tech.jpg", video: "/samples/tech.mp4", ratio: "9:16", caption: "Ad công nghệ" },
+      { img: "/samples/food.jpg", video: "/samples/food.mp4", ratio: "9:16", caption: "Ad ẩm thực" },
+      { img: "/samples/fashion.jpg", video: "/samples/fashion.mp4", ratio: "9:16", caption: "Ad thời trang" },
     ],
     proof: [
       { stat: "~60s", label: "mỗi video" },
@@ -235,7 +235,7 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
     io: {
       inLabel: "Mô tả của bạn", inKind: "text",
       inText: "Ly trà sữa trân châu trên bàn gỗ, ánh sáng ấm, nền bokeh — giới thiệu món mới.",
-      outKind: "video", outImg: "/samples/home.png", outVideo: "/samples/home.mp4", outLabel: "Video AI dựng",
+      outKind: "video", outImg: "/samples/home.jpg", outVideo: "/samples/home.mp4", outLabel: "Video AI dựng",
     },
     highlights: [
       { icon: "Type", t: "Bắt đầu từ chữ", d: "Không cần ảnh — chỉ một đoạn mô tả." },
@@ -244,9 +244,9 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
       { icon: "Timer", t: "~60 giây", d: "Từ ý tưởng tới clip sẵn đăng." },
     ],
     results: [
-      { img: "/samples/home.png", video: "/samples/home.mp4", ratio: "9:16", caption: "Giới thiệu dịch vụ" },
-      { img: "/samples/food_review.png", ratio: "9:16", caption: "Nội dung kênh" },
-      { img: "/samples/trend.png", ratio: "9:16", caption: "Bắt ý tưởng nhanh" },
+      { img: "/samples/home.jpg", video: "/samples/home.mp4", ratio: "9:16", caption: "Giới thiệu dịch vụ" },
+      { img: "/samples/food_review.jpg", ratio: "9:16", caption: "Nội dung kênh" },
+      { img: "/samples/trend.jpg", ratio: "9:16", caption: "Bắt ý tưởng nhanh" },
     ],
     useCases: [
       { tag: "Kênh ẩn danh", t: "Nội dung đều tay", d: "Không cần lộ mặt, không cần quay." },
@@ -284,8 +284,8 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
     sections: ["highlights", "results", "useCases", "proof"],
     io: {
       inLabel: "Ảnh của bạn (2–8 tấm)", inKind: "thumbs",
-      thumbs: ["/samples/food.png", "/samples/home.png", "/samples/beauty.png"],
-      outKind: "video", outImg: "/samples/food.png", outVideo: "/samples/food.mp4", outLabel: "Slideshow dọc",
+      thumbs: ["/samples/food.jpg", "/samples/home.jpg", "/samples/beauty.jpg"],
+      outKind: "video", outImg: "/samples/food.jpg", outVideo: "/samples/food.mp4", outLabel: "Slideshow dọc",
     },
     highlights: [
       { icon: "Layers", t: "Ghép 2–8 ảnh", d: "Thành một video dọc liền mạch." },
@@ -294,9 +294,9 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
       { icon: "Download", t: "Xuất MP4 ngay", d: "Tải về đăng được liền." },
     ],
     results: [
-      { img: "/samples/food.png", video: "/samples/food.mp4", ratio: "9:16", caption: "Album món ăn" },
-      { img: "/samples/home.png", video: "/samples/home.mp4", ratio: "9:16", caption: "Bộ ảnh gia dụng" },
-      { img: "/samples/beauty.png", ratio: "9:16", caption: "Trước → sau" },
+      { img: "/samples/food.jpg", video: "/samples/food.mp4", ratio: "9:16", caption: "Album món ăn" },
+      { img: "/samples/home.jpg", video: "/samples/home.mp4", ratio: "9:16", caption: "Bộ ảnh gia dụng" },
+      { img: "/samples/beauty.jpg", ratio: "9:16", caption: "Trước → sau" },
     ],
     useCases: [
       { tag: "Shop", t: "Album sản phẩm", d: "Nhiều góc một SP thành 1 clip." },
@@ -336,7 +336,7 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
       inLabel: "Mô tả ảnh", inKind: "ratios",
       inText: "Ly trà sữa trân châu trên bàn gỗ, ánh sáng ấm, nền bokeh.",
       ratios: ["9:16", "1:1", "16:9"],
-      outKind: "image", outImg: "/samples/beauty.png", outLabel: "Ảnh AI",
+      outKind: "image", outImg: "/samples/beauty.jpg", outLabel: "Ảnh AI",
     },
     highlights: [
       { icon: "Type", t: "Text → ảnh", d: "Mô tả một câu, AI dựng khung." },
@@ -345,9 +345,9 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
       { icon: "Palette", t: "Ảnh bài đăng", d: "Hoặc ảnh nghệ thuật riêng để post." },
     ],
     results: [
-      { img: "/samples/beauty.png", ratio: "9:16", caption: "Khung dọc 9:16" },
-      { img: "/samples/fashion.png", ratio: "1:1", caption: "Vuông 1:1 cho feed" },
-      { img: "/samples/home.png", ratio: "16:9", caption: "Ngang 16:9 cho web" },
+      { img: "/samples/beauty.jpg", ratio: "9:16", caption: "Khung dọc 9:16" },
+      { img: "/samples/fashion.jpg", ratio: "1:1", caption: "Vuông 1:1 cho feed" },
+      { img: "/samples/home.jpg", ratio: "16:9", caption: "Ngang 16:9 cho web" },
     ],
     useCases: [
       { tag: "Video", t: "Khung đầu", d: "Tạo ảnh nền rồi dựng thành clip." },

@@ -1,18 +1,23 @@
 "use client";
 
-import { Film, CheckCircle2, XCircle, Coins, ArrowDownToLine, RotateCcw, Lock, TrendingUp, Link2, MousePointerClick, Activity, Wallet } from "lucide-react";
+import { Film, CheckCircle2, XCircle, Coins, TrendingUp, Link2, MousePointerClick, Activity, Wallet, ArrowUpRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
 import { useWallet, useLedger, useJobs } from "@/lib/query/hooks";
 import { api } from "@/lib/api/endpoints";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ScreenHero, StatTile } from "@/components/app/screen-hero";
+import { FilmLabel } from "@/components/ui/cinematic";
+import { Reveal } from "@/components/marketing/reveal";
+import { isFailed } from "@/lib/job-status";
 import { cn } from "@/lib/utils/cn";
-
-const FAILED = new Set(["FAILED", "QA_FAIL", "REFUNDED"]);
-const DOW = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+import { SuccessGauge } from "@/components/reports/success-gauge";
+import { FlowLegend, MetricCell, AffiliateRow } from "@/components/reports/report-cells";
+import { ReportsSkeleton } from "@/components/reports/reports-skeleton";
+import { ActivityChart } from "@/components/reports/activity-chart";
 
 export default function ReportsPage() {
+  const t = useTranslations("reports");
   const wallet = useWallet();
   const ledger = useLedger(200);
   const jobs = useJobs(100);
@@ -23,7 +28,7 @@ export default function ReportsPage() {
   const items = jobs.data?.items ?? [];
   const total = items.length;
   const ready = items.filter((j) => j.status === "READY").length;
-  const failed = items.filter((j) => FAILED.has(j.status)).length;
+  const failed = items.filter((j) => isFailed(j.status)).length;
   const running = total - ready - failed;
   const successRate = total ? Math.round((ready / total) * 100) : 0;
 
@@ -57,110 +62,163 @@ export default function ReportsPage() {
   const flowTotal = Math.max(1, used + held + balance);
   const pct = (n: number) => (n / flowTotal) * 100;
 
+  if (loading) return <ReportsSkeleton />;
+
   return (
     <div className="flex flex-col gap-6">
-      <ScreenHero
-        icon={TrendingUp}
-        accent="emerald"
-        title="Báo cáo"
-        sub="Tổng quan hoạt động & credit — số liệu thật từ sổ cái của bạn."
-      >
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatTile icon={Wallet} label="Số dư" value={loading ? "" : balance.toLocaleString("vi-VN")} loading={loading} accent="emerald" />
-          <StatTile icon={TrendingUp} label="Đã dùng" value={loading ? "" : used.toLocaleString("vi-VN")} loading={loading} accent="violet" />
-          <StatTile icon={Film} label="Tổng video" value={loading ? "" : total.toLocaleString("vi-VN")} loading={loading} accent="sky" />
-          <StatTile icon={CheckCircle2} label="Tỉ lệ thành công" value={loading ? "" : `${successRate}%`} loading={loading} accent="emerald" />
-        </div>
-      </ScreenHero>
+      {/* ── BẢNG ĐIỀU KHIỂN — hero split: đồng hồ tỉ lệ thành công + nhịp 14 ngày ── */}
+      <Reveal>
+        <section className="relative overflow-hidden rounded-3xl glass-bordered">
+          {/* glow nền + lưới mờ tạo cảm giác "bảng số liệu" */}
+          <div
+            className="pointer-events-none absolute -top-24 left-8 h-72 w-72 rounded-full blur-3xl"
+            style={{ background: "rgba(16,185,129,0.18)" }}
+          />
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.05]"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.6) 1px, transparent 1px)",
+              backgroundSize: "44px 44px",
+            }}
+          />
 
-      {loading ? (
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Skeleton className="h-56 w-full rounded-2xl" />
-          <Skeleton className="h-56 w-full rounded-2xl" />
-        </div>
-      ) : (
-        <>
-          <div className="grid gap-4 lg:grid-cols-2">
-            {/* hoạt động 14 ngày */}
-            <GlassCard className="flex flex-col p-5">
-              <div className="mb-4 flex items-center gap-2 text-sm font-medium text-ink-medium">
-                <Activity className="h-4 w-4 text-emerald-300" /> Hoạt động 14 ngày
+          <div className="relative grid gap-0 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+            {/* TRÁI — đồng hồ tỉ lệ thành công (số thật) */}
+            <div className="flex flex-col justify-between gap-6 border-b border-white/[0.06] p-6 sm:p-8 lg:border-b-0 lg:border-r">
+              <div>
+                <FilmLabel>{t("heroLabel")}</FilmLabel>
+                <h1 className="mt-3 font-display text-3xl font-extrabold leading-[1.05] text-ink-high sm:text-4xl">
+                  {t("heroTitle")}
+                </h1>
+                <p className="mt-2 max-w-sm text-sm text-ink-medium">
+                  {t("heroSubtitle")}
+                </p>
               </div>
-              <div className="flex h-32 items-end gap-1.5">
-                {days.map((b, i) => (
-                  <div key={i} className="flex flex-1 flex-col items-center gap-1.5" title={`${b.count} video`}>
-                    <div className="flex w-full flex-1 items-end">
-                      <div
-                        className="w-full rounded-t bg-gradient-to-t from-emerald-500/40 to-emerald-400/80 transition-all"
-                        style={{ height: `${Math.max(4, (b.count / maxDay) * 100)}%` }}
-                      />
-                    </div>
-                    <span className="text-[9px] text-ink-disabled">{DOW[b.d.getDay()]}</span>
+
+              <div className="flex items-center gap-5">
+                <SuccessGauge value={successRate} ariaLabel={t("gaugeAria", { value: successRate })} />
+                <div className="min-w-0">
+                  <div className="text-xs uppercase tracking-[0.16em] text-ink-low">{t("successRateLabel")}</div>
+                  <div className="mt-1 flex flex-wrap items-baseline gap-x-2 text-sm text-ink-low">
+                    <span className="font-numeric text-emerald-300">{ready.toLocaleString("vi-VN")}</span> {t("doneSuffix")}
+                    {running > 0 && (
+                      <>
+                        <span className="text-ink-disabled">·</span>
+                        <span className="font-numeric text-violet-300">{running.toLocaleString("vi-VN")}</span> {t("runningSuffix")}
+                      </>
+                    )}
+                    {failed > 0 && (
+                      <>
+                        <span className="text-ink-disabled">·</span>
+                        <span className="font-numeric text-rose-300">{failed.toLocaleString("vi-VN")}</span> {t("failedSuffix")}
+                      </>
+                    )}
                   </div>
-                ))}
+                  <div className="mt-2 text-xs text-ink-low">
+                    {t("ofRecentBefore")} <span className="font-numeric text-ink-medium">{total.toLocaleString("vi-VN")}</span> {t("ofRecentAfter")}
+                  </div>
+                </div>
               </div>
-              <p className="mt-3 text-xs text-ink-low">
-                {total === 0 ? "Chưa có video nào — tạo video đầu tiên để thấy biểu đồ." : `Tổng ${total} video trong 100 lần gần nhất.`}
-              </p>
-            </GlassCard>
+            </div>
 
-            {/* dòng credit */}
-            <GlassCard className="flex flex-col p-5">
-              <div className="mb-4 flex items-center gap-2 text-sm font-medium text-ink-medium">
-                <Coins className="h-4 w-4 text-emerald-300" /> Dòng credit
-              </div>
-              <div className="flex h-3 w-full overflow-hidden rounded-full bg-white/[0.06]">
-                <div className="bg-violet-500/70" style={{ width: `${pct(used)}%` }} />
-                <div className="bg-hold/70" style={{ width: `${pct(held)}%` }} />
-                <div className="bg-emerald-500/70" style={{ width: `${pct(balance)}%` }} />
-              </div>
-              <div className="mt-4 grid grid-cols-3 gap-3">
-                <FlowLegend color="bg-violet-500/70" label="Đã dùng" value={used} />
-                <FlowLegend color="bg-hold/70" label="Đang giữ" value={held} />
-                <FlowLegend color="bg-emerald-500/70" label="Còn lại" value={balance} />
-              </div>
-              <p className="mt-auto pt-4 text-xs text-ink-low">
-                Tổng đã nạp/tặng: <span className="font-numeric text-ink-medium">{toppedUp.toLocaleString("vi-VN")}</span> credit · đã hoàn{" "}
-                <span className="font-numeric text-refund">{refunded.toLocaleString("vi-VN")}</span>.
+            {/* PHẢI — nhịp tạo video 14 ngày */}
+            <div className="flex flex-col p-6 sm:p-8">
+              <ActivityChart days={days} maxDay={maxDay} t={t} />
+              <p className="mt-4 text-xs text-ink-low">
+                {total === 0
+                  ? t("rhythmEmpty")
+                  : t("rhythmSummary", { total: total.toLocaleString("vi-VN") })}
               </p>
-            </GlassCard>
+            </div>
           </div>
+        </section>
+      </Reveal>
 
-          {/* chi tiết video */}
-          <section className="flex flex-col gap-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-ink-low">Video</h2>
-            <div className="grid grid-cols-3 gap-4">
-              <StatTile icon={Film} label="Tổng video" value={total.toLocaleString("vi-VN")} accent="sky" />
-              <StatTile icon={CheckCircle2} label="Thành công" value={ready.toLocaleString("vi-VN")} accent="emerald" hint={running > 0 ? `${running} đang chạy` : undefined} />
-              <StatTile icon={XCircle} label="Lỗi / hoàn" value={failed.toLocaleString("vi-VN")} accent="rose" />
+      {/* ── KÉT CREDIT — bento bất đối xứng: dòng tiền lớn + 3 chỉ số dọc ── */}
+      <Reveal delay={0.05}>
+        <section className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+          {/* dòng credit — thanh ngang lớn + chú thích */}
+          <GlassCard className="flex flex-col p-6">
+            <div className="mb-1 flex items-center gap-2 text-sm font-medium text-ink-medium">
+              <Coins className="h-4 w-4 text-emerald-300" /> {t("creditFlow")}
             </div>
-          </section>
+            <p className="mb-5 text-xs text-ink-low">{t("creditFlowSub")}</p>
 
-          {/* affiliate */}
-          <section className="flex flex-col gap-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-ink-low">Affiliate</h2>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              <StatTile icon={Link2} label="Link rút gọn" value={(affiliate.data?.links ?? 0).toLocaleString("vi-VN")} accent="amber" />
-              <StatTile icon={MousePointerClick} label="Lượt click" value={(affiliate.data?.clicks ?? 0).toLocaleString("vi-VN")} accent="amber" />
+            <div className="flex h-4 w-full overflow-hidden rounded-full bg-white/[0.05]">
+              <div className="bg-violet-500/70 transition-all" style={{ width: `${pct(used)}%` }} />
+              <div className="bg-hold/70 transition-all" style={{ width: `${pct(held)}%` }} />
+              <div className="bg-emerald-500/70 transition-all" style={{ width: `${pct(balance)}%` }} />
             </div>
-          </section>
 
-          <p className="text-xs text-ink-low">
-            "Đã dùng" = đã nạp − số dư − đang giữ. Mọi con số lấy từ sổ cái minh bạch của bạn.
-          </p>
-        </>
-      )}
-    </div>
-  );
-}
+            <div className="mt-5 grid grid-cols-3 gap-3">
+              <FlowLegend color="bg-violet-500/70" label={t("flowUsed")} value={used} sub={`${Math.round(pct(used))}%`} />
+              <FlowLegend color="bg-hold/70" label={t("flowHeld")} value={held} sub={`${Math.round(pct(held))}%`} />
+              <FlowLegend color="bg-emerald-500/70" label={t("flowRemaining")} value={balance} sub={`${Math.round(pct(balance))}%`} />
+            </div>
 
-function FlowLegend({ color, label, value }: { color: string; label: string; value: number }) {
-  return (
-    <div>
-      <div className="flex items-center gap-1.5 text-xs text-ink-low">
-        <span className={cn("h-2.5 w-2.5 rounded-sm", color)} /> {label}
-      </div>
-      <div className="mt-1 font-numeric text-lg font-semibold tabular text-ink-high">{value.toLocaleString("vi-VN")}</div>
+            <div className="mt-auto flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/[0.06] pt-4 text-xs text-ink-low">
+              <span>
+                {t("toppedUpBefore")} <span className="font-numeric text-ink-medium">{toppedUp.toLocaleString("vi-VN")}</span> {t("toppedUpAfter")}
+              </span>
+              <span>
+                {t("refundedLabel")} <span className="font-numeric text-refund">{refunded.toLocaleString("vi-VN")}</span>
+              </span>
+            </div>
+          </GlassCard>
+
+          {/* số dư nổi bật — "mặt két" dọc */}
+          <GlassCard bordered className="relative flex flex-col justify-between overflow-hidden p-6">
+            <div
+              className="pointer-events-none absolute -bottom-16 -right-10 h-44 w-44 rounded-full blur-3xl"
+              style={{ background: "rgba(16,185,129,0.16)" }}
+            />
+            <div className="relative flex items-center gap-2 text-sm font-medium text-ink-medium">
+              <Wallet className="h-4 w-4 text-emerald-300" /> {t("currentBalance")}
+            </div>
+            <div className="relative">
+              <div className="font-numeric text-5xl font-extrabold tabular text-gradient">
+                {balance.toLocaleString("vi-VN")}
+              </div>
+              <div className="mt-1 text-sm text-ink-low">{t("availableCredits")}</div>
+              {held > 0 && (
+                <div className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-hold/25 bg-hold/[0.08] px-2.5 py-1 text-xs text-hold">
+                  {t("flowHeld")} <span className="font-numeric">{held.toLocaleString("vi-VN")}</span>
+                </div>
+              )}
+            </div>
+          </GlassCard>
+        </section>
+      </Reveal>
+
+      {/* ── CHI TIẾT — video + affiliate trong một dải, bất đối xứng ── */}
+      <Reveal delay={0.1}>
+        <section className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+          {/* video — dòng chỉ số ngang */}
+          <GlassCard className="flex flex-col p-6">
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-ink-low">{t("videoSection")}</h2>
+            <div className="grid grid-cols-3 divide-x divide-white/[0.06]">
+              <MetricCell icon={Film} accent="text-sky-300" label={t("metricTotal")} value={total} />
+              <MetricCell icon={CheckCircle2} accent="text-emerald-300" label={t("metricSuccess")} value={ready} hint={running > 0 ? t("runningHint", { count: running }) : undefined} />
+              <MetricCell icon={XCircle} accent="text-rose-300" label={t("metricFailed")} value={failed} />
+            </div>
+          </GlassCard>
+
+          {/* affiliate — bảng dọc gọn */}
+          <GlassCard className="flex flex-col p-6">
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.16em] text-ink-low">{t("affiliateSection")}</h2>
+            <div className="flex flex-col gap-3">
+              <AffiliateRow icon={Link2} label={t("shortLinks")} value={affiliate.data?.links ?? 0} />
+              <AffiliateRow icon={MousePointerClick} label={t("clicks")} value={affiliate.data?.clicks ?? 0} />
+            </div>
+          </GlassCard>
+        </section>
+      </Reveal>
+
+      <p className="flex items-start gap-1.5 text-xs text-ink-low">
+        <ArrowUpRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300/70" />
+        {t("footerNote")}
+      </p>
     </div>
   );
 }

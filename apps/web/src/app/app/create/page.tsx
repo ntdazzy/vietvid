@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, ArrowRight, Sparkles, Loader2, AlertCircle, Layers } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,9 +16,9 @@ import { StyleStep } from "@/components/create/steps/style-step";
 import { VoiceStep } from "@/components/create/steps/voice-step";
 import { PreviewStep } from "@/components/create/steps/preview-step";
 import { RenderTimeline } from "@/components/create/render-timeline";
-import { TemplateGallery } from "@/components/create/template-gallery";
 import { PreviewRail } from "@/components/create/preview-rail";
 import { MobileCostBar } from "@/components/create/mobile-cost-bar";
+import { Launchpad, type Genre } from "@/components/create/launchpad";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api/client";
 import type { JobCreateRequest, Template } from "@/lib/api/types";
@@ -30,6 +31,7 @@ function hasPresetSignal() {
 }
 
 export default function CreatePage() {
+  const t = useTranslations("create");
   const w = useWizard();
   const router = useRouter();
   const create = useCreateJob();
@@ -57,6 +59,12 @@ export default function CreatePage() {
       frameMode: (p.frameMode as "upload" | "ai") ?? "upload",
       step: 1,
     });
+  }
+
+  // chọn thể loại (Moment 0 genre-first) → set wizard + vào configurator.
+  function pickGenre(g: Genre) {
+    w.patch({ videoType: g.videoType, brief: g.brief, frameMode: g.frameMode, templateId: "", step: 1 });
+    setLaunched(true);
   }
 
   // đảm bảo có idempotency_key cho lần tạo này
@@ -159,7 +167,7 @@ export default function CreatePage() {
       onSuccess: (res) => w.patch({ jobId: res.job_id, step: 5 }),
       onError: (e) => {
         if (e instanceof ApiError && e.status === 402) setInsufficient(true);
-        else setError(e instanceof Error ? e.message : "Tạo video thất bại");
+        else setError(e instanceof Error ? e.message : t("errCreateFailed"));
       },
     });
   }
@@ -195,33 +203,24 @@ export default function CreatePage() {
       router.push(`/app/series/${res.series_group}`);
     } catch (e) {
       if (e instanceof ApiError && e.status === 402) setInsufficient(true);
-      else setError(e instanceof Error ? e.message : "Tạo loạt thất bại");
+      else setError(e instanceof Error ? e.message : t("errSeriesFailed"));
     } finally {
       setSeriesBusy(false);
     }
   }
 
-  // ── MOMENT 0 — Launchpad: cửa trước chọn mẫu ──────────────────────────
+  // ── MOMENT 0 — Genre-first: chọn thể loại (bản sắc riêng màn Create) ────
   if (w.step === 1 && !launched) {
     return (
-      <div className="mx-auto flex max-w-5xl flex-col gap-7">
-        <div className="flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center rounded-xl bg-grad-brand-soft">
-            <Sparkles className="h-5 w-5 text-violet-300" />
-          </span>
-          <div>
-            <h1 className="font-display text-2xl font-bold text-ink-high lg:text-[32px]">Bắt đầu một video</h1>
-            <p className="mt-1 text-ink-low">Chọn một mẫu để bắt đầu thật nhanh, hoặc dựng từ đầu theo ý bạn.</p>
-          </div>
-        </div>
-        <TemplateGallery
-          onPick={(t) => {
-            if (t) applyTemplate(t);
-            else w.patch({ templateId: "", step: 1 });
-            setLaunched(true);
-          }}
-        />
-      </div>
+      <Launchpad
+        onPickGenre={pickGenre}
+        onBuildFromScratch={() => { w.patch({ templateId: "", step: 1 }); setLaunched(true); }}
+        onPickTemplate={(t) => {
+          if (t) applyTemplate(t);
+          else w.patch({ templateId: "", step: 1 });
+          setLaunched(true);
+        }}
+      />
     );
   }
 
@@ -255,10 +254,10 @@ export default function CreatePage() {
           {insufficient && (
             <div className="flex items-center justify-between gap-3 rounded-xl border border-hold/30 bg-hold/[0.1] px-4 py-3 text-sm text-hold">
               <span className="flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" /> Không đủ credit cho video này.
+                <AlertCircle className="h-4 w-4" /> {t("insufficientCredit")}
               </span>
               <Link href="/app/billing" className="font-medium underline">
-                Nạp thêm
+                {t("topUp")}
               </Link>
             </div>
           )}
@@ -273,9 +272,9 @@ export default function CreatePage() {
             <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
               <Layers className="h-5 w-5 shrink-0 text-violet-300" />
               <div className="flex-1">
-                <div className="text-sm font-medium text-ink-high">Số biến thể (auto-series)</div>
+                <div className="text-sm font-medium text-ink-high">{t("variantCountTitle")}</div>
                 <div className="text-xs text-ink-low">
-                  Tạo nhiều video từ 1 sản phẩm, mỗi bản một góc nhìn khác (A/B).
+                  {t("variantCountDesc")}
                 </div>
               </div>
               <div className="flex gap-1">
@@ -284,7 +283,7 @@ export default function CreatePage() {
                     key={n}
                     onClick={() => setSeriesCount(n)}
                     aria-pressed={seriesCount === n}
-                    aria-label={`Tạo ${n} biến thể`}
+                    aria-label={t("createNVariants", { n })}
                     className={`grid h-9 w-9 place-items-center rounded-lg text-sm font-medium transition-colors ${
                       seriesCount === n
                         ? "bg-violet-500/20 text-ink-high"
@@ -301,7 +300,7 @@ export default function CreatePage() {
             <input
               value={seriesTarget}
               onChange={(e) => setSeriesTarget(e.target.value)}
-              placeholder="Link sản phẩm (Shopee/TikTok Shop...) — gắn để ĐO biến thể nào bán chạy"
+              placeholder={t("seriesTargetPlaceholder")}
               className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-ink-high placeholder:text-ink-low focus:border-violet-400/40 focus:outline-none"
             />
           )}
@@ -309,12 +308,12 @@ export default function CreatePage() {
           {/* footer nav */}
           <div className="flex items-center justify-between border-t border-white/[0.06] pt-5">
             <Button variant="ghost" onClick={back} disabled={w.step === 1} className="gap-1.5">
-              <ArrowLeft className="h-4 w-4" /> Quay lại
+              <ArrowLeft className="h-4 w-4" /> {t("back")}
             </Button>
 
             {w.step < 4 ? (
               <Button onClick={next} disabled={!canNext} className="gap-1.5">
-                Tiếp tục <ArrowRight className="h-4 w-4" />
+                {t("continue")} <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
               <Button
@@ -328,20 +327,20 @@ export default function CreatePage() {
                   <Sparkles className="h-4 w-4" />
                 )}
                 {create.isPending || seriesBusy
-                  ? "Đang tạo…"
+                  ? t("creating")
                   : seriesCount > 1
-                    ? `Tạo ${seriesCount} video`
-                    : "Tạo video"}
+                    ? t("createNVideos", { n: seriesCount })
+                    : t("createVideo")}
               </Button>
             )}
           </div>
 
           {w.step === 1 && !w.product.image_path && (
-            <p className="text-center text-xs text-ink-low">Tải ảnh sản phẩm để tiếp tục.</p>
+            <p className="text-center text-xs text-ink-low">{t("uploadToContinue")}</p>
           )}
           {w.step === 3 && needsConsent && (
             <p className="text-center text-xs text-hold">
-              Tích ô đồng ý ở phần "Nhân vật KOL" để tiếp tục.
+              {t("consentToContinue")}
             </p>
           )}
         </div>

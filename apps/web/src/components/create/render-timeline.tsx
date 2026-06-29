@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import {
   Clock,
@@ -19,29 +20,31 @@ import {
 import { useJob } from "@/lib/query/hooks";
 import { api } from "@/lib/api/endpoints";
 import { getToken } from "@/lib/auth/session";
+import { isTerminal } from "@/lib/job-status";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 
+// label hiển thị lấy từ i18n theo `key` (stage.<KEY>); icon/key giữ nguyên (logic).
 const STAGES = [
-  { key: "QUEUED", label: "Trong hàng đợi", icon: Clock },
-  { key: "DIRECTING", label: "Viết kịch bản", icon: PenLine },
-  { key: "IMAGING", label: "Dựng hình", icon: ImageIcon },
-  { key: "RENDERING_VIDEO", label: "Render video", icon: Film },
-  { key: "VOICING", label: "Lồng giọng Việt", icon: Mic },
-  { key: "COMPOSING", label: "Ghép & polish", icon: Layers },
-  { key: "QA", label: "Kiểm tra", icon: ShieldCheck },
-  { key: "READY", label: "Hoàn tất", icon: Sparkles },
+  { key: "QUEUED", icon: Clock },
+  { key: "DIRECTING", icon: PenLine },
+  { key: "IMAGING", icon: ImageIcon },
+  { key: "RENDERING_VIDEO", icon: Film },
+  { key: "VOICING", icon: Mic },
+  { key: "COMPOSING", icon: Layers },
+  { key: "QA", icon: ShieldCheck },
+  { key: "READY", icon: Sparkles },
 ] as const;
 
-const TERMINAL = new Set(["READY", "QA_FAIL", "FAILED", "REFUNDED", "CANCELLED"]);
 type State = "done" | "active" | "pending" | "skip";
 
 export function RenderTimeline({ jobId, onReset }: { jobId: string; onReset: () => void }) {
+  const t = useTranslations("create");
   const { data: job } = useJob(jobId);
   const [videoUrl, setVideoUrl] = useState<string>();
 
   const status = job?.status;
-  const terminal = status ? TERMINAL.has(status) : false;
+  const terminal = status ? isTerminal(status) : false;
   const ok = status === "READY";
   const failedSystem = status === "FAILED" || status === "REFUNDED";
 
@@ -111,7 +114,7 @@ export function RenderTimeline({ jobId, onReset }: { jobId: string; onReset: () 
                       st === "active" ? "text-ink-high" : "text-ink-low",
                     )}
                   >
-                    {s.label}
+                    {t(`stage.${s.key}`)}
                   </span>
                   {typeof timing === "number" && (
                     <span className="font-mono text-[10px] text-ink-disabled">
@@ -154,12 +157,12 @@ export function RenderTimeline({ jobId, onReset }: { jobId: string; onReset: () 
             {videoUrl && (
               <a href={videoUrl} download={`vietvid-${jobId}.mp4`}>
                 <Button className="gap-2">
-                  <Download className="h-4 w-4" /> Tải MP4 (không watermark)
+                  <Download className="h-4 w-4" /> {t("downloadMp4")}
                 </Button>
               </a>
             )}
             <Button variant="glass" onClick={onReset}>
-              Tạo video khác
+              {t("createAnother")}
             </Button>
           </div>
         </motion.div>
@@ -171,13 +174,11 @@ export function RenderTimeline({ jobId, onReset }: { jobId: string; onReset: () 
             <AlertTriangle className="h-6 w-6 text-danger" />
           </div>
           <p className="text-ink-high">
-            {failedSystem
-              ? "Có lỗi hệ thống khi tạo video. Credit đã được hoàn 100%."
-              : "Video chưa đạt yêu cầu kiểm tra."}
+            {failedSystem ? t("failedSystem") : t("failedQa")}
           </p>
           {job?.error && <p className="max-w-md text-sm text-ink-low">{job.error}</p>}
           <Button variant="glass" onClick={onReset}>
-            Thử lại
+            {t("retry")}
           </Button>
         </div>
       )}

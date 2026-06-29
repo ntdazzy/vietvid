@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { CreditValue } from "@/components/ui/credit-value";
 import { cn } from "@/lib/utils/cn";
@@ -23,6 +24,7 @@ export function HoldMeter({
   refundedCredits?: number;
   phase: "estimate" | "settled";
 }) {
+  const t = useTranslations("create");
   const remaining = Math.max(0, balance - holdCredits);
   // tỉ lệ phần "giữ" trên tổng (balance + hold đã trừ) để vẽ thanh
   const total = Math.max(balance, holdCredits, 1);
@@ -32,7 +34,7 @@ export function HoldMeter({
     <div className="glass-bordered p-5">
       <div className="flex items-baseline justify-between">
         <span className="text-sm text-ink-low">
-          {phase === "estimate" ? "Ước tính cho video này" : "Quyết toán"}
+          {phase === "estimate" ? t("estimateForThisVideo") : t("settlement")}
         </span>
         <span className="font-numeric text-2xl font-bold text-ink-high">
           ~<CreditValue value={estCredits} suffix="credit" className="text-2xl" />
@@ -45,7 +47,7 @@ export function HoldMeter({
         aria-valuenow={Math.round(holdPct)}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label="Tỷ lệ credit tạm giữ"
+        aria-label={t("holdRatioLabel")}
         className="mt-4 h-3 w-full overflow-hidden rounded-full bg-white/[0.06]"
       >
         <motion.div
@@ -60,21 +62,21 @@ export function HoldMeter({
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-        <Cell label="Giữ tối đa" tone="hold" value={holdCredits} />
+        <Cell label={t("cellMaxHold")} tone="hold" value={holdCredits} />
         {phase === "estimate" ? (
-          <Cell label="Còn lại sau khi giữ" tone="neutral" value={remaining} />
+          <Cell label={t("cellRemainingAfterHold")} tone="neutral" value={remaining} />
         ) : (
-          <Cell label="Đã dùng" tone="neutral" value={usedCredits ?? 0} />
+          <Cell label={t("cellUsed")} tone="neutral" value={usedCredits ?? 0} />
         )}
         {phase === "estimate" ? (
-          <Cell label="Số dư hiện tại" tone="neutral" value={balance} />
+          <Cell label={t("cellCurrentBalance")} tone="neutral" value={balance} />
         ) : (
-          <Cell label="Hoàn lại" tone="refund" value={refundedCredits ?? 0} />
+          <Cell label={t("cellRefunded")} tone="refund" value={refundedCredits ?? 0} />
         )}
       </div>
 
       <p className="mt-4 text-center text-xs text-ink-low">
-        Tạm giữ tối đa, dùng bao nhiêu tính bấy nhiêu. Hoàn 100% nếu lỗi hệ thống.
+        {t("holdExplainer")}
       </p>
     </div>
   );

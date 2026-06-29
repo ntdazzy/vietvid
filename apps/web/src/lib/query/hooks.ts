@@ -3,8 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api/endpoints";
 import type { EstimateRequest } from "@/lib/api/types";
-
-const TERMINAL = new Set(["READY", "QA_FAIL", "FAILED", "REFUNDED", "CANCELLED"]);
+import { isTerminal } from "@/lib/job-status";
 
 /** Ước tính credit realtime theo lựa chọn wizard (B2/B4). KHÔNG ghi DB, KHÔNG HOLD. */
 export function useEstimate(p: EstimateRequest, enabled = true) {
@@ -38,6 +37,6 @@ export function useJob(id: string | null) {
     queryKey: ["job", id],
     queryFn: () => api.getJob(id as string),
     enabled: Boolean(id),
-    refetchInterval: (q) => (q.state.data && TERMINAL.has(q.state.data.status) ? false : 2500),
+    refetchInterval: (q) => (q.state.data && isTerminal(q.state.data.status) ? false : 2500),
   });
 }

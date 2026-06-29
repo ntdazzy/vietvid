@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Star, Check, Palette } from "lucide-react";
 import { useWizard } from "@/store/wizard";
@@ -10,6 +11,7 @@ import { cn } from "@/lib/utils/cn";
 
 /** Chọn bộ nhận diện thương hiệu (logo/màu/watermark) — tuỳ chọn, brand_kit_id nối thẳng job. */
 export function BrandKitPicker() {
+  const t = useTranslations("create");
   const w = useWizard();
   const kits = useQuery({ queryKey: ["brand-kits"], queryFn: api.brandKits });
 
@@ -27,10 +29,10 @@ export function BrandKitPicker() {
     return (
       <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-white/12 px-4 py-3 text-sm">
         <span className="flex items-center gap-2 text-ink-low">
-          <Palette className="h-4 w-4" /> Chưa có bộ nhận diện nào.
+          <Palette className="h-4 w-4" /> {t("noBrandKits")}
         </span>
         <Link href="/app/brand-kits" className="font-medium text-violet-300 hover:text-violet-200">
-          Tạo ở Cài đặt →
+          {t("createInSettings")}
         </Link>
       </div>
     );
@@ -46,7 +48,7 @@ export function BrandKitPicker() {
             type="button"
             onClick={() => w.patch({ brandKitId: active ? "" : k.id })}
             aria-pressed={active}
-            aria-label={`Bộ nhận diện ${k.name}${active ? " (đang chọn)" : ""}`}
+            aria-label={active ? t("brandKitAriaActive", { name: k.name }) : t("brandKitAria", { name: k.name })}
             className={cn(
               "relative flex items-center gap-2.5 rounded-xl border p-2.5 text-left transition-colors",
               active ? "border-violet-500/60 bg-violet-500/10 shadow-glow-sm" : "border-white/10 hover:border-white/25",
@@ -61,7 +63,7 @@ export function BrandKitPicker() {
                 {k.name}
                 {k.is_default && <Star className="h-3 w-3 shrink-0 fill-hold text-hold" />}
               </span>
-              <span className="block truncate text-[11px] text-ink-low">{k.watermark_text || "Không watermark"}</span>
+              <span className="block truncate text-[11px] text-ink-low">{k.watermark_text || t("noWatermark")}</span>
             </span>
             {active && <Check className="absolute right-2 top-2 h-3.5 w-3.5 text-violet-300" />}
           </button>

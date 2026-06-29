@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { UploadCloud, Loader2, ImageOff, Sparkles, Wand2, Link2, Check } from "lucide-react";
 import { useWizard } from "@/store/wizard";
 import { useUploadImage } from "@/lib/query/mutations";
@@ -12,6 +13,7 @@ import { BrandKitPicker } from "@/components/create/brand-kit-picker";
 import { cn } from "@/lib/utils/cn";
 
 export function SourceStep() {
+  const t = useTranslations("create");
   const w = useWizard();
   const upload = useUploadImage();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -34,9 +36,9 @@ export function SourceStep() {
         price: d.price ? `${Number(d.price).toLocaleString("vi-VN")}đ` : w.product.price,
       });
       if (d.image_url) w.patch({ imagePreviewUrl: d.image_url });
-      setImpMsg({ kind: "ok", text: d.name ? `Đã lấy: ${d.name}` : "Đã lấy thông tin (một phần)." });
+      setImpMsg({ kind: "ok", text: d.name ? t("importGot", { name: d.name }) : t("importPartial") });
     } catch (e) {
-      setImpMsg({ kind: "err", text: e instanceof Error ? e.message : "Không bóc được link" });
+      setImpMsg({ kind: "err", text: e instanceof Error ? e.message : t("importFailed") });
     } finally {
       setImpBusy(false);
     }
@@ -57,7 +59,7 @@ export function SourceStep() {
       w.patch({ imagePreviewUrl: url });
       w.patchProduct({ image_path: path });
     } catch (e) {
-      setGenErr(e instanceof Error ? e.message : "Tạo ảnh lỗi");
+      setGenErr(e instanceof Error ? e.message : t("genImageError"));
     } finally {
       setGenLoading(false);
     }
@@ -68,16 +70,16 @@ export function SourceStep() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-xl font-bold text-ink-high">Nguồn & loại video</h2>
+        <h2 className="text-xl font-bold text-ink-high">{t("sourceTitle")}</h2>
         <p className="mt-1 text-sm text-ink-low">
-          Chọn loại video, lấy ảnh khung (tải lên hoặc tạo bằng AI) và vài thông tin để AI viết kịch bản.
+          {t("sourceSubtitle")}
         </p>
       </div>
 
       {/* Auto-ad: dán link sản phẩm → tự điền */}
       <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.04] p-3">
         <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-violet-200">
-          <Link2 className="h-3.5 w-3.5" /> Nhanh: dán link sản phẩm (Shopee / TikTok Shop / Lazada)
+          <Link2 className="h-3.5 w-3.5" /> {t("quickPasteLink")}
         </div>
         <div className="flex gap-2">
           <input
@@ -89,7 +91,7 @@ export function SourceStep() {
           />
           <Button variant="glass" onClick={importProduct} disabled={impBusy || !impUrl.trim()} className="gap-1.5">
             {impBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-violet-300" />}
-            Lấy
+            {t("fetch")}
           </Button>
         </div>
         {impMsg && (
@@ -99,24 +101,24 @@ export function SourceStep() {
         )}
       </div>
 
-      <Field label="Loại video">
+      <Field label={t("videoTypeLabel")}>
         <ChipGroup
           value={w.videoType}
           onChange={(v) => w.patch({ videoType: v as "product_ad" | "kol_full" })}
           options={[
-            { value: "product_ad", label: "Video sản phẩm" },
-            { value: "kol_full", label: "KOL AI" },
+            { value: "product_ad", label: t("videoTypeProduct") },
+            { value: "kol_full", label: t("videoTypeKol") },
           ]}
         />
       </Field>
 
-      <Field label="Ảnh khung">
+      <Field label={t("frameLabel")}>
         <ChipGroup
           value={w.frameMode}
           onChange={(v) => w.patch({ frameMode: v as "upload" | "ai" })}
           options={[
-            { value: "upload", label: "Tải ảnh" },
-            { value: "ai", label: "Tạo ảnh AI" },
+            { value: "upload", label: t("frameUpload") },
+            { value: "ai", label: t("frameAi") },
           ]}
         />
       </Field>
@@ -128,21 +130,21 @@ export function SourceStep() {
             value={genPrompt}
             onChange={(e) => setGenPrompt(e.target.value)}
             maxLength={500}
-            placeholder="Mô tả khung hình muốn tạo: vd 'ly trà sữa trân châu trên bàn gỗ, ánh sáng ấm, nền bokeh'"
+            placeholder={t("genPromptPlaceholder")}
           />
           <div className="flex flex-wrap items-center gap-3">
             <Button variant="glass" onClick={genFrame} disabled={genLoading || genPrompt.trim().length < 3} className="gap-2">
               {genLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4 text-violet-300" />}
-              {genLoading ? "Đang tạo khung…" : "Tạo khung bằng AI"}
+              {genLoading ? t("genFrameLoading") : t("genFrameBtn")}
             </Button>
             {genErr && <span className="text-sm text-danger">{genErr}</span>}
           </div>
           {w.imagePreviewUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={w.imagePreviewUrl} alt="Khung" className="max-h-72 w-auto self-start rounded-xl border border-white/10" />
+            <img src={w.imagePreviewUrl} alt={t("frameAltShort")} className="max-h-72 w-auto self-start rounded-xl border border-white/10" />
           )}
           <p className="flex items-center gap-1.5 text-xs text-ink-low">
-            <Sparkles className="h-3.5 w-3.5 text-violet-300" /> Ảnh AI làm khung đầu, sau đó dựng thành video.
+            <Sparkles className="h-3.5 w-3.5 text-violet-300" /> {t("aiFrameHint")}
           </p>
         </div>
       ) : (
@@ -150,7 +152,7 @@ export function SourceStep() {
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            aria-label="Tải hoặc đổi ảnh sản phẩm"
+            aria-label={t("uploadOrChangeAria")}
             className={cn(
               "relative grid aspect-video w-full place-items-center overflow-hidden rounded-xl border border-dashed transition-colors",
               w.imagePreviewUrl ? "border-violet-500/40" : "border-white/15 hover:border-violet-500/40 hover:bg-white/[0.02]",
@@ -158,11 +160,11 @@ export function SourceStep() {
           >
             {w.imagePreviewUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={w.imagePreviewUrl} alt="Ảnh sản phẩm" className="h-full w-full object-contain" />
+              <img src={w.imagePreviewUrl} alt={t("productImageAlt")} className="h-full w-full object-contain" />
             ) : (
               <div className="flex flex-col items-center gap-2 text-ink-low">
                 <UploadCloud className="h-7 w-7" />
-                <span className="text-sm">Bấm để tải ảnh (JPEG/PNG/WebP, tối đa 12MB)</span>
+                <span className="text-sm">{t("uploadHint")}</span>
               </div>
             )}
             {upload.isPending && (
@@ -180,29 +182,29 @@ export function SourceStep() {
           </button>
           {upload.isError && (
             <p className="flex items-center gap-2 text-sm text-danger">
-              <ImageOff className="h-4 w-4" /> {(upload.error as Error)?.message ?? "Tải ảnh lỗi"}
+              <ImageOff className="h-4 w-4" /> {(upload.error as Error)?.message ?? t("uploadError")}
             </p>
           )}
         </>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Tên sản phẩm">
-          <input className={inputCls} value={w.product.name} onChange={(e) => w.patchProduct({ name: e.target.value })} placeholder="Tai nghe Bluetooth ABC Pro" />
+        <Field label={t("productName")}>
+          <input className={inputCls} value={w.product.name} onChange={(e) => w.patchProduct({ name: e.target.value })} placeholder={t("productNamePlaceholder")} />
         </Field>
-        <Field label="Giá">
+        <Field label={t("price")}>
           <input className={inputCls} value={w.product.price} onChange={(e) => w.patchProduct({ price: e.target.value })} placeholder="199.000đ" />
         </Field>
-        <Field label="Danh mục">
-          <input className={inputCls} value={w.product.category} onChange={(e) => w.patchProduct({ category: e.target.value })} placeholder="Phụ kiện điện thoại" />
+        <Field label={t("category")}>
+          <input className={inputCls} value={w.product.category} onChange={(e) => w.patchProduct({ category: e.target.value })} placeholder={t("categoryPlaceholder")} />
         </Field>
-        <Field label="Mô tả ngắn" className="sm:col-span-2">
-          <textarea className={cn(inputCls, "min-h-[80px] resize-y")} value={w.product.description} onChange={(e) => w.patchProduct({ description: e.target.value })} placeholder="Chống ồn chủ động, pin 30h, mic đàm thoại rõ." />
+        <Field label={t("shortDescription")} className="sm:col-span-2">
+          <textarea className={cn(inputCls, "min-h-[80px] resize-y")} value={w.product.description} onChange={(e) => w.patchProduct({ description: e.target.value })} placeholder={t("descriptionPlaceholder")} />
         </Field>
       </div>
 
-      <AdvancedDisclosure label="Tuỳ chọn nâng cao">
-        <Field label="Bộ nhận diện thương hiệu (tuỳ chọn)" hint="Gắn logo, màu, watermark & dòng công bố vào video.">
+      <AdvancedDisclosure label={t("advancedOptions")}>
+        <Field label={t("brandKitField")} hint={t("brandKitHint")}>
           <BrandKitPicker />
         </Field>
       </AdvancedDisclosure>

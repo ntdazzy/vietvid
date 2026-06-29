@@ -2,6 +2,7 @@
 
 import { DEV_TOKEN_KEY, REFRESH_TOKEN_KEY, supabaseConfigured } from "@/lib/config";
 import { logoutLocal } from "./local";
+import { clearAuthCookie } from "./cookie";
 import { getSupabase } from "./supabase";
 
 /**
@@ -29,6 +30,7 @@ export function clearSession() {
     localStorage.removeItem(DEV_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
   }
+  clearAuthCookie();
 }
 
 export async function isAuthed(): Promise<boolean> {

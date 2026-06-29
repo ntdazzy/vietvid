@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { ImageIcon, Volume2, Loader2 } from "lucide-react";
@@ -23,6 +24,7 @@ const FRAME_SIZE: Record<string, { width: number; height: number }> = {
 
 /** Khung xem trước tỷ lệ thật — KHÔNG phải player giả: chỉ ảnh khung thật + caption thật. */
 export function AspectFrame({ compact = false }: { compact?: boolean }) {
+  const t = useTranslations("create");
   const w = useWizard();
   const size = FRAME_SIZE[w.aspect] ?? FRAME_SIZE["9:16"];
   const scale = compact ? 0.18 : 1;
@@ -44,7 +46,7 @@ export function AspectFrame({ compact = false }: { compact?: boolean }) {
         {w.imagePreviewUrl ? (
           // ảnh khung THẬT (tải lên / AI / bóc link) — không bịa
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={w.imagePreviewUrl} alt="Khung video" className="h-full w-full object-cover" />
+          <img src={w.imagePreviewUrl} alt={t("frameAlt")} className="h-full w-full object-cover" />
         ) : (
           !compact && (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center">
@@ -52,7 +54,7 @@ export function AspectFrame({ compact = false }: { compact?: boolean }) {
               <span className="font-numeric text-xs text-ink-medium">
                 {w.seconds}s · {w.resolution}
               </span>
-              <span className="text-[11px] text-ink-low">Khung sẽ hiện ở đây</span>
+              <span className="text-[11px] text-ink-low">{t("frameWillAppear")}</span>
             </div>
           )
         )}
@@ -82,6 +84,7 @@ export function AspectFrame({ compact = false }: { compact?: boolean }) {
 
 /** Tóm tắt cấu hình LIVE — đọc thẳng từ store, cập nhật theo từng thao tác. */
 export function ConfigDigest() {
+  const t = useTranslations("create");
   const w = useWizard();
   const personas = useQuery({ queryKey: ["voice-personas"], queryFn: api.voicePersonas, staleTime: 300_000 });
   const templates = useQuery({ queryKey: ["templates"], queryFn: api.templates, staleTime: 300_000 });
@@ -90,7 +93,7 @@ export function ConfigDigest() {
 
   const personaName = personas.data?.find((p) => p.id === w.voicePersona)?.name;
   const templateName = templates.data?.find((t) => t.id === w.templateId)?.name;
-  const voiceLabel = personaName || (w.voiceGender === "male" ? "Nam" : w.voiceGender === "female" ? "Nữ" : "");
+  const voiceLabel = personaName || (w.voiceGender === "male" ? t("genderMale") : w.voiceGender === "female" ? t("genderFemale") : "");
 
   async function audition() {
     setAuditioning(true);
@@ -109,12 +112,12 @@ export function ConfigDigest() {
 
   return (
     <dl className="divide-y divide-white/[0.06] rounded-xl bg-white/[0.02]">
-      <Row k="Loại video" v={w.videoType === "kol_full" ? "KOL AI" : "Video sản phẩm"} />
-      <Row k="Sản phẩm" v={w.product.name || undefined} />
-      <Row k="Thông số" v={<span className="font-numeric">{w.seconds}s · {w.resolution} · {w.aspect}</span>} />
-      <Row k="Engine" v={w.videoEngine ? cap(w.videoEngine) : undefined} />
+      <Row k={t("digestVideoType")} v={w.videoType === "kol_full" ? t("videoTypeKol") : t("videoTypeProduct")} />
+      <Row k={t("digestProduct")} v={w.product.name || undefined} />
+      <Row k={t("digestSpecs")} v={<span className="font-numeric">{w.seconds}s · {w.resolution} · {w.aspect}</span>} />
+      <Row k={t("digestEngine")} v={w.videoEngine ? cap(w.videoEngine) : undefined} />
       <Row
-        k="Giọng"
+        k={t("digestVoice")}
         v={
           voiceLabel ? (
             <span className="flex items-center gap-2">
@@ -122,7 +125,7 @@ export function ConfigDigest() {
               <button
                 type="button"
                 onClick={audition}
-                aria-label="Nghe thử giọng"
+                aria-label={t("auditionVoice")}
                 className="grid h-6 w-6 place-items-center rounded-md text-ink-low transition-colors hover:bg-white/[0.06] hover:text-violet-300"
               >
                 {auditioning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Volume2 className="h-3.5 w-3.5" />}
@@ -131,8 +134,8 @@ export function ConfigDigest() {
           ) : undefined
         }
       />
-      <Row k="Bản" v={w.purpose === "draft" ? "Nháp" : "Hoàn chỉnh"} />
-      {templateName && <Row k="Mẫu" v={templateName} />}
+      <Row k={t("digestEdition")} v={w.purpose === "draft" ? t("editionDraft") : t("editionFinal")} />
+      {templateName && <Row k={t("digestTemplate")} v={templateName} />}
       <audio ref={audioRef} hidden />
     </dl>
   );
@@ -140,6 +143,7 @@ export function ConfigDigest() {
 
 /** Pane phải dính — "bạn đang dựng gì": khung + tóm tắt + chi phí. */
 export function PreviewRail() {
+  const t = useTranslations("create");
   const w = useWizard();
   const est = useEstimate({ mode: w.videoType, purpose: w.purpose, seconds: w.seconds, resolution: w.resolution });
   const wallet = useWallet();
@@ -161,7 +165,7 @@ export function PreviewRail() {
         <div className="relative overflow-hidden rounded-xl bg-white/[0.02] px-4 py-3">
           <div className="glow-radial pointer-events-none absolute inset-x-0 -top-8 h-16" />
           <div className="relative flex items-center justify-between">
-            <span className="text-sm text-ink-low">Ước tính</span>
+            <span className="text-sm text-ink-low">{t("estimate")}</span>
             {est.isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin text-ink-low" />
             ) : (

@@ -1,6 +1,7 @@
 "use client";
 
 import { API_BASE_URL, DEV_TOKEN_KEY, REFRESH_TOKEN_KEY } from "@/lib/config";
+import { setAuthCookie } from "./cookie";
 
 type AuthTokens = { access_token: string; refresh_token?: string };
 
@@ -23,6 +24,7 @@ async function post(path: string, body: unknown): Promise<unknown> {
 function storeTokens(j: AuthTokens) {
   localStorage.setItem(DEV_TOKEN_KEY, j.access_token);
   if (j.refresh_token) localStorage.setItem(REFRESH_TOKEN_KEY, j.refresh_token);
+  setAuthCookie();
 }
 
 async function authCall(path: string, body: unknown): Promise<AuthTokens> {

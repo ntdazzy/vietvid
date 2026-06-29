@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Wand2, Loader2, Sparkles, RefreshCw, Download, ShieldAlert } from "lucide-react";
 import { useWizard } from "@/store/wizard";
 import { api } from "@/lib/api/endpoints";
@@ -8,13 +9,13 @@ import type { Script } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 
-const LABEL: Record<string, string> = {
-  hook: "Hook", pain: "Nỗi đau", desire: "Khao khát",
-  benefit: "Lợi ích", cta: "Chốt đơn",
-};
+const BEAT_KEYS = ["hook", "pain", "desire", "benefit", "cta"] as const;
 
 // Bộ máy kịch bản: chọn góc → sinh hook + beat theo timecode → sửa từng câu → ghi vào brief.
 export function ScriptStudio() {
+  const t = useTranslations("create");
+  // nhãn beat hiển thị từ i18n (key beatLabel.<type>); fallback về b.label thô nếu type lạ.
+  const LABEL: Record<string, string> = Object.fromEntries(BEAT_KEYS.map((k) => [k, t(`beatLabel.${k}`)]));
   const w = useWizard();
   const [angles, setAngles] = useState<{ value: string; label: string }[]>([]);
   const [angle, setAngle] = useState("problem_solution");
@@ -49,7 +50,7 @@ export function ScriptStudio() {
       setScript(s);
       w.patch({ brief: s.narration_full });
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Tạo kịch bản lỗi");
+      setErr(e instanceof Error ? e.message : t("scriptGenError"));
     } finally {
       setBusy(false);
     }
@@ -67,7 +68,7 @@ export function ScriptStudio() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      setErr("Tải phụ đề lỗi");
+      setErr(t("captionsError"));
     }
   }
 
@@ -84,11 +85,11 @@ export function ScriptStudio() {
     <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.04] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 text-sm font-semibold text-ink-high">
-          <Sparkles className="h-4 w-4 text-violet-300" /> Kịch bản AI
+          <Sparkles className="h-4 w-4 text-violet-300" /> {t("scriptAi")}
         </div>
         <Button variant="glass" size="sm" className="gap-1.5" disabled={busy} onClick={async () => { await ensureAngles(); gen(); }}>
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : script ? <RefreshCw className="h-4 w-4 text-violet-300" /> : <Wand2 className="h-4 w-4 text-violet-300" />}
-          {script ? "Tạo lại" : "Tạo kịch bản"}
+          {script ? t("regenerate") : t("generateScript")}
         </Button>
       </div>
 
@@ -118,7 +119,7 @@ export function ScriptStudio() {
           {(script.claim_warnings?.length ?? 0) > 0 && (
             <div className="rounded-lg border border-hold/30 bg-hold/[0.07] p-2.5">
               <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-hold">
-                <ShieldAlert className="h-3.5 w-3.5" /> Cảnh báo nội dung quảng cáo (luật VN)
+                <ShieldAlert className="h-3.5 w-3.5" /> {t("adClaimWarning")}
               </div>
               <ul className="flex flex-col gap-0.5">
                 {script.claim_warnings!.map((w, i) => (
@@ -132,7 +133,7 @@ export function ScriptStudio() {
           <div className="flex items-center gap-2 text-xs text-ink-low">
             <span className="rounded bg-white/[0.06] px-1.5 py-0.5 font-medium text-ink-high">“{script.hook_line}”</span>
             <span className={cn("font-numeric", script.word_count > script.target_words * 1.25 ? "text-hold" : "text-ink-low")}>
-              {script.word_count}/{script.target_words} từ · {script.duration_seconds}s
+              {t("wordCount", { count: script.word_count, target: script.target_words, seconds: script.duration_seconds })}
             </span>
           </div>
           {script.beats.map((b, i) => (
@@ -154,14 +155,14 @@ export function ScriptStudio() {
           ))}
           <div className="flex items-center justify-between gap-2 pt-1">
             {script.source === "template" ? (
-              <p className="text-[11px] text-ink-low">Mẹo: thêm key Gemini/Groq để AI viết kịch bản sắc hơn.</p>
+              <p className="text-[11px] text-ink-low">{t("scriptTip")}</p>
             ) : <span />}
             <button
               type="button"
               onClick={downloadSrt}
               className="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-xs text-ink-medium hover:border-white/25 hover:text-ink-high"
             >
-              <Download className="h-3.5 w-3.5" /> Tải phụ đề .srt
+              <Download className="h-3.5 w-3.5" /> {t("downloadSrt")}
             </button>
           </div>
         </div>

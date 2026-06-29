@@ -1,6 +1,7 @@
 "use client";
 
 import { API_BASE_URL, DEV_TOKEN_KEY } from "@/lib/config";
+import { setAuthCookie } from "./cookie";
 import { api } from "@/lib/api/endpoints";
 import type { DevTokenResponse } from "@/lib/api/types";
 
@@ -23,6 +24,7 @@ export async function devLogin(email?: string): Promise<DevTokenResponse> {
   }
   const token = (await res.json()) as DevTokenResponse;
   localStorage.setItem(DEV_TOKEN_KEY, token.access_token);
+  setAuthCookie();
   await api.bootstrap(); // tạo workspace + ví + free credit (idempotent)
   return token;
 }

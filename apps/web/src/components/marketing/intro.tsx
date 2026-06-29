@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { VyraMark } from "@/components/brand/logo";
 
 // Intro điện ảnh: logo Vyra vẽ ra → wordmark + tagline → mở vào trang.
 // LUÔN hiện mỗi lần vào trang, tự tắt sau ~1.8s (không có nút bỏ qua).
 // Vẫn cho click/cuộn để tắt sớm; reduced-motion → hiện logo tĩnh, tắt nhanh hơn.
 export function Intro() {
+  const t = useTranslations("home");
   const reduce = useReducedMotion();
   // show=true ngay từ SSR → overlay phủ trang TỪ ĐẦU, không lộ hero 1 nhịp rồi mới ra intro.
   const [show, setShow] = useState(true);
@@ -64,7 +66,7 @@ export function Intro() {
                   />
                 )}
               </div>
-              <div className="mt-1 text-sm tracking-wide text-ink-low">Tạo video viral đẳng cấp · giọng Việt đỉnh cao</div>
+              <div className="mt-1 text-sm tracking-wide text-ink-low">{t("introTagline")}</div>
             </motion.div>
           </div>
         </motion.div>

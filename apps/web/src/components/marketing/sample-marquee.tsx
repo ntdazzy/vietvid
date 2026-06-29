@@ -39,7 +39,7 @@ export function SampleMarquee({
               {t.ratio ?? "9:16"}
             </span>
             <DemoTile
-              poster={`/samples/${t.file}.png`}
+              poster={`/samples/${t.file}.jpg`}
               video={`/samples/${t.file}.mp4`}
               hoverOnly
               label={t.label}

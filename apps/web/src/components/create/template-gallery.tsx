@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { MessageSquareQuote, Shirt, Megaphone, Type, Plus, Sparkles, type LucideIcon } from "lucide-react";
 import { api } from "@/lib/api/endpoints";
 import type { Template } from "@/lib/api/types";
@@ -18,6 +19,7 @@ const CAT_ICON: Record<string, LucideIcon> = {
 
 /** Moment 0 — cửa trước: chọn mẫu có sẵn để bắt đầu nhanh, hoặc dựng từ đầu. */
 export function TemplateGallery({ onPick }: { onPick: (t: Template | null) => void }) {
+  const tr = useTranslations("create");
   const templates = useQuery({ queryKey: ["templates"], queryFn: api.templates });
 
   return (
@@ -27,7 +29,7 @@ export function TemplateGallery({ onPick }: { onPick: (t: Template | null) => vo
         <button
           type="button"
           onClick={() => onPick(null)}
-          aria-label="Dựng video từ đầu"
+          aria-label={tr("buildFromScratchAria")}
           className="group relative flex aspect-[3/4] w-full flex-col justify-between overflow-hidden rounded-xl glass-bordered p-4 text-left transition-transform hover:-translate-y-0.5"
         >
           <div className="pointer-events-none absolute inset-0 bg-grad-brand opacity-[0.12] transition-opacity group-hover:opacity-20" />
@@ -35,8 +37,8 @@ export function TemplateGallery({ onPick }: { onPick: (t: Template | null) => vo
             <Plus className="h-5 w-5" />
           </span>
           <div className="relative">
-            <div className="font-display text-sm font-semibold text-ink-high">Dựng từ đầu</div>
-            <div className="mt-1 text-xs text-ink-low">Tự chọn mọi thứ từ trắng.</div>
+            <div className="font-display text-sm font-semibold text-ink-high">{tr("buildFromScratch")}</div>
+            <div className="mt-1 text-xs text-ink-low">{tr("buildFromScratchDesc")}</div>
           </div>
         </button>
       </Reveal>
@@ -52,7 +54,7 @@ export function TemplateGallery({ onPick }: { onPick: (t: Template | null) => vo
                 <button
                   type="button"
                   onClick={() => onPick(t)}
-                  aria-label={`Dùng mẫu ${t.name}`}
+                  aria-label={tr("useTemplateAria", { name: t.name })}
                   className={cn(
                     "group relative flex aspect-[3/4] w-full flex-col justify-between overflow-hidden rounded-xl border border-white/[0.08] glass p-4 text-left transition-transform hover:-translate-y-0.5 hover:border-violet-500/40",
                   )}

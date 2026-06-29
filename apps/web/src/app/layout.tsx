@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro, Inter, Space_Grotesk } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import { Providers } from "./providers";
+import { getLocale, getMessages } from "@/lib/i18n/server";
 import "./globals.css";
 
 // Fonts (mục §0.3): display Việt-chuẩn + body + số credit + mono.
@@ -25,24 +26,28 @@ const numeric = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Vyra - Tạo video bán hàng, giọng Việt thật",
+  title: "Vyra - Tạo mọi loại video bằng AI, giọng Việt thật",
   description:
-    "1 ảnh sản phẩm → video quảng cáo 60 giây. Giọng Việt thật, minh bạch từng credit, hoàn 100% nếu lỗi hệ thống.",
+    "Quảng cáo, KOL, bắt trend, phim ngắn, kể chuyện — Vyra dựng video 60 giây với giọng Việt thật. Minh bạch từng credit, hoàn 100% nếu lỗi hệ thống.",
 };
 
 export const viewport: Viewport = {
   themeColor: "#06070D",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = getLocale();
+  const messages = await getMessages(locale);
   return (
     <html
-      lang="vi"
-      className={`${display.variable} ${body.variable} ${numeric.variable} ${GeistMono.variable}`}
+      lang={locale}
+      className={`overflow-x-clip ${display.variable} ${body.variable} ${numeric.variable} ${GeistMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-dvh antialiased">
-        <Providers>{children}</Providers>
+      <body className="min-h-dvh overflow-x-clip antialiased">
+        <Providers locale={locale} messages={messages}>
+          {children}
+        </Providers>
         <div className="grain" aria-hidden />
       </body>
     </html>

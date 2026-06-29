@@ -48,3 +48,4 @@ _*_key.txt
 .gstack/
 acc.txt
 scripts/.mb_poller_state.json
+_vietvid_config_secret.txt

@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
+import asyncio
 import hmac
+import json
 import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import select
 
-from app_api import billing, config, wallet
+from app_api import billing, config, events, wallet
 from app_api.db import session_scope, tenant_session
 from app_api.deps import Tenant, get_tenant
 from app_api.models import Payment
@@ -113,6 +116,35 @@ def get_payment(payment_id: str, tenant: Tenant = Depends(get_tenant)) -> dict:
                 "credits": int(p.credits_granted), "amount_vnd": int(p.amount_vnd)}
 
 
+@router.get("/payment/{payment_id}/stream")
+async def payment_stream(payment_id: str, request: Request) -> StreamingResponse:
+    """SSE: đẩy 'đã thanh toán' tức thì khi credit được cộng (thay vì poll 3s).
+
+    Không cần Bearer: payment_id là UUID không-đoán-được (capability), event chỉ chứa
+    status + credits (không nhạy cảm) — EventSource không gắn được header Authorization."""
+
+    async def gen():
+        q = events.subscribe(payment_id)
+        try:
+            yield ": connected\n\n"
+            while True:
+                if await request.is_disconnected():
+                    break
+                try:
+                    data = await asyncio.wait_for(q.get(), timeout=15)
+                    yield f"data: {json.dumps(data)}\n\n"
+                except asyncio.TimeoutError:
+                    yield ": ping\n\n"  # heartbeat giữ kết nối sống
+        finally:
+            events.unsubscribe(payment_id, q)
+
+    return StreamingResponse(
+        gen(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"},
+    )
+
+
 @router.post("/payment/{payment_id}/dev-confirm")
 def dev_confirm(payment_id: str, tenant: Tenant = Depends(get_tenant)) -> dict:
     """Giả lập 'đã nhận tiền' để thử luồng QR khi chưa nối SePay. Chỉ bật ở chế độ dev."""
@@ -122,13 +154,17 @@ def dev_confirm(payment_id: str, tenant: Tenant = Depends(get_tenant)) -> dict:
         pid = uuid.UUID(payment_id)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail="payment_id không hợp lệ") from exc
+    credited = 0
     with tenant_session(tenant.org_id) as s:
         p = s.get(Payment, pid)
         if p is None:
             raise HTTPException(status_code=404, detail="Không tìm thấy")
         if p.status == "PENDING":
             billing.apply_topup(s, provider=p.provider, ext_ref=p.ext_ref)
+            credited = int(p.credits_granted)
         balance = int(wallet.ensure_wallet(s, uuid.UUID(tenant.org_id)).balance_credits)
+    if credited:  # post-commit → đẩy SSE cho QR panel lật success tức thì
+        events.publish(payment_id, {"status": "SUCCEEDED", "credits": credited})
     return {"status": "succeeded", "balance_credits": balance}
 
 
@@ -158,7 +194,9 @@ async def sepay_webhook(request: Request) -> dict:
     # Đối soát + cộng credit dùng CHUNG với poller email (billing.credit_bank_transfer):
     # bóc memo → tìm đơn PENDING → check đủ tiền (>=) → cộng (idempotent).
     result = billing.credit_bank_transfer(content, amount)
-    if result["status"] == "insufficient":
+    if result["status"] == "credited":  # đẩy SSE → trình duyệt lật success tức thì
+        events.publish(result["payment_id"], {"status": "SUCCEEDED", "credits": result["credits"]})
+    elif result["status"] == "insufficient":
         log.warning("bank: memo %s thiếu tiền — nhận %s, cần %s",
                     result.get("memo"), result.get("got"), result.get("need"))
     elif result["status"] == "no_pending":

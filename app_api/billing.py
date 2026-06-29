@@ -192,7 +192,8 @@ def credit_bank_transfer(content: str, amount_vnd: int) -> dict:
             # Trả THIẾU → không cộng (để admin xử). Trả ĐỦ/DƯ → cộng (nhận đúng gói đã đặt).
             return {"status": "insufficient", "memo": memo, "need": int(p.amount_vnd), "got": int(amount_vnd)}
         apply_topup(s, provider="bank_qr", ext_ref=memo)
-    return {"status": "credited", "memo": memo}
+        pid, credits = str(p.id), int(p.credits_granted)
+    return {"status": "credited", "memo": memo, "payment_id": pid, "credits": credits}
 
 
 # ── VNPay adapter ────────────────────────────────────────────────────────

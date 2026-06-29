@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Copy, Check, Loader2, ShieldCheck, BadgeCheck, RefreshCw, Clock } from "lucide-react";
 import type { TopupResponse } from "@/lib/api/types";
 import { api } from "@/lib/api/endpoints";
+import { API_BASE_URL } from "@/lib/config";
 import { Button } from "@/components/ui/button";
 import { CreditValue } from "@/components/ui/credit-value";
 import { cn } from "@/lib/utils/cn";
@@ -60,7 +61,22 @@ export function QrPayPanel({ payment, onClose }: { payment: TopupResponse; onClo
       return st === "SUCCEEDED" || st === "FAILED" ? false : 3000;
     },
   });
-  const paid = status.data?.status === "SUCCEEDED";
+
+  // SSE: nhận "đã thanh toán" TỨC THÌ (server đẩy ngay khi cộng credit), poll 3s ở trên là backup.
+  const [ssePaid, setSsePaid] = useState(false);
+  useEffect(() => {
+    const es = new EventSource(`${API_BASE_URL}/v1/billing/payment/${payment.payment_id}/stream`);
+    es.onmessage = (e) => {
+      try {
+        if (JSON.parse(e.data)?.status === "SUCCEEDED") setSsePaid(true);
+      } catch {
+        /* heartbeat/comment — bỏ qua */
+      }
+    };
+    return () => es.close(); // EventSource tự reconnect khi rớt; đóng khi unmount
+  }, [payment.payment_id]);
+
+  const paid = status.data?.status === "SUCCEEDED" || ssePaid;
 
   // đếm ngược hiệu lực QR (cue trực quan; hết giờ thì gợi ý tạo lại, không tự đóng).
   const [left, setLeft] = useState(QR_TTL);

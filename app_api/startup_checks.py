@@ -50,6 +50,23 @@ def validate_prod_config() -> None:
     if config.BILLING_DEV_ENABLED:
         problems.append("VIETVID_BILLING_DEV bật ở prod → tắt (để rỗng).")
 
+    # 4) RLS phải được enforce ở prod: app KHÔNG được kết nối Postgres bằng role
+    #    superuser / BYPASSRLS — nếu không, FORCE RLS bị vượt mặt và cách ly tenant
+    #    (vietvid.current_org) coi như vô hiệu → rò dữ liệu chéo tổ chức.
+    try:
+        with _get_engine().connect() as conn:
+            row = conn.execute(
+                text("SELECT rolsuper, rolbypassrls FROM pg_roles WHERE rolname = current_user")
+            ).first()
+        if row and (row[0] or row[1]):
+            problems.append(
+                "App kết nối Postgres bằng role superuser/BYPASSRLS → FORCE RLS bị vô hiệu, "
+                "cách ly tenant KHÔNG đảm bảo. Dùng role thường (VIETVID_DB_APP_ROLE) không có "
+                "SUPERUSER/BYPASSRLS và đã GRANT đủ quyền bảng."
+            )
+    except Exception:  # noqa: BLE001 — lỗi kiểm tra không chặn boot; chỉ cảnh báo.
+        log.warning("startup: không kiểm tra được RLS role (bỏ qua assertion).")
+
     if problems:
         msg = "Cấu hình prod không an toàn:\n  - " + "\n  - ".join(problems)
         log.error(msg)

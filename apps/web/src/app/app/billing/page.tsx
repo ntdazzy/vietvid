@@ -12,6 +12,7 @@ import { Reveal } from "@/components/marketing/reveal";
 import { WalletHero } from "@/components/billing/wallet-hero";
 import { TrustProof } from "@/components/billing/trust-proof";
 import { PackCard } from "@/components/billing/pack-card";
+import { PlanCard } from "@/components/billing/plan-card";
 import { MethodGrid, type Method } from "@/components/billing/method-grid";
 import { CustomAmount } from "@/components/billing/custom-amount";
 import { QrPayPanel } from "@/components/billing/qr-pay-panel";
@@ -25,6 +26,7 @@ export default function BillingPage() {
   const wallet = useWallet();
   const ledger = useLedger(80);
   const packsQuery = useQuery({ queryKey: ["packs"], queryFn: api.billingPacks });
+  const plansQuery = useQuery({ queryKey: ["plans"], queryFn: api.billingPlans });
   const topup = useTopup();
   const [method, setMethod] = useState<Method>("bank_qr");
   const [qrPayment, setQrPayment] = useState<TopupResponse | null>(null);
@@ -50,12 +52,14 @@ export default function BillingPage() {
     packsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function buy(body: { pack_id?: string; amount_vnd?: number }) {
+  function buy(body: { pack_id?: string; plan_code?: string; amount_vnd?: number }) {
     topup.mutate(
       { ...body, provider: method },
       { onSuccess: (res) => res.provider === "bank_qr" && res.qr_image_url && setQrPayment(res) },
     );
   }
+
+  const plans = plansQuery.data ?? [];
 
   const topupError = topup.isError
     ? topup.error instanceof Error
@@ -75,14 +79,43 @@ export default function BillingPage() {
         />
       </Reveal>
 
-      {/* ── NẠP CREDIT: cột nhãn-bên-trái + nội dung phải (bất đối xứng) ── */}
-      <Reveal delay={0.12}>
+      {/* ── GÓI THÁNG: chủ đạo — rẻ hơn đối thủ, xu reset mỗi 30 ngày ───── */}
+      {plans.length > 0 && (
+        <Reveal delay={0.1}>
+          <section className="grid gap-8 lg:grid-cols-[200px_1fr] lg:gap-12">
+            <SectionRail step="01" label={t("planLabel")} title={t("planTitle")} note={t("planNote")} />
+            {plansQuery.isLoading ? (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-72 w-full animate-pulse rounded-2xl bg-white/[0.04]" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {plans.map((p, i) => (
+                  <PlanCard
+                    key={p.code}
+                    plan={p}
+                    isRecommended={i === 1}
+                    pending={topup.isPending && topup.variables?.plan_code === p.code}
+                    disabled={topup.isPending}
+                    onBuy={() => buy({ plan_code: p.code })}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        </Reveal>
+      )}
+
+      {/* ── NẠP LẺ: gói credit / số tiền tuỳ ý (xu không hết hạn) ───────── */}
+      <Reveal delay={0.16}>
         <section
           ref={packsRef}
           className="grid scroll-mt-28 gap-8 lg:grid-cols-[200px_1fr] lg:gap-12"
         >
           <SectionRail
-            step="01"
+            step="02"
             label={t("step1Label")}
             title={t("step1Title")}
             note={t("step1Note")}
@@ -141,7 +174,7 @@ export default function BillingPage() {
       <Reveal delay={0.18}>
         <section className="grid gap-8 lg:grid-cols-[200px_1fr] lg:gap-12">
           <SectionRail
-            step="02"
+            step="03"
             label={t("step2Label")}
             title={t("step2Title")}
             note={t("step2Note")}
@@ -154,7 +187,7 @@ export default function BillingPage() {
       <Reveal delay={0.24}>
         <section ref={ledgerRef} className="grid scroll-mt-28 gap-8 lg:grid-cols-[200px_1fr] lg:gap-12">
           <SectionRail
-            step="03"
+            step="04"
             label={t("step3Label")}
             title={t("step3Title")}
             note={t("step3Note")}

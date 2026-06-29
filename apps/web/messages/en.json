@@ -570,7 +570,21 @@
     "ledgerFooter": "Every hold, use, and refund is recorded. Never charged silently.",
     "iPaid": "I have transferred",
     "qrValidFor": "QR valid for",
-    "qrExpired": "Expired — close and create a new top-up"
+    "qrExpired": "Expired — close and create a new top-up",
+    "planLabel": "Monthly plans",
+    "planTitle": "Save with monthly plans",
+    "planNote": "Cheaper than rivals. Plan credits reset every 30 days.",
+    "planPerMonth": "/mo",
+    "planCreditsUnit": "credits per month",
+    "planExpiryNote": "Plan credits expire after 30 days",
+    "planResUpTo": "Up to {res}",
+    "planLenUpTo": "Videos up to {sec}s",
+    "planNoWatermark": "No watermark",
+    "planSubscribe": "Get plan",
+    "planValuePerCredit": "{v}đ/credit",
+    "planCredits": "plan credits",
+    "planBalanceCredits": "bought credits",
+    "planExpiresOn": "expires {date}"
   },
   "imagegen": {
     "filmLabel": "Image studio",

@@ -14,6 +14,7 @@ import type {
   BrandKit,
   NotifList,
   CreditPack,
+  Plan,
   EstimateRequest,
   EstimateResponse,
   JobCreateRequest,
@@ -46,6 +47,7 @@ export const api = {
   wallet: () => apiGet<WalletResponse>("/v1/wallet"),
   ledger: (limit = 50) => apiGet<LedgerEntry[]>(`/v1/wallet/ledger?limit=${limit}`),
   billingPacks: () => apiGet<CreditPack[]>("/v1/billing/packs"),
+  billingPlans: () => apiGet<Plan[]>("/v1/billing/plans"),
   topup: (body: TopupRequestBody) => apiPost<TopupResponse>("/v1/billing/topup", body),
   paymentStatus: (id: string) => apiGet<PaymentStatusResponse>(`/v1/billing/payment/${id}`),
   devConfirmPayment: (id: string) =>

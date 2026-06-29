@@ -4,8 +4,22 @@ import type { LedgerKind } from "./common";
 
 export interface WalletResponse {
   org_id: string;
-  balance_credits: number;
+  balance_credits: number; // xu mua/thưởng — không hết hạn
   held_credits: number;
+  plan_credits?: number; // xu gói tháng — hết hạn
+  plan_expires_at?: string | null;
+  available_credits?: number; // balance + plan
+}
+
+export interface Plan {
+  code: string;
+  name: string;
+  name_vi: string;
+  monthly_price_vnd: number;
+  credits: number;
+  max_resolution: string;
+  max_seconds: number;
+  watermark_free: boolean;
 }
 
 export interface LedgerEntry {
@@ -75,6 +89,7 @@ export interface PaymentStatusResponse {
 
 export interface TopupRequestBody {
   pack_id?: string;
+  plan_code?: string;
   amount_vnd?: number;
   provider?: string;
 }

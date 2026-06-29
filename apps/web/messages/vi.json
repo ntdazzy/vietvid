@@ -570,7 +570,21 @@
     "ledgerFooter": "Mọi lần giữ, dùng, hoàn đều ghi lại. Không bao giờ trừ tiền âm thầm.",
     "iPaid": "Tôi đã chuyển khoản",
     "qrValidFor": "QR hiệu lực",
-    "qrExpired": "Hết thời gian — đóng và tạo lại đơn nạp"
+    "qrExpired": "Hết thời gian — đóng và tạo lại đơn nạp",
+    "planLabel": "Gói tháng",
+    "planTitle": "Gói tháng tiết kiệm",
+    "planNote": "Rẻ hơn đối thủ. Xu gói reset mỗi 30 ngày.",
+    "planPerMonth": "/tháng",
+    "planCreditsUnit": "xu mỗi tháng",
+    "planExpiryNote": "Xu gói hết hạn sau 30 ngày",
+    "planResUpTo": "Độ nét đến {res}",
+    "planLenUpTo": "Video đến {sec} giây",
+    "planNoWatermark": "Không gắn logo",
+    "planSubscribe": "Mua gói",
+    "planValuePerCredit": "{v}đ/xu",
+    "planCredits": "xu gói",
+    "planBalanceCredits": "xu mua",
+    "planExpiresOn": "hết hạn {date}"
   },
   "imagegen": {
     "filmLabel": "Phòng dựng ảnh",

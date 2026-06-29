@@ -30,10 +30,14 @@ export function WalletHero({
 }) {
   const t = useTranslations("billing");
   const a = ACCENTS.emerald;
-  const balance = wallet?.balance_credits ?? 0;
+  const planCredits = wallet?.plan_credits ?? 0;
+  const balance = wallet?.available_credits ?? wallet?.balance_credits ?? 0; // tổng khả dụng (mua + gói)
   const held = wallet?.held_credits ?? 0;
   const low = balance > 0 && balance < 100;
   const capacity = Math.floor(balance / CREDITS_PER_VIDEO);
+  const planExpiry = wallet?.plan_expires_at
+    ? new Date(wallet.plan_expires_at).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })
+    : null;
 
   return (
     <section className="relative overflow-hidden rounded-3xl glass-bordered">
@@ -82,6 +86,13 @@ export function WalletHero({
           <div className="mt-2 text-sm text-ink-low">
             {t("balanceInVnd", { vnd: (balance * VND_PER_CREDIT).toLocaleString("vi-VN") })}
           </div>
+          {planCredits > 0 && (
+            <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-violet-500/[0.12] px-2.5 py-1 text-xs text-violet-200 ring-1 ring-violet-400/20">
+              <span className="font-numeric font-semibold">{planCredits.toLocaleString("vi-VN")}</span>
+              {t("planCredits")}
+              {planExpiry && <span className="text-violet-300/70">· {t("planExpiresOn", { date: planExpiry })}</span>}
+            </div>
+          )}
 
           {held > 0 && (
             <button

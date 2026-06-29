@@ -38,6 +38,15 @@ export function CustomAmount({
         <span className="text-xs text-ink-low">{t("priceHint")}</span>
       </div>
 
+      {/* quy đổi LIVE — tâm điểm: KH thấy ngay nhận được bao nhiêu credit */}
+      <div className="flex items-baseline gap-2 rounded-xl bg-emerald-500/[0.07] px-4 py-3 ring-1 ring-emerald-400/15">
+        <span className={cn("font-numeric text-3xl font-extrabold tabular leading-none", valid ? "text-emerald-300" : "text-ink-low")}>
+          {credits.toLocaleString("vi-VN")}
+        </span>
+        <span className="text-sm font-medium text-ink-low">credit</span>
+        <span className="ml-auto text-xs text-ink-low">≈ {vnd(amount || 0)}</span>
+      </div>
+
       <div className="flex flex-wrap gap-2">
         {QUICK.map((q) => (
           <button

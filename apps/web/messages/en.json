@@ -567,7 +567,10 @@
     "emptyAll": "No transactions yet. Every top-up, hold, use, and refund will show up here.",
     "emptyFiltered": "No transactions of this type.",
     "balancePrefix": "bal",
-    "ledgerFooter": "Every hold, use, and refund is recorded. Never charged silently."
+    "ledgerFooter": "Every hold, use, and refund is recorded. Never charged silently.",
+    "iPaid": "I have transferred",
+    "qrValidFor": "QR valid for",
+    "qrExpired": "Expired — close and create a new top-up"
   },
   "imagegen": {
     "filmLabel": "Image studio",

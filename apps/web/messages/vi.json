@@ -567,7 +567,10 @@
     "emptyAll": "Chưa có giao dịch nào. Mọi lần nạp, giữ, dùng, hoàn sẽ xuất hiện ở đây.",
     "emptyFiltered": "Không có giao dịch loại này.",
     "balancePrefix": "dư",
-    "ledgerFooter": "Mọi lần giữ, dùng, hoàn đều ghi lại. Không bao giờ trừ tiền âm thầm."
+    "ledgerFooter": "Mọi lần giữ, dùng, hoàn đều ghi lại. Không bao giờ trừ tiền âm thầm.",
+    "iPaid": "Tôi đã chuyển khoản",
+    "qrValidFor": "QR hiệu lực",
+    "qrExpired": "Hết thời gian — đóng và tạo lại đơn nạp"
   },
   "imagegen": {
     "filmLabel": "Phòng dựng ảnh",

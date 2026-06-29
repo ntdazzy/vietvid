@@ -88,6 +88,16 @@ export function QrPayPanel({ payment, onClose }: { payment: TopupResponse; onClo
   const mmss = `${String(Math.floor(left / 60)).padStart(2, "0")}:${String(left % 60).padStart(2, "0")}`;
   const expired = left <= 0;
 
+  // Nút "Tôi đã chuyển khoản" = kiểm tra lại ngay; phản hồi rõ nếu chưa thấy giao dịch.
+  const [checkMsg, setCheckMsg] = useState("");
+  async function checkNow() {
+    setCheckMsg("");
+    const r = await status.refetch();
+    if (r.data?.status !== "SUCCEEDED" && !ssePaid) {
+      setCheckMsg("Chưa thấy giao dịch — hệ thống sẽ tự cộng ngay khi nhận được tiền.");
+    }
+  }
+
   useEffect(() => {
     if (paid) {
       qc.invalidateQueries({ queryKey: ["wallet"] });
@@ -232,13 +242,14 @@ export function QrPayPanel({ payment, onClose }: { payment: TopupResponse; onClo
 
               <Button
                 variant="glass"
-                onClick={() => status.refetch()}
+                onClick={checkNow}
                 disabled={status.isFetching}
                 className="mt-3 w-full gap-2"
               >
                 {status.isFetching ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 {t("iPaid")}
               </Button>
+              {checkMsg && <p className="mt-2 text-center text-xs text-ink-low">{checkMsg}</p>}
 
               {/* chi tiết chuyển khoản */}
               <div className="mt-4 divide-y divide-white/[0.06] rounded-2xl bg-white/[0.02] px-3.5">

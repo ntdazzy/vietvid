@@ -45,3 +45,5 @@ _vietvid_db_url.txt
 # khoá API local (không bao giờ commit)
 _fal_key.txt
 _*_key.txt
+.gstack/
+acc.txt

@@ -19,6 +19,8 @@ import { RenderTimeline } from "@/components/create/render-timeline";
 import { PreviewRail } from "@/components/create/preview-rail";
 import { MobileCostBar } from "@/components/create/mobile-cost-bar";
 import { Launchpad, type Genre } from "@/components/create/launchpad";
+import { GenreContextBar } from "@/components/create/genre-context-bar";
+import { StudioShell } from "@/components/studio/studio-shell";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api/client";
 import type { JobCreateRequest, Template } from "@/lib/api/types";
@@ -45,6 +47,8 @@ export default function CreatePage() {
   const [launched, setLaunched] = useState(
     () => hasPresetSignal() || Boolean(w.product.image_path || w.templateId),
   );
+  const [picked, setPicked] = useState<Genre | null>(null); // thể loại đã chọn (accent + ngữ cảnh configurator)
+  const genreAccent = picked?.accent ?? "violet";
 
   const templates = useQuery({ queryKey: ["templates"], queryFn: api.templates, staleTime: 300_000 });
   const templateName = templates.data?.find((t) => t.id === w.templateId)?.name ?? "";
@@ -64,6 +68,7 @@ export default function CreatePage() {
   // chọn thể loại (Moment 0 genre-first) → set wizard + vào configurator.
   function pickGenre(g: Genre) {
     w.patch({ videoType: g.videoType, brief: g.brief, frameMode: g.frameMode, templateId: "", step: 1 });
+    setPicked(g);
     setLaunched(true);
   }
 
@@ -129,6 +134,7 @@ export default function CreatePage() {
     setError(null);
     setInsufficient(false);
     setLaunched(false);
+    setPicked(null);
   }
 
   function handleCreate() {
@@ -212,15 +218,17 @@ export default function CreatePage() {
   // ── MOMENT 0 — Genre-first: chọn thể loại (bản sắc riêng màn Create) ────
   if (w.step === 1 && !launched) {
     return (
-      <Launchpad
-        onPickGenre={pickGenre}
-        onBuildFromScratch={() => { w.patch({ templateId: "", step: 1 }); setLaunched(true); }}
-        onPickTemplate={(t) => {
-          if (t) applyTemplate(t);
-          else w.patch({ templateId: "", step: 1 });
-          setLaunched(true);
-        }}
-      />
+      <StudioShell>
+        <Launchpad
+          onPickGenre={pickGenre}
+          onBuildFromScratch={() => { w.patch({ templateId: "", step: 1 }); setLaunched(true); }}
+          onPickTemplate={(t) => {
+            if (t) applyTemplate(t);
+            else w.patch({ templateId: "", step: 1 });
+            setLaunched(true);
+          }}
+        />
+      </StudioShell>
     );
   }
 
@@ -231,16 +239,29 @@ export default function CreatePage() {
 
   // ── MOMENT 1 — Configurator: hai cột (controls + preview rail) ─────────
   return (
-    <>
+    <StudioShell>
       <div className="grid grid-cols-1 gap-8 pb-32 lg:grid-cols-12 lg:gap-8 lg:pb-0">
         {/* LEFT — điều khiển */}
-        <div className="flex flex-col gap-8 lg:col-span-7">
+        <div className="flex flex-col gap-6 lg:col-span-7">
+          {picked && (
+            <GenreContextBar
+              image={picked.image}
+              label={picked.label}
+              title={t(`genre.${picked.key}.title`)}
+              sub={t(`genre.${picked.key}.desc`)}
+              accent={picked.accent}
+              changeLabel={t("change")}
+              onChange={() => { w.setStep(1); setLaunched(false); setPicked(null); }}
+            />
+          )}
           <Stepper
             step={w.step}
             templateName={templateName}
+            accent={genreAccent}
             onChangeTemplate={() => {
               w.setStep(1);
               setLaunched(false);
+              setPicked(null);
             }}
           />
 
@@ -355,6 +376,6 @@ export default function CreatePage() {
 
       {/* mobile: thanh chi phí dính đáy */}
       <MobileCostBar />
-    </>
+    </StudioShell>
   );
 }

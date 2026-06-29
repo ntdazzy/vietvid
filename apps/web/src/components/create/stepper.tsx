@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Check, LayoutTemplate, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { ACCENTS, type Accent } from "@/lib/accents";
 import type { WizardStep } from "@/store/wizard";
 
 const STEP_KEYS = ["stepSource", "stepStyle", "stepVoice", "stepPreview", "stepCreate"] as const;
@@ -11,12 +12,15 @@ export function Stepper({
   step,
   templateName,
   onChangeTemplate,
+  accent = "violet",
 }: {
   step: WizardStep;
   templateName?: string;
   onChangeTemplate?: () => void;
+  accent?: Accent;
 }) {
   const t = useTranslations("create");
+  const a = ACCENTS[accent];
   const labels = STEP_KEYS.map((k) => t(k));
   return (
     <div>
@@ -42,8 +46,8 @@ export function Stepper({
               <span
                 className={cn(
                   "grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm font-medium transition-colors",
-                  done && "bg-grad-brand text-white",
-                  active && "border border-violet-500/60 bg-violet-500/15 text-violet-200 shadow-glow-sm",
+                  done && cn("bg-gradient-to-br text-white", a.grad),
+                  active && cn("border shadow-glow-sm", a.chip),
                   !done && !active && "border border-white/10 text-ink-low",
                 )}
               >
@@ -59,7 +63,7 @@ export function Stepper({
               </span>
             </div>
             {i < labels.length - 1 && (
-              <span className={cn("h-px flex-1", done ? "bg-violet-500/50" : "bg-white/10")} />
+              <span className={cn("h-px flex-1", done ? a.bar : "bg-white/10")} />
             )}
           </li>
         );

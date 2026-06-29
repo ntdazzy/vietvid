@@ -115,7 +115,7 @@ export function ConfigDigest() {
       <Row k={t("digestVideoType")} v={w.videoType === "kol_full" ? t("videoTypeKol") : t("videoTypeProduct")} />
       <Row k={t("digestProduct")} v={w.product.name || undefined} />
       <Row k={t("digestSpecs")} v={<span className="font-numeric">{w.seconds}s · {w.resolution} · {w.aspect}</span>} />
-      <Row k={t("digestEngine")} v={w.videoEngine ? cap(w.videoEngine) : undefined} />
+      <Row k={t("digestEngine")} v="Vyra AI" />
       <Row
         k={t("digestVoice")}
         v={
@@ -198,4 +198,3 @@ function Row({ k, v }: { k: string; v?: ReactNode }) {
   );
 }
 
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);

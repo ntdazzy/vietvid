@@ -66,17 +66,49 @@ def _ext_ref_for(provider: str, org_id) -> str:
 
 def create_payment(
     session: Session, org_id, user_id, *,
-    provider: str, amount_vnd: int, credits: int, credit_pack_id=None,
+    provider: str, amount_vnd: int, credits: int, credit_pack_id=None, raw_payload=None,
 ) -> Payment:
-    """Tạo Payment PENDING (gói hoặc số tiền tuỳ ý). ext_ref theo provider."""
+    """Tạo Payment PENDING (gói lẻ / tuỳ ý / gói tháng). ext_ref theo provider.
+    raw_payload có {"plan_code": ...} → apply_topup cấp XU GÓI (hết hạn) thay vì xu mua."""
     p = Payment(
         org_id=org_id, user_id=user_id, provider=provider, ext_ref=_ext_ref_for(provider, org_id),
         amount_vnd=int(amount_vnd), credits_granted=int(credits),
         credit_pack_id=credit_pack_id, status=PaymentStatus.PENDING,
+        raw_payload=raw_payload or {},
     )
     session.add(p)
     session.flush()
     return p
+
+
+def get_plans(session: Session) -> list[dict]:
+    """Catalog gói tháng (subscription) đang bật, từ DB."""
+    from app_api.models import Plan
+
+    rows = session.execute(
+        select(Plan).where(Plan.is_active.is_(True)).order_by(Plan.sort_order)
+    ).scalars().all()
+    return [{
+        "code": p.code, "name": p.name, "name_vi": p.name_vi,
+        "monthly_price_vnd": int(p.monthly_price_vnd), "credits": int(p.monthly_credit_grant),
+        "max_resolution": p.max_resolution, "max_seconds": int(p.max_seconds),
+        "watermark_free": bool(p.watermark_free),
+    } for p in rows if p.monthly_price_vnd > 0]
+
+
+def create_plan_purchase(session: Session, org_id, user_id, *, plan_code: str, provider: str) -> Payment:
+    """Tạo payment MUA GÓI THÁNG: giá + xu lấy từ Plan; raw_payload gắn plan_code → apply_topup
+    cấp xu gói (hết hạn 30n) + set org.plan_code khi thanh toán xong."""
+    from app_api.models import Plan
+
+    plan = session.get(Plan, plan_code)
+    if plan is None or not plan.is_active or plan.monthly_price_vnd <= 0:
+        raise BillingError(f"Gói không hợp lệ: {plan_code}")
+    return create_payment(
+        session, org_id, user_id, provider=provider,
+        amount_vnd=int(plan.monthly_price_vnd), credits=int(plan.monthly_credit_grant),
+        raw_payload={"plan_code": plan.code},
+    )
 
 
 def create_topup(session: Session, org_id, user_id, *, pack_id: str, provider: str) -> Payment:
@@ -110,7 +142,12 @@ def parse_sepay_memo(content: str) -> str | None:
 
 
 def resolve_bank_payment_org(memo: str) -> str | None:
-    """Tìm org của 1 payment bank_qr PENDING theo memo (ext_ref unique toàn cục per-provider).
+    """Tìm org của 1 payment bank_qr theo memo (ext_ref unique toàn cục per-provider).
+
+    Khớp cả PENDING lẫn SUCCEEDED: thông báo-trùng (SePay/poller gửi lại sau khi đã cộng)
+    cần resolve được org để credit_bank_transfer trả 'already' (idempotent rõ ràng) thay vì
+    'no_pending' giả — tránh cảnh báo "memo không khớp" sai trên log. Cộng-đôi vẫn bị chặn
+    bởi FOR UPDATE + check status SUCCEEDED trong credit_bank_transfer.
 
     TODO(scale): thay vòng lặp org bằng bảng GLOBAL memo→org (mẫu webhook_events trong
     SYSTEM_DESIGN) trước khi mở bán — O(orgs) chỉ chấp nhận được khi webhook tần suất thấp."""
@@ -125,7 +162,7 @@ def resolve_bank_payment_org(memo: str) -> str | None:
                 select(Payment.id).where(
                     Payment.provider == "bank_qr",
                     Payment.ext_ref == memo,
-                    Payment.status == PaymentStatus.PENDING,
+                    Payment.status.in_([PaymentStatus.PENDING, PaymentStatus.SUCCEEDED]),
                 )
             ).scalar_one_or_none()
             if hit is not None:
@@ -143,19 +180,47 @@ def apply_topup(session: Session, *, provider: str, ext_ref: str) -> Payment | N
     if p is None:
         return None
     if p.status == PaymentStatus.SUCCEEDED:
-        return p  # đã cộng → bỏ qua (replay)
-    wallet.topup(
-        session, p.org_id, int(p.credits_granted), payment_id=p.id,
-        note=f"nạp {int(p.amount_vnd):,}đ ({p.provider})",
-    )
+        return p  # đã cộng → bỏ qua (replay) — bonus cũng KHÔNG chạy lại
+    from app_api.models import LedgerEntry, LedgerKind
+
+    # Khuyến mãi nạp lần đầu: lần nạp THÀNH CÔNG đầu tiên của org (0 TOPUP trước đó) → tặng cố định.
+    # Đếm trước khi cộng (wallet.topup sắp thêm 1 TOPUP). Replay không tới đây nên chỉ tặng 1 lần/org.
+    prior_topups = session.execute(
+        select(func.count()).select_from(LedgerEntry).where(
+            LedgerEntry.org_id == p.org_id, LedgerEntry.entry_type == LedgerKind.TOPUP
+        )
+    ).scalar_one()
+    plan_code = (p.raw_payload or {}).get("plan_code")
+    if plan_code:  # MUA GÓI THÁNG → cấp XU GÓI (hết hạn 30n, reset gói cũ) + gắn nhãn gói cho org
+        wallet.grant_plan_credits(
+            session, p.org_id, int(p.credits_granted), days=30, payment_id=p.id,
+            note=f"gói {plan_code} +{int(p.credits_granted)} ({int(p.amount_vnd):,}đ)",
+        )
+        from app_api.models import Org
+
+        org = session.get(Org, p.org_id)
+        if org is not None:
+            org.plan_code = plan_code
+    else:  # NẠP LẺ / PACK → xu mua (không hết hạn)
+        wallet.topup(
+            session, p.org_id, int(p.credits_granted), payment_id=p.id,
+            note=f"nạp {int(p.amount_vnd):,}đ ({p.provider})",
+        )
+    bonus = config.FIRST_TOPUP_BONUS_CREDITS if (prior_topups == 0 and config.FIRST_TOPUP_BONUS_CREDITS > 0) else 0
+    if bonus:
+        wallet.topup(
+            session, p.org_id, bonus, payment_id=p.id, kind=LedgerKind.BONUS,
+            note=f"khuyến mãi nạp lần đầu +{bonus}",
+        )
     p.status = PaymentStatus.SUCCEEDED
     p.settled_at = func.now()
     session.flush()
     from app_api import notify
 
+    _bonus_txt = f" +{bonus} thưởng nạp lần đầu 🎁" if bonus else ""
     notify.create(
         session, p.org_id, type="payment", title="Đã nạp credit thành công 💳",
-        body=f"+{int(p.credits_granted):,} credit ({int(p.amount_vnd):,}đ qua {p.provider}).",
+        body=f"+{int(p.credits_granted):,} credit ({int(p.amount_vnd):,}đ qua {p.provider}).{_bonus_txt}",
         ref_type="payment", ref_id=p.id, user_id=p.user_id,
     )
     return p

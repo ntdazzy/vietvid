@@ -14,7 +14,7 @@ from sqlalchemy import func, select
 
 from app_api import wallet
 from app_api.models import Job, JobStatus, LedgerEntry, LedgerKind, Video
-from app_api.pricing import usd_to_credits
+from app_api.pricing import usd_to_credits_billed
 from video_engine.providers.routing import estimate_job_cost
 from video_engine.spec import JobSpec, RenderResult
 
@@ -40,8 +40,8 @@ def estimate_hold(spec_input: dict) -> tuple[float, int, int]:
         spec_input.get("mode", "product_ad"), spec_input.get("purpose", "final"),
         int(spec_input.get("seconds", 15)), spec_input.get("resolution", "720p"),
     )
-    est_usd = float(est["total_usd"])
-    est_credits = usd_to_credits(est_usd)
+    est_usd = float(est["total_usd"])               # giá VỐN thật (cho budget/ledger)
+    est_credits = usd_to_credits_billed(est_usd)     # giá BÁN khách (đã markup)
     hold_credits = math.ceil(est_credits * 1.5)
     return est_usd, est_credits, hold_credits
 

@@ -17,11 +17,15 @@ router = APIRouter(prefix="/v1/wallet", tags=["wallet"])
 @router.get("", response_model=WalletResponse)
 def get_wallet(tenant: Tenant = Depends(get_tenant)) -> WalletResponse:
     with tenant_session(tenant.org_id) as s:
-        w = wallet_svc.ensure_wallet(s, tenant.org_id)
+        wallet_svc.ensure_wallet(s, tenant.org_id)
+        st = wallet_svc.wallet_state(s, tenant.org_id)  # lazy-expire xu gói + 2 loại xu
         return WalletResponse(
             org_id=tenant.org_id,
-            balance_credits=int(w.balance_credits),
-            held_credits=int(w.held_credits),
+            balance_credits=st["balance_credits"],
+            held_credits=st["held_credits"],
+            plan_credits=st["plan_credits"],
+            plan_expires_at=st["plan_expires_at"],
+            available_credits=st["available_credits"],
         )
 
 

@@ -23,7 +23,8 @@ log = logging.getLogger("vietvid")
 
 
 class TopupRequest(BaseModel):
-    pack_id: str | None = None         # gói có sẵn
+    pack_id: str | None = None         # gói credit mua lẻ (xu không hết hạn)
+    plan_code: str | None = None       # HOẶC gói tháng (xu gói, hết hạn 30n) — ưu tiên nếu có
     amount_vnd: int | None = None      # hoặc số tiền tuỳ ý
     provider: str = "dev"  # dev | vnpay | momo | bank_qr
 
@@ -33,6 +34,13 @@ def list_packs() -> list[dict]:
     # credit_packs là bảng GLOBAL (không RLS) → session_scope.
     with session_scope() as s:
         return billing.get_packs(s)
+
+
+@router.get("/plans")
+def list_plans() -> list[dict]:
+    """Gói tháng (subscription) — xu gói hết hạn 30n, rẻ hơn đối thủ. Bảng GLOBAL."""
+    with session_scope() as s:
+        return billing.get_plans(s)
 
 
 @router.post("/topup")
@@ -53,9 +61,9 @@ def create_topup(req: TopupRequest, tenant: Tenant = Depends(get_tenant)) -> dic
 
     # Số tiền tuỳ ý (khi không chọn gói): chặn dưới/trên.
     custom_amount = None
-    if not req.pack_id:
+    if not req.pack_id and not req.plan_code:
         if req.amount_vnd is None:
-            raise HTTPException(status_code=422, detail="Thiếu pack_id hoặc amount_vnd")
+            raise HTTPException(status_code=422, detail="Thiếu pack_id, plan_code hoặc amount_vnd")
         custom_amount = int(req.amount_vnd)
         if custom_amount < config.TOPUP_MIN_VND or custom_amount > config.TOPUP_MAX_VND:
             raise HTTPException(
@@ -67,7 +75,9 @@ def create_topup(req: TopupRequest, tenant: Tenant = Depends(get_tenant)) -> dic
     balance = None
     try:
         with tenant_session(tenant.org_id) as s:
-            if custom_amount is not None:
+            if req.plan_code:  # MUA GÓI THÁNG (xu gói, hết hạn 30n)
+                p = billing.create_plan_purchase(s, org_uuid, tenant.uid, plan_code=req.plan_code, provider=provider)
+            elif custom_amount is not None:
                 p = billing.create_payment(
                     s, org_uuid, tenant.uid, provider=provider,
                     amount_vnd=custom_amount, credits=billing.credits_for_amount(custom_amount),

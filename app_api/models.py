@@ -451,8 +451,11 @@ class Wallet(Base):
     org_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("orgs.id", ondelete="CASCADE"), primary_key=True
     )
-    balance_credits: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    balance_credits: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))  # xu mua/thưởng — KHÔNG hết hạn
     held_credits: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    # Xu GÓI tháng — HẾT HẠN (breakage). Tiêu trừ xu này TRƯỚC. Mua gói mới = reset (xoá cũ chưa xài).
+    plan_credits: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
+    plan_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     version: Mapped[int] = mapped_column(BigInteger, server_default=text("0"))
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
@@ -460,6 +463,7 @@ class Wallet(Base):
     __table_args__ = (
         CheckConstraint("balance_credits >= 0", name="ck_wallet_balance_nonneg"),
         CheckConstraint("held_credits >= 0", name="ck_wallet_held_nonneg"),
+        CheckConstraint("plan_credits >= 0", name="ck_wallet_plan_nonneg"),
     )
 
 

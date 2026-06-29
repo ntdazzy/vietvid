@@ -101,8 +101,11 @@ class MeResponse(BaseModel):
 
 class WalletResponse(BaseModel):
     org_id: str
-    balance_credits: int
+    balance_credits: int           # xu mua/thưởng — KHÔNG hết hạn
     held_credits: int
+    plan_credits: int = 0          # xu gói tháng — HẾT HẠN
+    plan_expires_at: str | None = None
+    available_credits: int = 0     # = balance + plan (tổng tiêu được)
 
 
 class LedgerEntryOut(BaseModel):

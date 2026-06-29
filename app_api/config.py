@@ -16,6 +16,13 @@ def _int(name: str, default: int) -> int:
         return default
 
 
+def _float(name: str, default: float) -> float:
+    try:
+        return float(os.environ.get(name, "").strip() or default)
+    except ValueError:
+        return default
+
+
 def _str(name: str, default: str = "") -> str:
     return (os.environ.get(name) or "").strip() or default
 
@@ -43,8 +50,18 @@ DATABASE_URL: str = (
 DB_APP_ROLE: str = os.environ.get("VIETVID_DB_APP_ROLE", "").strip()
 
 # Quy đổi tiền (mục 6.3, 10.8 plan)
-CREDIT_PRICE_VND: int = _int("CREDIT_PRICE_VND", 150)   # 1 credit = 150đ
-USD_TO_VND: int = _int("USD_TO_VND", 25400)             # tỉ giá USD→VND
+CREDIT_PRICE_VND: int = _int("CREDIT_PRICE_VND", 150)   # 1 credit = 150đ (giá khách MUA credit)
+USD_TO_VND: int = _int("USD_TO_VND", 25400)             # tỉ giá USD→VND (quy giá VỐN provider)
+
+# Markup: GIÁ BÁN render = giá VỐN provider × hệ số này. 1.0 = bán đúng giá vốn (lời 0 → LỖ sau phí).
+# 2.0 = lời ~50% trên mỗi video. CHỈ ảnh hưởng số credit TRỪ khi render job; KHÔNG đổi giá khách
+# mua credit (pack/topup). Chỉnh 1 con số để đổi biên lợi nhuận toàn hệ.
+VIDEO_MARGIN_MULTIPLIER: float = _float("VIDEO_MARGIN_MULTIPLIER", 2.0)
+
+# Khuyến mãi NẠP LẦN ĐẦU: tặng thêm bấy nhiêu credit ở lần nạp thành công ĐẦU TIÊN của org.
+# CỐ ĐỊNH (không theo %) → tặng tối đa đúng số này dù khách nạp bao nhiêu → KHÔNG bao giờ lỗ.
+# Muốn được tặng phải TRẢ TIỀN (chống farm tài khoản free). 0 = tắt.
+FIRST_TOPUP_BONUS_CREDITS: int = _int("FIRST_TOPUP_BONUS_CREDITS", 300)
 
 # GUC key cho RLS (mục 6.1)
 RLS_GUC: str = "vietvid.current_org"
@@ -68,10 +85,12 @@ def auth_mode() -> str:
 
 
 # ── Tenancy / jobs runtime ──────────────────────────────────────────────
-# Credit tặng khi tạo tenant lần đầu (BONUS ledger). Reset hàng tháng = M2.
-# Mặc định 300: 1 draft 5s/480p HOLD = ceil(70×1.5) = 105 → phải > 1 hold, nếu không user free
-# mới KHÔNG tạo nổi 1 video nào (402 ngay). 300 ≈ vài draft thử. Chỉnh qua env theo kinh tế thật.
-FREE_GRANT_CREDITS: int = _int("FREE_GRANT_CREDITS", 300)
+# Credit tặng khi tạo tenant lần đầu (BONUS ledger).
+# 0 = KHÔNG tặng khi đăng ký → chống farm (tạo nhiều nick KHÔNG nhận free xu nào). Người mới phải
+# nạp mới tạo được; nạp lần đầu được tặng FIRST_TOPUP_BONUS_CREDITS (chỉ người TRẢ TIỀN mới có).
+# Khách xem chất lượng qua video MẪU làm sẵn (không tốn chi phí render). Đổi qua env nếu muốn cho
+# dùng thử free (chấp nhận rủi ro farm + lỗ phí render cho người không trả tiền).
+FREE_GRANT_CREDITS: int = _int("FREE_GRANT_CREDITS", 0)
 
 # inline = chạy render qua BackgroundTasks ngay tiến trình app (M1, chưa có Arq);
 # queue  = enqueue Arq (item 2). POST /jobs giữ nguyên hợp đồng, chỉ đổi cách thực thi.

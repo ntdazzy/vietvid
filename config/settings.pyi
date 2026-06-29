@@ -146,6 +146,12 @@ class Settings(BaseSettings):
     fal_api_key: str
     fal_video_model: str
     fal_video_model_draft: str
+    cometapi_api_key: str
+    cometapi_base_url: str
+    cometapi_video_model: str
+    runware_api_key: str
+    runware_base_url: str
+    runware_video_model: str
     video_provider_chain: str
     image_provider: str
     video_provider: str

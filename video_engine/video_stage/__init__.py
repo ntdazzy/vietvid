@@ -20,6 +20,14 @@ def _build_one(name: str) -> VideoProvider:
         from video_engine.video_stage.fal_video import FalVideoProvider
 
         return FalVideoProvider()
+    if name in ("cometapi", "comet"):
+        from video_engine.video_stage.cometapi_video import CometapiVideoProvider
+
+        return CometapiVideoProvider()
+    if name == "runware":
+        from video_engine.video_stage.runware_video import RunwareVideoProvider
+
+        return RunwareVideoProvider()
     from video_engine.providers.base import ProviderNotConfiguredError
 
     raise ProviderNotConfiguredError(f"VIDEO_PROVIDER không hỗ trợ: {name}")

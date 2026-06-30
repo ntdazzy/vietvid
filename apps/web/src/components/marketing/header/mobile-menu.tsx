@@ -34,7 +34,7 @@ export function MobileMenu({
                 ["KOL AI", "/app/kol"],
                 ["Mẫu", "/app/templates"],
                 ["Thư viện", "/app/library"],
-                ["Affiliate", "/app/affiliate"],
+                ["Tiếp thị liên kết", "/app/affiliate"],
                 ["Báo cáo", "/app/reports"],
                 ["API", "/app/api"],
                 ...(isAdmin ? ([["Admin", "/app/admin"]] as [string, string][]) : []),

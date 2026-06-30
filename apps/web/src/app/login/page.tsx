@@ -126,8 +126,9 @@ export default function LoginPage() {
         {/* scrim brand: tối từ trái sang để chữ luôn đọc rõ + đáy đậm cho cụm value-prop */}
         <div className="absolute inset-0 bg-gradient-to-r from-bg-surface via-bg-surface/85 to-bg-surface/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-surface via-bg-surface/40 to-transparent" />
-        {/* 1 vầng glow violet duy nhất (đúng luật: 1 glow/màn) */}
-        <div className="glow-radial pointer-events-none absolute -left-24 top-8 h-[460px] w-[460px]" />
+        {/* 1 vầng glow violet duy nhất (đúng luật: 1 glow/màn). Kéo LÊN qua mép trên
+            (-top-24) để glow chạm hẳn góc trên-trái, KHÔNG để hở dải đen ở đỉnh. */}
+        <div className="glow-radial pointer-events-none absolute -left-24 -top-24 h-[480px] w-[480px]" />
 
         {/* nội dung trái: logo trên — value-prop dưới (bất đối xứng, dồn đáy) */}
         <div className="relative flex h-full flex-col justify-between p-10 xl:p-12">

@@ -12,6 +12,7 @@ import { CapabilityGrid } from "@/components/marketing/capability-grid";
 import { CinematicAct } from "@/components/marketing/cinematic-act";
 import { BeforeAfter } from "@/components/marketing/before-after";
 import { MiniReel } from "@/components/marketing/mini-reel";
+import { HoverVideo } from "@/components/ui/hover-video";
 import { VariantLeaderboard } from "@/components/marketing/winner-loop";
 import { LoopStrip } from "@/components/marketing/loop-strip";
 import { VoiceRail } from "@/components/marketing/voice-rail";
@@ -38,18 +39,24 @@ export default async function LandingPage() {
     { file: "food", label: t("sampleFood") },
   ];
 
-  // Cuộn thể loại dùng ẢNH THẬT /showcase (candid) — "mục lục reel" của trang chủ.
-  // Bố cục bất đối xứng: 1 ô lớn + bento ô nhỏ, không hàng-thẻ-đối-xứng.
+  // Bento NGANG-DỌC trộn (như Autovis): card NGANG (cls col-span-2) dùng poster 16:9 + video 16:9;
+  // card DỌC (row-span-2) dùng ảnh người THẬT kol/*.jpg + video 9:16. Video khớp đúng tỉ lệ card →
+  // không ép méo. Người trong card dùng ảnh chân thực (không phải 3D/AND). Rê chuột là chạy clip.
   const REEL = [
-    { img: "/showcase/kol.jpg", title: t("reelKolTitle"), note: t("reelKolNote"), href: "/app/kol", big: true },
-    { img: "/showcase/art.jpg", title: t("reelArtTitle"), note: t("reelArtNote"), href: "/app/image-gen" },
-    { img: "/showcase/character.jpg", title: t("reelCharacterTitle"), note: t("reelCharacterNote"), href: "/app/character" },
-    { img: "/showcase/lookbook.jpg", title: t("reelLookbookTitle"), note: t("reelLookbookNote"), href: "/login" },
-    { img: "/showcase/product.jpg", title: t("reelProductTitle"), note: t("reelProductNote"), href: "/login" },
-    { img: "/showcase/shortfilm.jpg", title: t("reelShortfilmTitle"), note: t("reelShortfilmNote"), href: "/login" },
-    { img: "/showcase/food.jpg", title: t("reelFoodTitle"), note: t("reelFoodNote"), href: "/login" },
-    { img: "/showcase/trend.jpg", title: t("reelTrendTitle"), note: t("reelTrendNote"), href: "/login" },
-    { img: "/showcase/explainer.jpg", title: t("reelExplainerTitle"), note: t("reelExplainerNote"), href: "/login" },
+    { cls: "col-span-2 row-span-2", img: "/kol/linh.jpg", video: "/showcase/kol.mp4", title: t("reelKolTitle"), note: t("reelKolNote"), href: "/app/kol" },
+    { cls: "col-span-2", img: "/showcase/product.jpg", video: "/showcase/product-w.mp4", title: t("reelAdTitle"), note: t("reelAdNote"), href: "/login" },
+    { cls: "row-span-2", img: "/samples/gen/review.jpg", video: "/samples/gen/review.mp4", title: t("reelReviewTitle"), note: t("reelReviewNote"), href: "/login" },
+    { cls: "", img: "/showcase/character.jpg", video: "/showcase/character.mp4", title: t("reelCharacterTitle"), note: t("reelCharacterNote"), href: "/app/character" },
+    { cls: "", img: "/showcase/art.jpg", video: "/showcase/art.mp4", title: t("reelArtTitle"), note: t("reelArtNote"), href: "/app/image-gen" },
+    { cls: "col-span-2", img: "/showcase/affiliate.jpg", video: "/showcase/affiliate-w.mp4", title: t("reelAffiliateTitle"), note: t("reelAffiliateNote"), href: "/login" },
+    { cls: "row-span-2", img: "/kol/mai.jpg", video: "/showcase/trend.mp4", title: t("reelTrendTitle"), note: t("reelTrendNote"), href: "/login" },
+    { cls: "row-span-2", img: "/samples/skincare.jpg", video: "/showcase/product-shot.mp4", title: t("reelProductShotTitle"), note: t("reelProductShotNote"), href: "/app/image-gen" },
+    { cls: "", img: "/samples/food.jpg", video: "/showcase/food.mp4", title: t("reelFoodTitle"), note: t("reelFoodNote"), href: "/login" },
+    { cls: "", img: "/samples/home.jpg", video: "/showcase/recreate.mp4", title: t("reelRecreateTitle"), note: t("reelRecreateNote"), href: "/login" },
+    { cls: "col-span-2", img: "/showcase/lookbook.jpg", video: "/showcase/lookbook-w.mp4", title: t("reelLookbookTitle"), note: t("reelLookbookNote"), href: "/login" },
+    { cls: "row-span-2", img: "/kol/an.jpg", video: "/showcase/explainer.mp4", title: t("reelExplainerTitle"), note: t("reelExplainerNote"), href: "/login" },
+    { cls: "", img: "/samples/unboxing.jpg", video: "/showcase/unboxing.mp4", title: t("reelProductTitle"), note: t("reelProductNote"), href: "/login" },
+    { cls: "", img: "/kol/hoa.jpg", video: "/showcase/kol2.mp4", title: t("reelKol2Title"), note: t("reelKol2Note"), href: "/app/kol" },
   ];
 
   return (
@@ -76,36 +83,38 @@ export default async function LandingPage() {
           </div>
         </Reveal>
 
-        {/* bento bất đối xứng: ô đầu chiếm 2 cột × 2 hàng, còn lại xếp quanh */}
-        <div className="mt-9 grid auto-rows-[150px] grid-cols-2 gap-3 sm:auto-rows-[170px] lg:grid-cols-4 lg:gap-4">
-          {REEL.map((r, i) => (
-            <Reveal
-              key={r.title}
-              delay={0.05 * i}
-              className={r.big ? "col-span-2 row-span-2" : ""}
-            >
-              <Link
-                href={r.href}
-                className="group relative block h-full overflow-hidden rounded-2xl glass-bordered transition-all duration-200 hover:-translate-y-1 hover:ring-1 hover:ring-violet-400/30"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={r.img}
-                  alt=""
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover opacity-70 transition-transform duration-500 group-hover:scale-[1.05] group-hover:opacity-90"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/40 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-4">
-                  <div className={r.big ? "font-display text-xl font-bold text-ink-high" : "font-display text-sm font-semibold text-ink-high"}>
-                    {r.title}
+        {/* bento NGANG-DỌC trộn (như Autovis): ô ngang/dọc/lớn xen kẽ, video khớp tỉ lệ ô.
+            grid-flow-dense lấp ô trống khi span lệch. Rê chuột là chạy clip. */}
+        <div className="mt-9 grid auto-rows-[150px] grid-flow-dense grid-cols-2 gap-3 sm:auto-rows-[164px] lg:grid-cols-4 lg:gap-4">
+          {REEL.map((r, i) => {
+            const featured = r.cls.includes("row-span-2") || r.cls.includes("col-span-2");
+            return (
+              <Reveal key={r.title} delay={0.03 * i} className={r.cls}>
+                <Link
+                  href={r.href}
+                  className="group relative block h-full overflow-hidden rounded-2xl glass-bordered transition-all duration-200 hover:-translate-y-1 hover:ring-1 hover:ring-violet-400/30"
+                >
+                  <HoverVideo
+                    poster={r.img}
+                    video={r.video}
+                    alt=""
+                    badge={false}
+                    className="absolute inset-0 h-full w-full opacity-[0.85] transition-opacity duration-500 group-hover:opacity-100"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/25 to-transparent" />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3.5">
+                    <div className={featured ? "font-display text-base font-bold leading-tight text-ink-high" : "font-display text-sm font-semibold leading-tight text-ink-high"}>
+                      {r.title}
+                    </div>
+                    <div className="mt-0.5 text-[11px] text-ink-low">{r.note}</div>
                   </div>
-                  <div className="mt-0.5 text-xs text-ink-low">{r.note}</div>
-                </div>
-                <span className="absolute right-3 top-3 h-[3px] w-5 rounded-full bg-grad-brand opacity-0 transition-opacity group-hover:opacity-100" />
-              </Link>
-            </Reveal>
-          ))}
+                  <span className="pointer-events-none absolute right-2.5 top-2.5 grid h-6 w-6 place-items-center rounded-full bg-black/40 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                    <span className="ml-0.5 block h-0 w-0 border-y-[5px] border-l-[8px] border-y-transparent border-l-white/90" />
+                  </span>
+                </Link>
+              </Reveal>
+            );
+          })}
         </div>
       </section>
 

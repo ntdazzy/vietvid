@@ -40,7 +40,9 @@ export function FeatureShowcase({ page }: { page: FeaturePage }) {
   const labels: Record<string, string> = Object.fromEntries(
     LABEL_KEYS.map((k) => [k, t(`label_${k}`)]),
   );
-  const tiles = page.gallery.map((f) => ({ file: f, label: labels[f] ?? f }));
+  // gallery keys (fashion/beauty/...) là tên file dưới /samples — prepend "samples/" để
+  // SampleMarquee trỏ đúng /samples/<key>.jpg|.mp4 (trước đây trỏ /<key>.jpg → 404 ảnh vỡ).
+  const tiles = page.gallery.map((f) => ({ file: `samples/${f}`, label: labels[f] ?? f }));
 
   return (
     <div className="relative min-h-dvh mesh-bg">

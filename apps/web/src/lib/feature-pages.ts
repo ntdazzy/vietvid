@@ -93,9 +93,9 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
       { icon: "Images", t: "Nhiều bối cảnh", d: "Đường phố, studio, editorial — một buổi 'chụp'." },
     ],
     results: [
-      { img: "/samples/lookbook.jpg", ratio: "9:16", caption: "Street style mùa thu" },
-      { img: "/samples/fashion.jpg", video: "/samples/fashion.mp4", ratio: "9:16", caption: "Clip lookbook chạy" },
-      { img: "/samples/beauty.jpg", ratio: "9:16", caption: "Phối phụ kiện" },
+      { img: "/showcase/v2/genre-street-fashion-walk.jpg", video: "/showcase/v2/genre-street-fashion-walk.mp4", ratio: "9:16", caption: "Street style" },
+      { img: "/showcase/v2/face-pale-elegant-rainy-cafe.jpg", video: "/showcase/v2/face-pale-elegant-rainy-cafe.mp4", ratio: "9:16", caption: "Lookbook editorial" },
+      { img: "/showcase/v2/face-genz-student-freckles-selfie.jpg", video: "/showcase/v2/face-genz-student-freckles-selfie.mp4", ratio: "9:16", caption: "Phối phụ kiện" },
     ],
     useCases: [
       { tag: "Shop quần áo", t: "Lên đồ cho SP mới", d: "Không cần thuê mẫu cho mỗi mẫu áo." },
@@ -145,9 +145,9 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
       { icon: "Captions", t: "Phụ đề khớp khung", d: "Timing lấy từ kịch bản, không sai chữ." },
     ],
     results: [
-      { img: "/samples/kol_review.jpg", ratio: "9:16", caption: "Review trên sofa" },
-      { img: "/samples/beauty.jpg", video: "/samples/beauty.mp4", ratio: "9:16", caption: "Review mỹ phẩm" },
-      { img: "/samples/tech.jpg", video: "/samples/tech.mp4", ratio: "9:16", caption: "Review công nghệ" },
+      { img: "/showcase/v2/face-tech-reviewer-messy-desk-male.jpg", video: "/showcase/v2/face-tech-reviewer-messy-desk-male.mp4", ratio: "9:16", caption: "Review công nghệ" },
+      { img: "/showcase/v2/face-skincare-vanity-warm-lamp.jpg", video: "/showcase/v2/face-skincare-vanity-warm-lamp.mp4", ratio: "9:16", caption: "Review mỹ phẩm" },
+      { img: "/showcase/v2/face-pale-elegant-rainy-cafe.jpg", video: "/showcase/v2/face-pale-elegant-rainy-cafe.mp4", ratio: "9:16", caption: "KOL review mood" },
     ],
     comparison: {
       oldWay: ["Thuê KOL + ekip quay", "Chờ 3-5 ngày mỗi clip", "Mỗi SP một buổi quay", "Chi phí cao, khó nhân bản"],
@@ -199,9 +199,9 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
       vyraWay: ["Engine dựng tự động", "Sửa trực tiếp, thấy giá", "Tạo nhiều biến thể đo click", "0 watermark gói trả phí"],
     },
     results: [
-      { img: "/samples/tech.jpg", video: "/samples/tech.mp4", ratio: "9:16", caption: "Ad công nghệ" },
-      { img: "/samples/food.jpg", video: "/samples/food.mp4", ratio: "9:16", caption: "Ad ẩm thực" },
-      { img: "/samples/fashion.jpg", video: "/samples/fashion.mp4", ratio: "9:16", caption: "Ad thời trang" },
+      { img: "/showcase/v2/prod-tech-earbuds-desk.jpg", video: "/showcase/v2/prod-tech-earbuds-desk.mp4", ratio: "9:16", caption: "Ad công nghệ" },
+      { img: "/showcase/v2/prod-footwear-sneakers-step.jpg", video: "/showcase/v2/prod-footwear-sneakers-step.mp4", ratio: "9:16", caption: "Ad giày sneaker" },
+      { img: "/showcase/v2/prod-fashion-knit-boutique.jpg", video: "/showcase/v2/prod-fashion-knit-boutique.mp4", ratio: "9:16", caption: "Ad thời trang" },
     ],
     proof: [
       { stat: "~60s", label: "mỗi video" },

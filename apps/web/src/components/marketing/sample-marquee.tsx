@@ -3,6 +3,7 @@
 import { DemoTile } from "@/components/marketing/demo-tile";
 import { cn } from "@/lib/utils/cn";
 
+// `file` = đường dẫn dưới /public KHÔNG đuôi (vd "showcase/kol-hero") → poster .jpg + clip .mp4.
 export type MarqueeTile = { file: string; label: string; ratio?: string };
 
 const MASK = {
@@ -39,9 +40,10 @@ export function SampleMarquee({
               {t.ratio ?? "9:16"}
             </span>
             <DemoTile
-              poster={`/samples/${t.file}.jpg`}
-              video={`/samples/${t.file}.mp4`}
+              poster={`/${t.file}.jpg`}
+              video={`/${t.file}.mp4`}
               hoverOnly
+              href="/login"
               label={t.label}
               className="h-full w-auto aspect-[9/16]"
             />

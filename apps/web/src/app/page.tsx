@@ -34,12 +34,19 @@ import { PricingBand } from "@/components/marketing/pricing-band";
 export default async function LandingPage() {
   const t = await getTranslations("home");
 
+  // 9 THỂ LOẠI nội dung KHÁC nhau (đều clip thật 9:16 từ showcase) → marquee không lặp lại 1 nhóm
+  // ảnh, mỗi tile 1 kiểu video web dựng được: KOL, đu trend, beauty, người dẫn, nhân vật AI,
+  // mở hộp, ảnh SP, ẩm thực, nghệ thuật. Poster = frame của chính clip → rê chuột khớp 100%.
   const SAMPLES = [
-    { file: "fashion", label: t("sampleFashion") },
-    { file: "beauty", label: t("sampleBeauty") },
-    { file: "tech", label: t("sampleTech") },
-    { file: "home", label: t("sampleHome") },
-    { file: "food", label: t("sampleFood") },
+    { file: "showcase/kol-hero", label: t("sampleKol") },
+    { file: "showcase/trend-dance", label: t("sampleDouyin") },
+    { file: "showcase/gaixinh", label: t("sampleBeauty") },
+    { file: "showcase/presenter", label: t("samplePresenter") },
+    { file: "showcase/character", label: t("sampleCharacter") },
+    { file: "showcase/unbox-prod", label: t("sampleUnbox") },
+    { file: "showcase/apple", label: t("sampleProduct") },
+    { file: "showcase/food", label: t("sampleFood") },
+    { file: "showcase/art", label: t("sampleArt") },
   ];
 
   // Bento NGANG-DỌC trộn (lưới 6 cột): MẶT người → ô DỌC 9:16 (ảnh 3:4 chỉ crop 2 bên, KHÔNG

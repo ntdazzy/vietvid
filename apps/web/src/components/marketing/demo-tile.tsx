@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
 
 /**
  * Thẻ demo video-first: nếu có `video` (mp4) → tự chạy muted khi lọt khung / hover (không nút play
  * tròn — đó là dấu hiệu "AI-generic"). Chưa có mp4 thật → hiện poster (ảnh output thật) + Ken-Burns
  * nhẹ. Khi engine render thật, thả /samples/<x>.mp4 vào là tự lên video.
+ * Có `href` → cả thẻ thành link (con trỏ bàn tay, bấm "xem mẫu" vào được app).
  */
 export function DemoTile({
   poster,
@@ -14,12 +16,14 @@ export function DemoTile({
   label,
   className,
   hoverOnly = false,
+  href,
 }: {
   poster: string;
   video?: string;
   label: string;
   className?: string;
   hoverOnly?: boolean; // chỉ phát khi hover (cho marquee — tránh hàng chục video chạy cùng lúc)
+  href?: string; // bấm vào thẻ → điều hướng (vd /login). Có href thì con trỏ ra bàn tay.
 }) {
   const ref = useRef<HTMLVideoElement>(null);
 
@@ -37,23 +41,24 @@ export function DemoTile({
     return () => io.disconnect();
   }, [video, hoverOnly]);
 
-  return (
-    <div
-      className={cn(
-        "group relative overflow-hidden rounded-[20px] bg-bg-surface2 ring-1 ring-white/[0.06]",
-        "transition-[transform,box-shadow] duration-500 hover:-translate-y-1",
-        "hover:shadow-[0_30px_80px_-30px_rgba(124,58,237,0.45)]",
-        className,
-      )}
-      onMouseEnter={() => video && ref.current?.play().catch(() => {})}
-      onMouseLeave={() => {
-        const el = ref.current;
-        if (video && el) {
-          el.pause();
-          el.currentTime = 0; // về poster khi rời chuột
-        }
-      }}
-    >
+  const rootClass = cn(
+    "group relative block overflow-hidden rounded-[20px] bg-bg-surface2 ring-1 ring-white/[0.06]",
+    "transition-[transform,box-shadow] duration-500 hover:-translate-y-1",
+    "hover:shadow-[0_30px_80px_-30px_rgba(124,58,237,0.45)]",
+    href && "cursor-pointer",
+    className,
+  );
+  const onEnter = () => video && ref.current?.play().catch(() => {});
+  const onLeave = () => {
+    const el = ref.current;
+    if (video && el) {
+      el.pause();
+      el.currentTime = 0; // về poster khi rời chuột
+    }
+  };
+
+  const body = (
+    <>
       {video ? (
         <video
           ref={ref}
@@ -84,6 +89,16 @@ export function DemoTile({
           xem mẫu →
         </span>
       </div>
+    </>
+  );
+
+  return href ? (
+    <Link href={href} className={rootClass} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+      {body}
+    </Link>
+  ) : (
+    <div className={rootClass} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+      {body}
     </div>
   );
 }

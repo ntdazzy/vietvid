@@ -64,8 +64,21 @@ export default function LoginPage() {
     return n && n.startsWith("/") && !n.startsWith("//") ? n : "/app";
   }
 
+  // validate phía client trước khi gọi API — báo lỗi tiếng Việt rõ ràng, hợp lệ cả 2 chế độ.
+  function validate(): string | null {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return t("errorEmailInvalid");
+    if (password.length < 8) return t("errorPasswordShort");
+    if (mode === "register" && name.trim().length < 2) return t("errorNameRequired");
+    return null;
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    const invalid = validate();
+    if (invalid) {
+      setError(invalid);
+      return;
+    }
     setLoading("form");
     setError(null);
     try {
@@ -102,6 +115,8 @@ export default function LoginPage() {
         {/* scrim brand: tối từ trái sang để chữ luôn đọc rõ + đáy đậm cho cụm value-prop */}
         <div className="absolute inset-0 bg-gradient-to-r from-bg-surface via-bg-surface/85 to-bg-surface/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-surface via-bg-surface/40 to-transparent" />
+        {/* scrim ĐỈNH — tan mép ảnh trôi vào nền, hết "cắt ngang ở góc trên" (mép cứng) */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-bg-surface to-transparent" />
         {/* 1 vầng glow violet duy nhất (đúng luật: 1 glow/màn) */}
         <div className="glow-radial pointer-events-none absolute -left-24 top-8 h-[460px] w-[460px]" />
 
@@ -200,7 +215,7 @@ export default function LoginPage() {
             <Field label={t("passwordLabel")}>
               <div className="relative">
                 <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-low" />
-                <input type="password" required minLength={6} className={`${inputCls} pl-9`} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t("passwordPlaceholder")} />
+                <input type="password" required minLength={8} className={`${inputCls} pl-9`} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t("passwordPlaceholder")} />
               </div>
             </Field>
 

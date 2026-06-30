@@ -6,22 +6,32 @@
 
 ---
 
-## 🎬 ĐANG DỞ: render 27 clip nội dung homepage (việc chính)
+## ✅ ĐÃ XONG (đêm 2026-07-01): 25 clip v2 nhúng homepage + trang con — KHÔNG cần render nữa
 
-**Mục tiêu:** render 27 clip (9 mặt KOL + 11 genre + 7 sản phẩm) → nhúng vào homepage thay clip cũ.
+**Việc chính HOÀN TẤT bằng RECOVERY (không cần CometAPI).** 6 mặt "thiếu" được khôi phục từ `D:/vyra-research`
+(các clip `div_`/`idol3_` 2.0 mới nhất + `clip-library/round3-faces-1.5`), nén web + trích poster, nhúng vào trang chủ.
 
-**Trạng thái render (20/27 xong):**
-| Loại | Xong | Thiếu | Model | Output |
-|---|---|---|---|---|
-| Mặt KOL | 3/9 (vlogger, café, tech-male) | **6** (streetwear-male, young-mom, genz-student, bookshop, yoga, skincare) | **2.0-fast** | `apps/web/public/showcase/v2/<key>.mp4` |
-| Genre | 11/11 ✓ | 0 | 1.5-pro | nt |
-| Sản phẩm | 6/7 | **1** (prod-beauty-lipstick-vanity) | 1.5-pro | nt |
+**25 clip v2 đang LIVE** (`apps/web/public/showcase/v2/<key>.mp4` + `.jpg`, đã nén 95KB–1MB):
+| Loại | Số | Nguồn | Vị trí trên trang |
+|---|---|---|---|
+| Mặt KOL | **9/9** | 3 sẵn (2.0) + 3 recover 2.0 (skincare/bookshop→1.5/genz) + 3 từ 1.5 (streetwear/young-mom/yoga) | `FeaturedKol` — lưới 9 mặt (featured Linh 2×2 + 8 ô dọc) |
+| Genre | **10** | v2 (1 clip `genre-fitness-stretch-girl` = TRẺ EM → đã GỠ khỏi site, master còn ở `v2-masters/`) | `GenreWall` — bento trộn dọc/ngang |
+| Sản phẩm | **6** | v2 (thiếu `prod-beauty-lipstick-vanity`, chưa render — không bắt buộc) | `ProductReel` — bento 3 dọc + 3 ngang |
 
-**⛔ BLOCKER: CometAPI HẾT CREDIT** (`HTTP 403 insufficient_user_quota, remaining $-0`). $20 đã cạn (do nhiều vòng tinh chỉnh mặt). Render lỗi KHÔNG bị trừ tiền. **Cần user nạp thêm ~$10 CometAPI** rồi render nốt 7 clip.
+**Components mới:** `genre-wall.tsx`, `product-reel.tsx` (hardcode nhãn Việt, dùng `HoverVideo`, tỉ lệ-aware).
+`featured-kol.tsx` viết lại 4→9 mặt. Chèn vào `page.tsx` sau `<FeaturedKol/>`. **Trang con:** `/features/review|product_ad|lookbook`
+results đổi sang clip v2; vá bug ảnh vỡ teaser marquee (`/<key>.jpg` → `/samples/<key>.jpg` trong `feature-showcase.tsx`).
 
-**Cách render tiếp (sau khi nạp):**
-1. `python scratchpad/gen_comet.py` — resume-safe, chỉ render clip còn FAIL/thiếu trong `scratchpad/gen_comet_summary.json`. Manifest: `scratchpad/manifest.json` (đã có prompt cuối). MODEL trong gen_comet.py = `doubao-seedance-2-0-fast`.
-2. Resume-safe + timeout 600s/clip (bỏ clip kẹt) + download retry.
+**QA THẬT (Playwright + soi từng frame) ĐÃ PASS:** 9 mặt đều người lớn 24-28 photoreal; rê chuột chạy clip OK
+(currentTime>0); **0 lỗi 404** asset (home + feature); `tsc --noEmit` xanh. Ảnh QA ở scratchpad/qa/.
+
+**Masters gốc** (4–8MB) archive ở `D:/vyra-research/clip-library/v2-masters/` (luật "đừng xóa video" — đã giữ).
+
+### Còn lại của "việc 1" (render) — KHÔNG bắt buộc, credit đã nạp còn nguyên
+`scratchpad/gen_comet.py` + `manifest.json` đã MẤT (scratchpad rỗng) → không resume được. Nhưng goal (đủ 9 mặt trang chủ) đã đạt bằng recovery.
+Nếu muốn bản 2.0 tươi cho 3 mặt đang dùng 1.5 (streetwear-male, young-mom, yoga) + 1 SP lipstick:
+render bằng CometAPI (`doubao-seedance-2-0-fast`, seconds="5"), rồi **chỉ cần bỏ file vào** `apps/web/public/showcase/v2/<key>.mp4`,
+nén `ffmpeg -i src -vf scale=-2:960 -crf 30 -an -movflags +faststart out.mp4` + poster `ffmpeg -ss 2.6 -i src -frames:v 1 -q:v 3 <key>.jpg` → trang tự nhận (key giữ nguyên).
 
 ---
 
@@ -43,14 +53,16 @@
 
 ---
 
-## ✅ VIỆC CẦN LÀM (TODO, ưu tiên trên xuống)
-1. **(chờ user nạp CometAPI)** render nốt 6 mặt + 1 sản phẩm (2.0-fast): `python scratchpad/gen_comet.py`.
-2. (tuỳ chọn) nâng vài genre có người lên 2.0 cho đồng bộ realism.
-3. Soi poster cả 27 — lệch thì sửa prompt manifest → archive clip cũ → render lại clip đó.
-4. Trích poster (`ffmpeg -ss 2.2 -frames:v 1 -q:v 3`) + nén mp4 (`scale=-2:864 -crf 28`) + nén jpg.
-5. **Nhúng homepage ĐÚNG TỈ LỆ**: `featured-kol.tsx` (9 mặt → card 9:16), `page.tsx` SAMPLES marquee (genre), bento REEL (sản phẩm 16:9 → ô ngang). Đổi `/showcase/<x>` → `/showcase/v2/<key>`.
-6. Chụp Playwright kiểm chứng → commit (**CHỈ .jpg poster, KHÔNG .mp4** — gitignored).
-7. (lâu dài, từ phân tích đối thủ — xem VYRA_SESSION_HANDOFF.md §roadmap): HTML-frame cảnh chữ (đòn bẩy margin), link→review trọn gói, Start&End frame, Video Extend, đọc sâu 62 repo ở D.
+## ✅ VIỆC CẦN LÀM (TODO) — phần nhúng homepage ĐÃ XONG
+- [x] Recover 6 mặt thiếu từ D: → đủ 9 mặt (đã soi frame, đều người lớn 24-28).
+- [x] Nén web + poster 25 clip v2 (95KB–1MB) — archive master 4-8MB ở `v2-masters/`.
+- [x] `FeaturedKol` 9 mặt + `GenreWall` 10 genre + `ProductReel` 6 SP, nhúng `page.tsx`.
+- [x] Gỡ clip trẻ em `genre-fitness-stretch-girl` khỏi site.
+- [x] Trang con `/features/review|product_ad|lookbook` dùng clip v2 + vá bug ảnh-vỡ teaser.
+- [x] QA Playwright desktop+mobile, hover-play OK, 0 lỗi 404, tsc xanh.
+- [ ] (tuỳ chọn) render 2.0 tươi cho 3 mặt 1.5 (streetwear/young-mom/yoga) + 1 SP lipstick — xem mục trên.
+- [ ] (tuỳ chọn) nâng REEL/SAMPLES marquee cũ trên `page.tsx` sang clip v2 (hiện vẫn dùng clip showcase cũ, BỔ TRỢ chứ không trùng).
+- [ ] (lâu dài, từ phân tích đối thủ — xem VYRA_SESSION_HANDOFF.md §roadmap): HTML-frame cảnh chữ (đòn bẩy margin), link→review trọn gói, Start&End frame, Video Extend, đọc sâu 62 repo ở D.
 
 ---
 

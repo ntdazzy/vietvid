@@ -14,14 +14,14 @@ import { IntegrationBand } from "@/components/marketing/integration-band";
 export function CapabilityGrid() {
   const cards = [
     {
-      index: 1, tone: "core" as const, badge: "Lõi", title: "Ảnh → Video 60s", href: "/login",
+      index: 1, tone: "core" as const, badge: "Phổ biến", title: "Ảnh → Video 60s", href: "/login",
       desc: "Thả 1 ảnh, Vyra dựng video 60 giây có nhịp, có chốt đơn.",
-      demo: <MiniReel poster="/samples/fashion.jpg" className="mx-auto h-full max-h-[230px] w-auto"
+      demo: <MiniReel poster="/samples/fashion-v2.jpg" video="/samples/fashion-v2.mp4" className="mx-auto h-full max-h-[230px] w-auto"
         captions={["Mới săn được em này nè…", "Mặc lên tôn dáng ghê!", "Để giỏ hàng rồi nha!"]} />,
     },
     {
-      index: 2, tone: "moat" as const, badge: "Độc quyền", title: "Đo click → bản thắng", href: "#winner-loop",
-      desc: "Tạo nhiều biến thể, đo click thật, xếp hạng, giữ bản bán được. Đối thủ Việt không có.",
+      index: 2, tone: "moat" as const, badge: "Chỉ có ở Vyra", title: "Test mẫu, giữ bản bán chạy", href: "#winner-loop",
+      desc: "Tạo nhiều phiên bản, đo lượt click thật, tự giữ bản ra đơn nhiều nhất. Đối thủ Việt chưa có.",
       demo: (
         <div className="pointer-events-none origin-top scale-[0.82] sm:scale-90">
           <VariantLeaderboard />

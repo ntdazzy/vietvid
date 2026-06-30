@@ -8,8 +8,8 @@ import { motion, useInView, useReducedMotion } from "framer-motion";
 const CAPTIONS = ["Trước nhìn chán lắm…", "Có rồi là lên đời, tự tin hẳn.", "Soi gương mà mê!"];
 
 export function BeforeAfter({
-  src = "/samples/fashion.jpg",
-  video = "/samples/fashion.mp4",
+  src = "/samples/fashion-v2.jpg",
+  video = "/samples/fashion-v2.mp4",
 }: {
   src?: string;
   video?: string;

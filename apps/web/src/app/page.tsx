@@ -46,21 +46,22 @@ export default async function LandingPage() {
   // Xếp thành 2 băng 6×2 ô để grid-flow-dense lấp KÍN 4 hàng (không hở đáy):
   // Băng A (hàng 1-2): lớn(2×2) + dọc + dọc + ngang(2×1) + vuông + vuông.
   // Băng B (hàng 3-4): dọc + dọc + ngang + ngang + vuông×4.
-  // Người (Seedance từ chối video người thật) → ảnh tĩnh; vật/SP → rê chuột chạy clip.
+  // MỌI card đều video đúng chủ đề (Seedance): người = t2v (KOL/gái xinh/nhảy trend/presenter),
+  // sản phẩm = Apple/unbox/quảng cáo. Poster = 1 frame trích từ chính clip → hover khớp 100%.
   const REEL = [
-    { cls: "col-span-2 row-span-2", obj: "object-top", img: "/kol/linh.jpg", video: "", title: t("reelKolTitle"), note: t("reelKolNote"), href: "/app/kol" },
-    { cls: "row-span-2", obj: "object-top", img: "/kol/hoa.jpg", video: "", title: t("reelTrendTitle"), note: t("reelTrendNote"), href: "/login" },
-    { cls: "row-span-2", obj: "object-top", img: "/kol/mai.jpg", video: "", title: t("reelKol2Title"), note: t("reelKol2Note"), href: "/app/kol" },
+    { cls: "col-span-2 row-span-2", obj: "object-center", img: "/showcase/kol-hero.jpg", video: "/showcase/kol-hero.mp4", title: t("reelKolTitle"), note: t("reelKolNote"), href: "/app/kol" },
+    { cls: "row-span-2", obj: "object-center", img: "/showcase/trend-dance.jpg", video: "/showcase/trend-dance.mp4", title: t("reelTrendTitle"), note: t("reelTrendNote"), href: "/login" },
+    { cls: "row-span-2", obj: "object-center", img: "/showcase/gaixinh.jpg", video: "/showcase/gaixinh.mp4", title: t("reelKol2Title"), note: t("reelKol2Note"), href: "/app/kol" },
     { cls: "col-span-2", obj: "object-center", img: "/showcase/product.jpg", video: "/showcase/product-w.mp4", title: t("reelAdTitle"), note: t("reelAdNote"), href: "/login" },
     { cls: "", obj: "object-top", img: "/showcase/character.jpg", video: "/showcase/character.mp4", title: t("reelCharacterTitle"), note: t("reelCharacterNote"), href: "/app/character" },
     { cls: "", obj: "object-center", img: "/showcase/art.jpg", video: "/showcase/art.mp4", title: t("reelArtTitle"), note: t("reelArtNote"), href: "/app/image-gen" },
-    { cls: "row-span-2", obj: "object-top", img: "/kol/an.jpg", video: "", title: t("reelExplainerTitle"), note: t("reelExplainerNote"), href: "/login" },
-    { cls: "row-span-2", obj: "object-top", img: "/samples/skincare.jpg", video: "/showcase/product-shot.mp4", title: t("reelProductShotTitle"), note: t("reelProductShotNote"), href: "/app/image-gen" },
-    { cls: "col-span-2", obj: "object-top", img: "/showcase/affiliate.jpg", video: "", title: t("reelAffiliateTitle"), note: t("reelAffiliateNote"), href: "/login" },
-    { cls: "col-span-2", obj: "object-top", img: "/showcase/lookbook.jpg", video: "", title: t("reelLookbookTitle"), note: t("reelLookbookNote"), href: "/login" },
+    { cls: "row-span-2", obj: "object-center", img: "/showcase/presenter.jpg", video: "/showcase/presenter.mp4", title: t("reelExplainerTitle"), note: t("reelExplainerNote"), href: "/login" },
+    { cls: "row-span-2", obj: "object-center", img: "/showcase/apple.jpg", video: "/showcase/apple.mp4", title: t("reelProductShotTitle"), note: t("reelProductShotNote"), href: "/app/image-gen" },
+    { cls: "col-span-2", obj: "object-center", img: "/showcase/affiliate-w.jpg", video: "/showcase/affiliate-w.mp4", title: t("reelAffiliateTitle"), note: t("reelAffiliateNote"), href: "/login" },
+    { cls: "col-span-2", obj: "object-center", img: "/showcase/lookbook-w.jpg", video: "/showcase/lookbook-w.mp4", title: t("reelLookbookTitle"), note: t("reelLookbookNote"), href: "/login" },
     { cls: "", obj: "object-center", img: "/samples/food.jpg", video: "/showcase/food.mp4", title: t("reelFoodTitle"), note: t("reelFoodNote"), href: "/login" },
     { cls: "", obj: "object-center", img: "/samples/home.jpg", video: "/showcase/recreate.mp4", title: t("reelRecreateTitle"), note: t("reelRecreateNote"), href: "/login" },
-    { cls: "", obj: "object-top", img: "/samples/unboxing.jpg", video: "/showcase/unboxing.mp4", title: t("reelProductTitle"), note: t("reelProductNote"), href: "/login" },
+    { cls: "", obj: "object-center", img: "/showcase/unbox-prod.jpg", video: "/showcase/unbox-prod.mp4", title: t("reelProductTitle"), note: t("reelProductNote"), href: "/login" },
     { cls: "", obj: "object-center", img: "/samples/gen/review.jpg", video: "/samples/gen/review.mp4", title: t("reelReviewTitle"), note: t("reelReviewNote"), href: "/login" },
   ];
 

@@ -62,7 +62,9 @@ class CometapiVideoProvider:
         body: dict = {
             "model": self._model,
             "prompt": prompt,
-            "seconds": max(4, min(15, int(seconds))),  # CometAPI: 4–15s
+            # ĐÃ VERIFY 2026-06-30: CometAPI yêu cầu seconds là CHUỖI (gửi number → 400
+            # "cannot unmarshal number into ... seconds of type string").
+            "seconds": str(max(4, min(15, int(seconds)))),  # CometAPI: 4–15s, kiểu string
             "size": aspect or "9:16",
         }
         if image_paths:

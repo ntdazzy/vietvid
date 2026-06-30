@@ -104,8 +104,14 @@ export default function LoginPage() {
         <div
           className="pointer-events-none absolute inset-0 flex justify-end gap-4 pr-6 opacity-[0.5]"
           style={{
-            maskImage: "linear-gradient(to right, transparent 0%, transparent 38%, black 70%)",
-            WebkitMaskImage: "linear-gradient(to right, transparent 0%, transparent 38%, black 70%)",
+            // fade CẢ ngang (trái→phải) LẪN dọc (đỉnh+đáy) → ảnh tan hẳn ở mọi mép,
+            // không còn mép cứng/vệt ngang ở góc trên (bug user báo).
+            maskImage:
+              "linear-gradient(to right, transparent 0%, transparent 38%, black 70%), linear-gradient(to bottom, transparent 0%, black 24%, black 78%, transparent 100%)",
+            maskComposite: "intersect",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, transparent 38%, black 70%), linear-gradient(to bottom, transparent 0%, black 24%, black 78%, transparent 100%)",
+            WebkitMaskComposite: "source-in",
           }}
         >
           <DriftColumn images={WALL_LEFT} dir="up" />
@@ -115,8 +121,6 @@ export default function LoginPage() {
         {/* scrim brand: tối từ trái sang để chữ luôn đọc rõ + đáy đậm cho cụm value-prop */}
         <div className="absolute inset-0 bg-gradient-to-r from-bg-surface via-bg-surface/85 to-bg-surface/30" />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-surface via-bg-surface/40 to-transparent" />
-        {/* scrim ĐỈNH — tan mép ảnh trôi vào nền, hết "cắt ngang ở góc trên" (mép cứng) */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-bg-surface to-transparent" />
         {/* 1 vầng glow violet duy nhất (đúng luật: 1 glow/màn) */}
         <div className="glow-radial pointer-events-none absolute -left-24 top-8 h-[460px] w-[460px]" />
 

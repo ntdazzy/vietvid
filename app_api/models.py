@@ -422,6 +422,39 @@ class VvBrandKit(Base):
     __table_args__ = (Index("ix_vv_brand_kits_org", "org_id"),)
 
 
+class VvCharacter(Base):
+    """Nhân vật AI tái dùng — diễn viên nhất quán "bring into future images & videos" (clone openart
+    /suite/character). 3 lối tạo (source): 'image' (từ ảnh upload), 'describe' (prompt text),
+    'build' (thuộc tính: look vibe/gender/ethnicity/age). avatar_url = ảnh đại diện;
+    images = mảng ảnh tham chiếu (đa pose). org_id NULL = nhân vật hệ thống (mọi org thấy).
+    RLS NỚI (system + own) như personas/templates."""
+
+    __tablename__ = "vv_characters"
+    id: Mapped[uuid.UUID] = _PK()
+    org_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("orgs.id", ondelete="CASCADE"))
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str] = mapped_column(Text, server_default=text("''"))  # prompt / character sheet
+    avatar_url: Mapped[str] = mapped_column(Text, server_default=text("''"))  # ảnh đại diện
+    images: Mapped[list] = mapped_column(JSONB, server_default=text("'[]'::jsonb"))  # ref đa pose
+    source: Mapped[str] = mapped_column(Text, server_default=text("'build'"))  # image|describe|build
+    gender: Mapped[str] = mapped_column(Text, server_default=text("''"))  # thuộc tính build
+    ethnicity: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    age_range: Mapped[str] = mapped_column(Text, server_default=text("''"))
+    vibe: Mapped[str] = mapped_column(Text, server_default=text("''"))  # look vibe
+    voice_gender: Mapped[str] = mapped_column(Text, server_default=text("'female'"))  # dùng khi vào video
+    is_active: Mapped[bool] = mapped_column(Boolean, server_default=text("true"))
+    sort_order: Mapped[int] = mapped_column(Integer, server_default=text("0"))
+    created_at: Mapped[datetime] = _TS()
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    __table_args__ = (
+        CheckConstraint("source IN ('image','describe','build')", name="ck_character_source"),
+        Index("ix_vv_characters_org", "org_id"),
+    )
+
+
 # ── [M2] notifications (tenant, RLS chuẩn) ────────────────────────────────
 class Notification(Base):
     """Thông báo in-app: video sẵn sàng / lỗi, đã nạp tiền, hệ thống."""

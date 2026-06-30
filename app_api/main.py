@@ -25,6 +25,7 @@ from app_api.routers import affiliate as affiliate_router
 from app_api.routers import api_public as api_public_router
 from app_api.routers import auth as auth_router
 from app_api.routers import billing as billing_router
+from app_api.routers import characters as characters_router
 from app_api.routers import compose as compose_router
 from app_api.routers import content as content_router
 from app_api.routers import images as images_router
@@ -117,6 +118,7 @@ app.include_router(billing_router.router)
 app.include_router(images_router.router)
 app.include_router(compose_router.router)
 app.include_router(content_router.router)
+app.include_router(characters_router.router)
 app.include_router(media_router.router)
 app.include_router(admin_router.router)
 app.include_router(affiliate_router.router)

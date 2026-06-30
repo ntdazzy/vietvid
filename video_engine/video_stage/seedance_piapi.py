@@ -81,7 +81,7 @@ class SeedancePiapiProvider:
                 "prompt": (prompt or "")[:4000],
                 "mode": "first_last_frames" if image_urls else "text_to_video",
                 "duration": max(4, min(15, int(seconds))),
-                "aspect_ratio": "9:16",
+                "aspect_ratio": aspect or "9:16",
                 "resolution": resolution,
             },
         }

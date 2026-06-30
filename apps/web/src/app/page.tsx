@@ -23,6 +23,8 @@ import { HowItWorks } from "@/components/marketing/how-it-works";
 import { CompareTable } from "@/components/marketing/compare-table";
 import { UseCases } from "@/components/marketing/use-cases";
 import { FeaturedKol } from "@/components/marketing/featured-kol";
+import { GenreWall } from "@/components/marketing/genre-wall";
+import { ProductReel } from "@/components/marketing/product-reel";
 import { ProofStrip } from "@/components/marketing/proof-strip";
 import { Manifesto } from "@/components/marketing/manifesto";
 import { Faq } from "@/components/marketing/faq";
@@ -153,8 +155,14 @@ export default async function LandingPage() {
       {/* §5b — SOCIAL PROOF (KOL/TikTok + đu trend Douyin) */}
       <SocialProof />
 
-      {/* §5 — FEATURED KOL */}
+      {/* §5 — FEATURED KOL (9 gương mặt) */}
       <FeaturedKol />
+
+      {/* §5c — TƯỜNG THỂ LOẠI (11 clip v2: ẩm thực/du lịch/fitness/phim ngắn...) */}
+      <GenreWall />
+
+      {/* §5d — REEL SẢN PHẨM (6 clip v2: thời trang/công nghệ/décor...) */}
+      <ProductReel />
 
       {/* S1.5 — LOẠI NỘI DUNG (đa dạng chủ đề, không chỉ quảng cáo SP) */}
       <UseCases />

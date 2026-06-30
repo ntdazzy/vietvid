@@ -1,11 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { QrCode, Wallet, Landmark, CircleDollarSign, FlaskConical, type LucideIcon } from "lucide-react";
+import { QrCode, Wallet, Landmark, CircleDollarSign, type LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
 
-export type Method = "bank_qr" | "momo" | "vnpay" | "dev";
+export type Method = "bank_qr" | "momo" | "vnpay";
 
 interface MethodDef {
   id: Method | "usdt";
@@ -14,7 +14,6 @@ interface MethodDef {
   icon: LucideIcon;
   recommended?: boolean;
   maintenance?: boolean;
-  devOnly?: boolean;
 }
 
 const METHODS: MethodDef[] = [
@@ -22,13 +21,12 @@ const METHODS: MethodDef[] = [
   { id: "bank_qr", labelKey: "methodBankQr", subKey: "methodBankQrSub", icon: QrCode, recommended: true },
   { id: "vnpay", labelKey: "methodVnpay", subKey: "methodVnpaySub", icon: Landmark },
   { id: "usdt", labelKey: "methodUsdt", subKey: "methodUsdtSub", icon: CircleDollarSign, maintenance: true },
-  { id: "dev", labelKey: "methodDev", subKey: "methodDevSub", icon: FlaskConical, devOnly: true },
 ];
 
-/** Lưới chọn cách nạp (autovis-style): QR ngân hàng / MoMo / VNPay / USDT (bảo trì). */
+/** Lưới chọn cách nạp: QR ngân hàng / MoMo / VNPay / USDT (bảo trì). */
 export function MethodGrid({ method, setMethod }: { method: Method; setMethod: (m: Method) => void }) {
   const t = useTranslations("billing");
-  const items = METHODS.filter((m) => !m.devOnly || process.env.NODE_ENV !== "production");
+  const items = METHODS;
   return (
     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
       {items.map((m) => {

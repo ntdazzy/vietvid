@@ -201,12 +201,12 @@ function FeaturedCard({ job }: { job: Job }) {
       className="group relative flex overflow-hidden rounded-[22px] glass-bordered transition-all duration-200 hover:-translate-y-1 hover:ring-1 hover:ring-emerald-400/30"
     >
       <Perforations className="px-1.5" />
-      <div className="relative flex-1 overflow-hidden">
+      <div className="relative min-h-[180px] flex-1 overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/bg/desk.jpg"
           alt=""
-          className="h-full w-full object-cover opacity-30 transition-transform duration-700 group-hover:scale-[1.04]"
+          className="absolute inset-0 h-full w-full object-cover opacity-30 transition-transform duration-700 group-hover:scale-[1.04]"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-bg-surface via-bg-surface/85 to-bg-surface/40" />
         {/* gạch scrub chạy ngang khi hover — gợi tua phim */}

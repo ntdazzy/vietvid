@@ -101,21 +101,26 @@ export default function LoginPage() {
         {/* lưới ảnh trôi — nền chuyển động nhẹ, candid thật, không stock.
             Mask fade TRÁI→PHẢI: cột sau logo+chữ tan biến (hết "mép ảnh ghép lỗi"),
             chỉ giữ gallery bên phải. */}
+        {/* fade ảnh tan mềm ở MỌI mép bằng 2 mask 1-TRỤC LỒNG NHAU (KHÔNG dùng
+            mask-composite: intersect — cú pháp đó vỡ trên Chrome, để lại mép thẻ cứng).
+            Ngoài = fade dọc (đỉnh/đáy); trong = fade ngang (trái→phải, ảnh tan sau chữ). */}
         <div
-          className="pointer-events-none absolute inset-0 flex justify-end gap-4 pr-6 opacity-[0.5]"
+          className="pointer-events-none absolute inset-0 opacity-[0.32] blur-[1.5px]"
           style={{
-            // fade CẢ ngang (trái→phải) LẪN dọc (đỉnh+đáy) → ảnh tan hẳn ở mọi mép,
-            // không còn mép cứng/vệt ngang ở góc trên (bug user báo).
-            maskImage:
-              "linear-gradient(to right, transparent 0%, transparent 38%, black 70%), linear-gradient(to bottom, transparent 0%, black 24%, black 78%, transparent 100%)",
-            maskComposite: "intersect",
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, transparent 38%, black 70%), linear-gradient(to bottom, transparent 0%, black 24%, black 78%, transparent 100%)",
-            WebkitMaskComposite: "source-in",
+            maskImage: "linear-gradient(to bottom, transparent 0%, #000 22%, #000 80%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, #000 22%, #000 80%, transparent 100%)",
           }}
         >
-          <DriftColumn images={WALL_LEFT} dir="up" />
-          <DriftColumn images={WALL_RIGHT} dir="down" className="hidden xl:flex" />
+          <div
+            className="flex h-full justify-end gap-3 pr-6"
+            style={{
+              maskImage: "linear-gradient(to right, transparent 0%, transparent 30%, #000 72%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, transparent 30%, #000 72%)",
+            }}
+          >
+            <DriftColumn images={WALL_LEFT} dir="up" />
+            <DriftColumn images={WALL_RIGHT} dir="down" className="hidden xl:flex" />
+          </div>
         </div>
 
         {/* scrim brand: tối từ trái sang để chữ luôn đọc rõ + đáy đậm cho cụm value-prop */}
@@ -299,7 +304,7 @@ function DriftColumn({
             src={src}
             alt=""
             loading="lazy"
-            className="h-[280px] w-full rounded-[20px] object-cover ring-1 ring-white/[0.08] shadow-[0_24px_70px_-30px_rgba(124,58,237,0.55)]"
+            className="h-[280px] w-full rounded-[20px] object-cover"
           />
         ))}
       </motion.div>

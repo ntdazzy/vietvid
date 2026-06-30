@@ -48,7 +48,7 @@ export function FeaturedKol() {
               poster={FEATURED.img}
               video={FEATURED.img.replace(/\.jpg$/, ".mp4")}
               alt={`KOL AI ${FEATURED.name}`}
-              className="aspect-[3/4] w-[150px] shrink-0 rounded-2xl"
+              className="aspect-[3/4] w-full shrink-0 rounded-2xl sm:w-[220px]"
             >
               <span className="absolute bottom-2 left-2 rounded-md bg-bg-base/70 px-2 py-0.5 text-[10px] font-medium text-ink-high backdrop-blur-sm">
                 Gương mặt AI
@@ -80,7 +80,7 @@ export function FeaturedKol() {
               </Link>
             </div>
             {/* clip SP thật — chỉ desktop để không chật mobile */}
-            <div className="hidden w-[130px] shrink-0 sm:block">
+            <div className="hidden w-[160px] shrink-0 sm:block">
               <MiniReel
                 poster="/samples/fashion.jpg"
                 video="/samples/fashion.mp4"

@@ -42,9 +42,12 @@ export default async function LandingPage() {
   // Bố cục bất đối xứng: 1 ô lớn + bento ô nhỏ, không hàng-thẻ-đối-xứng.
   const REEL = [
     { img: "/showcase/kol.jpg", title: t("reelKolTitle"), note: t("reelKolNote"), href: "/app/kol", big: true },
+    { img: "/showcase/art.jpg", title: t("reelArtTitle"), note: t("reelArtNote"), href: "/app/image-gen" },
+    { img: "/showcase/character.jpg", title: t("reelCharacterTitle"), note: t("reelCharacterNote"), href: "/app/character" },
     { img: "/showcase/lookbook.jpg", title: t("reelLookbookTitle"), note: t("reelLookbookNote"), href: "/login" },
-    { img: "/showcase/food.jpg", title: t("reelFoodTitle"), note: t("reelFoodNote"), href: "/login" },
     { img: "/showcase/product.jpg", title: t("reelProductTitle"), note: t("reelProductNote"), href: "/login" },
+    { img: "/showcase/shortfilm.jpg", title: t("reelShortfilmTitle"), note: t("reelShortfilmNote"), href: "/login" },
+    { img: "/showcase/food.jpg", title: t("reelFoodTitle"), note: t("reelFoodNote"), href: "/login" },
     { img: "/showcase/trend.jpg", title: t("reelTrendTitle"), note: t("reelTrendNote"), href: "/login" },
     { img: "/showcase/explainer.jpg", title: t("reelExplainerTitle"), note: t("reelExplainerNote"), href: "/login" },
   ];
@@ -154,7 +157,8 @@ export default async function LandingPage() {
           <div className="grid grid-cols-2 gap-4">
             <BeforeAfter />
             <MiniReel
-              poster="/samples/tech.jpg"
+              poster="/samples/gen/review.jpg"
+              video="/samples/gen/review.mp4"
               className="w-full"
               captions={[t("act1Caption1"), t("act1Caption2"), t("act1Caption3")]}
             />

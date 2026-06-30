@@ -45,7 +45,7 @@ export function HoverVideo({
   return (
     <div className={cn("relative overflow-hidden", className)} onMouseEnter={onEnter} onMouseLeave={onLeave}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={poster} alt={alt} className={cn("h-full w-full object-cover", objectClass)} />
+      <img src={poster} alt={alt} loading="lazy" decoding="async" className={cn("h-full w-full object-cover", objectClass)} />
       {video && (
         <video
           ref={ref}

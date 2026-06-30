@@ -31,7 +31,7 @@ export function LandingHero() {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-[0.16]"
         style={{
-          backgroundImage: "url(/bg/gen/mesh-aurora.png)",
+          backgroundImage: "url(/bg/gen/mesh-aurora.jpg)",
           maskImage: "linear-gradient(to bottom, black 0%, black 45%, transparent 92%)",
           WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 45%, transparent 92%)",
         }}

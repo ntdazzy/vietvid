@@ -14,7 +14,10 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     let alive = true;
     isAuthed().then((authed) => {
       if (!alive) return;
-      if (!authed) router.replace("/login");
+      if (!authed) {
+        const here = window.location.pathname + window.location.search;
+        router.replace(`/login?next=${encodeURIComponent(here)}`);
+      }
       setOk(authed);
     });
     return () => {

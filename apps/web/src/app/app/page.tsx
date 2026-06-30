@@ -74,7 +74,7 @@ export default function DashboardPage() {
         }
       >
         <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
-          <HeroStat label={t("statBalance")} value={balance === null ? null : balance.toLocaleString("vi-VN")} accent />
+          <HeroStat label={t("statBalance")} value={balance === null ? null : balance.toLocaleString("vi-VN")} loading={me.isLoading} accent />
           {held > 0 && <HeroStat label={t("statHeld")} value={held.toLocaleString("vi-VN")} tone="hold" />}
           <span className="flex items-center gap-1.5 pb-1 text-sm text-ink-medium">
             <Wallet className="h-4 w-4 text-violet-300" /> {t("creditRate")}
@@ -166,14 +166,15 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-ink-low">{children}</h3>;
 }
 
-function HeroStat({ label, value, accent, tone }: { label: string; value: string | null; accent?: boolean; tone?: "hold" }) {
+function HeroStat({ label, value, loading, accent, tone }: { label: string; value: string | null; loading?: boolean; accent?: boolean; tone?: "hold" }) {
   return (
     <div>
       <div className="text-xs uppercase tracking-wide text-ink-low">{label}</div>
-      {value === null ? (
+      {loading ? (
         <Skeleton className="mt-1 h-8 w-24" />
       ) : (
-        <div className={cn("font-numeric text-3xl font-bold tabular", accent ? "text-gradient" : tone === "hold" ? "text-hold" : "text-ink-high")}>{value}</div>
+        // Khách chưa đăng nhập (không có dữ liệu) → "—" thay vì skeleton chạy mãi.
+        <div className={cn("font-numeric text-3xl font-bold tabular", accent ? "text-gradient" : tone === "hold" ? "text-hold" : "text-ink-high")}>{value ?? "—"}</div>
       )}
     </div>
   );

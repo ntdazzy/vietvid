@@ -40,6 +40,13 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const hasSupabase = supabaseConfigured();
 
+  // Sau khi đăng nhập, quay lại ?next nếu là path nội bộ (chống open-redirect), mặc định /app.
+  function nextTarget() {
+    if (typeof window === "undefined") return "/app";
+    const n = new URLSearchParams(window.location.search).get("next");
+    return n && n.startsWith("/") && !n.startsWith("//") ? n : "/app";
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading("form");
@@ -47,7 +54,7 @@ export default function LoginPage() {
     try {
       if (mode === "register") await registerLocal(email, password, name);
       else await loginLocal(email, password);
-      router.push("/app");
+      router.push(nextTarget());
     } catch (err) {
       setError(err instanceof Error ? err.message : t("errorGeneric"));
       setLoading(null);
@@ -59,7 +66,7 @@ export default function LoginPage() {
     setError(null);
     try {
       await devLogin();
-      router.push("/app");
+      router.push(nextTarget());
     } catch (err) {
       setError(err instanceof Error ? err.message : t("errorDevLogin"));
       setLoading(null);

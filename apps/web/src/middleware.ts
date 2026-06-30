@@ -9,10 +9,11 @@ import { AUTH_COOKIE } from "@/lib/config";
 //      (VN -> vi, còn lại -> en) và set cookie. Tôn trọng lựa chọn tay (đã có cookie).
 //   2. Security headers cơ bản cho mọi response.
 //
-//   3. Auth-guard /app: thiếu cookie cờ phiên (vyra_auth) -> redirect /login.
-//      Cookie chỉ là CỜ "có phiên" (không chứa token); token thật ở localStorage,
-//      API mới là cổng bảo mật thật. Guard này chỉ điều hướng UX (chặn khách lạ vào
-//      /app); AuthGate client giữ làm lớp 2. Login (local/dev) set cookie, logout xoá.
+//   3. Auth-guard CHỈ màn TẠO (/app/create): xem mọi màn /app/* tự do, chỉ khi
+//      vào trình tạo (tốn credit) mới cần đăng nhập. Thiếu cookie cờ phiên
+//      (vyra_auth) -> redirect /login. Cookie chỉ là CỜ "có phiên" (không chứa
+//      token); token thật ở localStorage, API mới là cổng bảo mật thật. AuthGate
+//      client (create/layout) giữ làm lớp 2. Login set cookie, logout xoá.
 
 const SECURITY_HEADERS: Record<string, string> = {
   "X-Frame-Options": "SAMEORIGIN",
@@ -26,9 +27,10 @@ const SECURITY_HEADERS: Record<string, string> = {
 };
 
 export function middleware(request: NextRequest) {
-  // (3) Auth-guard: chặn /app/* khi chưa có cookie cờ phiên -> /login (kèm ?next để quay lại).
+  // (3) Auth-guard: CHỈ chặn màn TẠO (/app/create) khi chưa có cookie cờ phiên
+  //     -> /login (kèm ?next để quay lại). Các màn /app/* khác xem tự do.
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith("/app") && !request.cookies.has(AUTH_COOKIE)) {
+  if (pathname.startsWith("/app/create") && !request.cookies.has(AUTH_COOKIE)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);

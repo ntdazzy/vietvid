@@ -23,9 +23,10 @@ export function MiniReel({
   const [idx, setIdx] = useState(0);
   const [typed, setTyped] = useState(reduce ? captions[0] : "");
 
-  // gõ caption hiện tại → xong chờ → sang caption kế (vòng).
+  // gõ caption hiện tại → xong chờ → sang caption kế (vòng). Chạy cả khi có video
+  // để "bản dựng minh hoạ" vẫn có chữ Việt gõ ra (chữ không hứa sync mili-giây với video).
   useEffect(() => {
-    if (reduce || video) return;
+    if (reduce) return;
     const full = captions[idx % captions.length];
     setTyped("");
     let i = 0;
@@ -68,14 +69,12 @@ export function MiniReel({
         Bản dựng minh hoạ
       </span>
 
-      {!video && (
-        <div className="absolute inset-x-0 bottom-0 p-3.5">
-          <span className="font-display text-base font-semibold text-white drop-shadow">
-            {typed}
-            {!reduce && <span className="caret-blink text-violet-300">▍</span>}
-          </span>
-        </div>
-      )}
+      <div className="absolute inset-x-0 bottom-0 p-3.5">
+        <span className="font-display text-base font-semibold text-white drop-shadow">
+          {typed}
+          {!reduce && <span className="caret-blink text-violet-300">▍</span>}
+        </span>
+      </div>
     </div>
   );
 }

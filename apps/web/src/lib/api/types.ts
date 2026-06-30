@@ -7,6 +7,7 @@ export * from "./types/auth";
 export * from "./types/wallet-billing";
 export * from "./types/jobs";
 export * from "./types/kol";
+export * from "./types/character";
 export * from "./types/content";
 export * from "./types/admin";
 export * from "./types/org-affiliate-api";

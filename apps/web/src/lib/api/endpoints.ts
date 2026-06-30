@@ -12,6 +12,8 @@ import type {
   Webhook,
   BootstrapResponse,
   BrandKit,
+  Character,
+  CharacterCreate,
   NotifList,
   CreditPack,
   Plan,
@@ -111,6 +113,12 @@ export const api = {
   createKol: (body: Partial<KolPersona> & { consent_confirmed?: boolean }) =>
     apiPost<KolPersona>("/v1/kol-personas", body),
   deleteKol: (id: string) => apiDelete<void>(`/v1/kol-personas/${id}`),
+  // characters: nhân vật AI tái dùng (Studio — clone openart /suite/character)
+  characters: () => apiGet<Character[]>("/v1/characters"),
+  createCharacter: (body: CharacterCreate) => apiPost<Character>("/v1/characters", body),
+  updateCharacter: (id: string, body: CharacterCreate) =>
+    apiPatch<Character>(`/v1/characters/${id}`, body),
+  deleteCharacter: (id: string) => apiDelete<void>(`/v1/characters/${id}`),
   brandKits: () => apiGet<BrandKit[]>("/v1/brand-kits"),
   createBrandKit: (body: Partial<BrandKit>) => apiPost<BrandKit>("/v1/brand-kits", body),
   updateBrandKit: (id: string, body: Partial<BrandKit>) =>

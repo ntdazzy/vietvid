@@ -39,24 +39,29 @@ export default async function LandingPage() {
     { file: "food", label: t("sampleFood") },
   ];
 
-  // Bento NGANG-DỌC trộn (như Autovis): card NGANG (cls col-span-2) dùng poster 16:9 + video 16:9;
-  // card DỌC (row-span-2) dùng ảnh người THẬT kol/*.jpg + video 9:16. Video khớp đúng tỉ lệ card →
-  // không ép méo. Người trong card dùng ảnh chân thực (không phải 3D/AND). Rê chuột là chạy clip.
+  // Bento NGANG-DỌC trộn (lưới 6 cột): MẶT người → ô DỌC 9:16 (ảnh 3:4 chỉ crop 2 bên, KHÔNG
+  // mất đầu); sản phẩm/cảnh → ô NGANG 2:1 + video 16:9; vật thể → ô vuông. `obj` = object-position
+  // (top giữ đầu/mặt khi crop). Card người dùng ẢNH THẬT kol/*.jpg (video người bị Seedance kiểm
+  // duyệt nên để tĩnh); card sản phẩm/vật chạy video khớp tỉ lệ ô khi rê chuột.
+  // Xếp thành 2 băng 6×2 ô để grid-flow-dense lấp KÍN 4 hàng (không hở đáy):
+  // Băng A (hàng 1-2): lớn(2×2) + dọc + dọc + ngang(2×1) + vuông + vuông.
+  // Băng B (hàng 3-4): dọc + dọc + ngang + ngang + vuông×4.
+  // Người (Seedance từ chối video người thật) → ảnh tĩnh; vật/SP → rê chuột chạy clip.
   const REEL = [
-    { cls: "col-span-2 row-span-2", img: "/kol/linh.jpg", video: "/showcase/kol.mp4", title: t("reelKolTitle"), note: t("reelKolNote"), href: "/app/kol" },
-    { cls: "col-span-2", img: "/showcase/product.jpg", video: "/showcase/product-w.mp4", title: t("reelAdTitle"), note: t("reelAdNote"), href: "/login" },
-    { cls: "row-span-2", img: "/samples/gen/review.jpg", video: "/samples/gen/review.mp4", title: t("reelReviewTitle"), note: t("reelReviewNote"), href: "/login" },
-    { cls: "", img: "/showcase/character.jpg", video: "/showcase/character.mp4", title: t("reelCharacterTitle"), note: t("reelCharacterNote"), href: "/app/character" },
-    { cls: "", img: "/showcase/art.jpg", video: "/showcase/art.mp4", title: t("reelArtTitle"), note: t("reelArtNote"), href: "/app/image-gen" },
-    { cls: "col-span-2", img: "/showcase/affiliate.jpg", video: "/showcase/affiliate-w.mp4", title: t("reelAffiliateTitle"), note: t("reelAffiliateNote"), href: "/login" },
-    { cls: "row-span-2", img: "/kol/mai.jpg", video: "/showcase/trend.mp4", title: t("reelTrendTitle"), note: t("reelTrendNote"), href: "/login" },
-    { cls: "row-span-2", img: "/samples/skincare.jpg", video: "/showcase/product-shot.mp4", title: t("reelProductShotTitle"), note: t("reelProductShotNote"), href: "/app/image-gen" },
-    { cls: "", img: "/samples/food.jpg", video: "/showcase/food.mp4", title: t("reelFoodTitle"), note: t("reelFoodNote"), href: "/login" },
-    { cls: "", img: "/samples/home.jpg", video: "/showcase/recreate.mp4", title: t("reelRecreateTitle"), note: t("reelRecreateNote"), href: "/login" },
-    { cls: "col-span-2", img: "/showcase/lookbook.jpg", video: "/showcase/lookbook-w.mp4", title: t("reelLookbookTitle"), note: t("reelLookbookNote"), href: "/login" },
-    { cls: "row-span-2", img: "/kol/an.jpg", video: "/showcase/explainer.mp4", title: t("reelExplainerTitle"), note: t("reelExplainerNote"), href: "/login" },
-    { cls: "", img: "/samples/unboxing.jpg", video: "/showcase/unboxing.mp4", title: t("reelProductTitle"), note: t("reelProductNote"), href: "/login" },
-    { cls: "", img: "/kol/hoa.jpg", video: "/showcase/kol2.mp4", title: t("reelKol2Title"), note: t("reelKol2Note"), href: "/app/kol" },
+    { cls: "col-span-2 row-span-2", obj: "object-top", img: "/kol/linh.jpg", video: "", title: t("reelKolTitle"), note: t("reelKolNote"), href: "/app/kol" },
+    { cls: "row-span-2", obj: "object-top", img: "/kol/hoa.jpg", video: "", title: t("reelTrendTitle"), note: t("reelTrendNote"), href: "/login" },
+    { cls: "row-span-2", obj: "object-top", img: "/kol/mai.jpg", video: "", title: t("reelKol2Title"), note: t("reelKol2Note"), href: "/app/kol" },
+    { cls: "col-span-2", obj: "object-center", img: "/showcase/product.jpg", video: "/showcase/product-w.mp4", title: t("reelAdTitle"), note: t("reelAdNote"), href: "/login" },
+    { cls: "", obj: "object-top", img: "/showcase/character.jpg", video: "/showcase/character.mp4", title: t("reelCharacterTitle"), note: t("reelCharacterNote"), href: "/app/character" },
+    { cls: "", obj: "object-center", img: "/showcase/art.jpg", video: "/showcase/art.mp4", title: t("reelArtTitle"), note: t("reelArtNote"), href: "/app/image-gen" },
+    { cls: "row-span-2", obj: "object-top", img: "/kol/an.jpg", video: "", title: t("reelExplainerTitle"), note: t("reelExplainerNote"), href: "/login" },
+    { cls: "row-span-2", obj: "object-top", img: "/samples/skincare.jpg", video: "/showcase/product-shot.mp4", title: t("reelProductShotTitle"), note: t("reelProductShotNote"), href: "/app/image-gen" },
+    { cls: "col-span-2", obj: "object-top", img: "/showcase/affiliate.jpg", video: "", title: t("reelAffiliateTitle"), note: t("reelAffiliateNote"), href: "/login" },
+    { cls: "col-span-2", obj: "object-top", img: "/showcase/lookbook.jpg", video: "", title: t("reelLookbookTitle"), note: t("reelLookbookNote"), href: "/login" },
+    { cls: "", obj: "object-center", img: "/samples/food.jpg", video: "/showcase/food.mp4", title: t("reelFoodTitle"), note: t("reelFoodNote"), href: "/login" },
+    { cls: "", obj: "object-center", img: "/samples/home.jpg", video: "/showcase/recreate.mp4", title: t("reelRecreateTitle"), note: t("reelRecreateNote"), href: "/login" },
+    { cls: "", obj: "object-top", img: "/samples/unboxing.jpg", video: "/showcase/unboxing.mp4", title: t("reelProductTitle"), note: t("reelProductNote"), href: "/login" },
+    { cls: "", obj: "object-center", img: "/samples/gen/review.jpg", video: "/samples/gen/review.mp4", title: t("reelReviewTitle"), note: t("reelReviewNote"), href: "/login" },
   ];
 
   return (
@@ -83,9 +88,9 @@ export default async function LandingPage() {
           </div>
         </Reveal>
 
-        {/* bento NGANG-DỌC trộn (như Autovis): ô ngang/dọc/lớn xen kẽ, video khớp tỉ lệ ô.
-            grid-flow-dense lấp ô trống khi span lệch. Rê chuột là chạy clip. */}
-        <div className="mt-9 grid auto-rows-[150px] grid-flow-dense grid-cols-2 gap-3 sm:auto-rows-[164px] lg:grid-cols-4 lg:gap-4">
+        {/* bento NGANG-DỌC trộn (6 cột): ô vuông/dọc(9:16)/ngang(2:1)/lớn xen kẽ — tỉ lệ ô khớp ảnh
+            nên KHÔNG cắt đầu/sản phẩm. grid-flow-dense lấp ô trống. Card vật/SP rê chuột chạy clip. */}
+        <div className="mt-9 grid auto-rows-[148px] grid-flow-dense grid-cols-2 gap-3 sm:auto-rows-[172px] sm:grid-cols-4 lg:auto-rows-[210px] lg:grid-cols-6 lg:gap-4">
           {REEL.map((r, i) => {
             const featured = r.cls.includes("row-span-2") || r.cls.includes("col-span-2");
             return (
@@ -99,7 +104,8 @@ export default async function LandingPage() {
                     video={r.video}
                     alt=""
                     badge={false}
-                    className="absolute inset-0 h-full w-full opacity-[0.85] transition-opacity duration-500 group-hover:opacity-100"
+                    objectClass={r.obj}
+                    className="absolute inset-0 h-full w-full opacity-[0.88] transition-opacity duration-500 group-hover:opacity-100"
                   />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/25 to-transparent" />
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3.5">

@@ -15,6 +15,7 @@ export function HoverVideo({
   className,
   children,
   badge = true,
+  objectClass = "object-center",
 }: {
   poster: string;
   video?: string;
@@ -23,6 +24,8 @@ export function HoverVideo({
   children?: ReactNode;
   /** Huy hiệu ▶ góc phải-trên báo "rê để xem clip". Tắt khi thẻ đã có nút ở góc đó. */
   badge?: boolean;
+  /** object-position cho ảnh+video (vd "object-top" giữ đầu/mặt khi crop). */
+  objectClass?: string;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -42,7 +45,7 @@ export function HoverVideo({
   return (
     <div className={cn("relative overflow-hidden", className)} onMouseEnter={onEnter} onMouseLeave={onLeave}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={poster} alt={alt} className="h-full w-full object-cover" />
+      <img src={poster} alt={alt} className={cn("h-full w-full object-cover", objectClass)} />
       {video && (
         <video
           ref={ref}
@@ -56,6 +59,7 @@ export function HoverVideo({
           onPause={() => setPlaying(false)}
           className={cn(
             "absolute inset-0 h-full w-full object-cover transition-opacity duration-300",
+            objectClass,
             playing ? "opacity-100" : "opacity-0",
           )}
         />

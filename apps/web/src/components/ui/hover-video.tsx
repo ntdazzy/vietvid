@@ -14,12 +14,15 @@ export function HoverVideo({
   alt,
   className,
   children,
+  badge = true,
 }: {
   poster: string;
   video?: string;
   alt: string;
   className?: string;
   children?: ReactNode;
+  /** Huy hiệu ▶ góc phải-trên báo "rê để xem clip". Tắt khi thẻ đã có nút ở góc đó. */
+  badge?: boolean;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -57,7 +60,7 @@ export function HoverVideo({
           )}
         />
       )}
-      {video && (
+      {video && badge && (
         <span className="pointer-events-none absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-black/45 backdrop-blur-sm">
           <span className="block h-0 w-0 border-y-[5px] border-l-[8px] border-y-transparent border-l-white/90" />
         </span>

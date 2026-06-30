@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FilmLabel } from "@/components/ui/cinematic";
 import { Reveal } from "@/components/marketing/reveal";
+import { HoverVideo } from "@/components/ui/hover-video";
 import { cn } from "@/lib/utils/cn";
 import type { Template } from "@/lib/api/types";
 
@@ -19,6 +20,15 @@ const CAT_IMG: Record<string, string> = {
   lookbook: "/samples/lookbook.jpg",
   product_ad: "/samples/unboxing.jpg",
   text_to_video: "/samples/food_review.jpg",
+};
+
+// clip preview chạy khi RÊ CHUỘT vào thẻ (di chuột → phát video). Trộn clip
+// AI sinh mới (review = seedance 480p-5s) + clip mẫu sẵn có. Thiếu clip = chỉ ảnh.
+const CAT_VID: Record<string, string> = {
+  review: "/samples/gen/review.mp4",
+  lookbook: "/samples/fashion.mp4",
+  product_ad: "/samples/home.mp4",
+  text_to_video: "/samples/food.mp4",
 };
 
 // khoá i18n cho category (không lộ enum thô review/product_ad…).
@@ -38,6 +48,10 @@ function catLabel(t: Translate, c: string) {
 
 function thumb(t: Template) {
   return CAT_IMG[t.category] ?? "";
+}
+
+function clip(t: Template) {
+  return CAT_VID[t.category] ?? "";
 }
 
 export default function TemplatesPage() {
@@ -175,18 +189,17 @@ function FeaturedCard({ t, onRemove }: { t: Template; onRemove: (id: string) => 
   const img = thumb(t);
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl glass-bordered transition-all duration-200 hover:-translate-y-1 hover:shadow-glow-sm hover:ring-1 hover:ring-violet-400/30 lg:row-span-2">
-      <div className="relative flex-1 overflow-hidden bg-bg-surface">
+      <div className="relative flex min-h-[200px] flex-1 overflow-hidden bg-bg-surface">
         {img ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={img} alt={t.name} loading="lazy" className="h-full min-h-[200px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]" />
+          <HoverVideo poster={img} video={clip(t)} alt={t.name} badge={false} className="h-full min-h-[200px] w-full" />
         ) : (
           <div className="grid h-full min-h-[200px] w-full place-items-center bg-grad-brand-soft">
             <LayoutTemplate className="h-10 w-10 text-violet-300/60" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/30 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/30 to-transparent" />
         <CardCorner t={t} onRemove={onRemove} />
-        <div className="absolute inset-x-5 bottom-4">
+        <div className="pointer-events-none absolute inset-x-5 bottom-4">
           <FilmLabel dot={false} className="text-violet-200">{tr("featuredEyebrow", { category: catLabel(tr, t.category) })}</FilmLabel>
           <div className="mt-1.5 font-display text-xl font-bold text-white">{t.name}</div>
           <p className="mt-1 line-clamp-2 max-w-md text-sm text-white/75">{t.description}</p>
@@ -209,18 +222,17 @@ function TemplateCard({ t, onRemove }: { t: Template; onRemove: (id: string) => 
   const img = thumb(t);
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl glass-bordered transition-all duration-200 hover:-translate-y-1 hover:shadow-glow-sm hover:ring-1 hover:ring-violet-400/30">
-      <div className="relative aspect-[16/10] overflow-hidden bg-bg-surface">
+      <div className="relative flex aspect-[16/10] overflow-hidden bg-bg-surface">
         {img ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={img} alt={t.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]" />
+          <HoverVideo poster={img} video={clip(t)} alt={t.name} badge={false} className="h-full w-full" />
         ) : (
           <div className="grid h-full w-full place-items-center bg-grad-brand-soft">
             <LayoutTemplate className="h-8 w-8 text-violet-300/60" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-base/85 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base/85 to-transparent" />
         <CardCorner t={t} onRemove={onRemove} />
-        <span className="absolute bottom-2.5 left-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-violet-200">
+        <span className="pointer-events-none absolute bottom-2.5 left-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-violet-200">
           {catLabel(tr, t.category)}
         </span>
       </div>

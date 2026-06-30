@@ -1,3 +1,45 @@
+# START HERE — RESUME STATE (2026-07-01, handoff sang session moi)
+
+> Session cu qua dai. Doc muc nay TRUOC. Tra loi user bang TIENG VIET.
+> Inventory 62 repo: **docs/VYRA_REPOS_INVENTORY.md**. Checkpoint: chay `/context-restore` o session moi.
+
+## Dang o dau
+- Repo `c:/Users/NTD/Desktop/vietvid`, branch **feat/ui-upgrade** (off master). Web dev: localhost:3000.
+- 62 repo tham khao: `D:/vyra-research/repos/`. Clip test: `D:/vyra-research/*.mp4`.
+
+## DANG CHAY (check truoc)
+- **Render 27 clip** qua CometAPI `doubao-seedance-1-5-pro` (POOL=4 song song).
+  - Script `scratchpad/gen_comet.py` | Manifest `scratchpad/manifest.json` (9 mat IDOL + 11 genre + 7 san pham, aspect 20x9:16 + 7x16:9).
+  - Output `apps/web/public/showcase/v2/<key>.mp4` | Summary `scratchpad/gen_comet_summary.json` | Log `gen_comet.log`.
+  - Resume: chay lai `python scratchpad/gen_comet.py` (skip clip da OK). Du 27 file `.mp4` la xong.
+  - 4 mat idol dau da render + verify DAT (trang treo + ma hong + mat to cute).
+
+## VIEC TIEP THEO (sau khi du 27 clip)
+1. Soi poster 27 clip. Lech cho nao -> sua prompt trong manifest.json -> xoa clip + entry summary -> chay lai gen_comet.py.
+2. Trich poster (`ffmpeg -ss 2.2 -frames:v 1 -q:v 3`) + nen mp4 (`scale=-2:864 -crf 28`) + nen jpg.
+3. **Nhung vao homepage DUNG TI LE**: featured-kol.tsx (9 mat -> card 9:16), page.tsx SAMPLES marquee (genre), bento REEL (san pham 16:9 -> o ngang). Doi `/showcase/<x>` -> `/showcase/v2/<key>`.
+4. Chup Playwright kiem chung -> commit (**CHI commit .jpg poster, KHONG .mp4** — mp4 gitignored).
+
+## KIEN THUC CHOT
+### CometAPI (provider video chinh)
+- Key da o `.env`. **Model = `doubao-seedance-1-5-pro`** (mac dinh tai `config/registry.py`).
+- KET: `doubao-seedance-2-0-fast` + `-2-0` BI KET (queued->30%->khong bao gio xong). TRANH.
+- API: `POST base/v1/videos` body `{model, prompt, seconds:"5" (STRING!), size:aspect}` -> task_id; poll `GET /v1/videos/{id}`; tai `GET /v1/videos/{id}/content` (RETRY — /content doi khi tra rac <50KB du status completed).
+- 1-5-pro: ~92-180s/clip, ra **720p**. Gia 480p $0.024/s, 720p $0.052/s -> ~$7/27 clip. User nap $20. Chain cometapi->runware->piapi (runware chua key, piapi het credit).
+
+### Cong thuc prompt mat IDOL (da verify DAT)
+```
+Vertical iPhone front-camera close-up, soft TikTok beauty-filter glow, slightly brightened. <very pretty Vietnamese teen idol 18-20, PORCELAIN FAIR skin (trang treo) + soft rosy-peach blush, BIG sparkling doe eyes w/ double eyelids + aegyo-sal + wet catchlight, small glossy lips, cute baby-face + soft V-line, long silky hair w/ wispy see-through bangs, light K-beauty makeup, dewy idol skin KEPT photographic w/ subtle pores + flyaways>. <1 cute action: aegyo smile/head tilt/blink, glancing OFF-camera>. <cozy setting + warm bokeh + soft light, handheld shake>. Photographic real filtered idol, NOT plastic, NOT 3d, NOT cartoon, NOT doll.
+```
+2 trai = handsome fair guy (tech/streetwear), 1 me bim = sweet fair mom, con lai idol gai.
+
+## DA XONG (commit feat/ui-upgrade, moi nhat truoc)
+- f5e10df CometAPI model 1-5-pro + download retry | aebf291 seconds=string + handoff doc
+- 2103b3e/cec60fd/e1b70b0 login (glow + drift-wall mask) | 40ff28a social proof | 170710d before-after+KOL grid | fca7eec marquee da the loai
+- (cu: nen anh 8->3.6MB, bang gia/social/model-wall, login social, bento dung ti le)
+
+---
+
 # VYRA — SESSION HANDOFF + KẾ HOẠCH THỰC THI (Bàn giao đầy đủ cho Gemini)
 
 > Tài liệu này viết để **(a)** Gemini review, và **(b)** mở 1 session mới chạy tiếp mà **không thiếu gì**. Mọi claim "Vyra đã có X" đều đã được **đối chiếu với audit codebase thật** — chỗ nào chỉ partial/stub đã ghi rõ. Đường dẫn file là tuyệt đối-tương-đối-repo `c:\Users\NTD\Desktop\vietvid\`.
@@ -274,7 +316,8 @@ KHÔNG mượn: cơ chế re-upload / lách bộ lọc (vi phạm định vị).
 
 ---
 
-# Phần bổ sung A — Landscape repo GitHub (rà soát 18 nhóm, đã clone về D:yra-researchepos)
+# Phần bổ sung A — Landscape repo GitHub (rà soát 18 nhóm, đã clone về D:yra-research
+epos)
 
 > Đã clone sẵn: `huytranvan2010/AI-auto-generate-video` (HTML-template news short), `harry0703/MoneyPrinterTurbo` (~94k★, topic→short kinh điển).
 

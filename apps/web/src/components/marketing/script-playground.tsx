@@ -7,12 +7,13 @@ import { Sparkles, Pencil } from "lucide-react";
 // MOCK client-side (endpoint thật cần auth → không gọi được trên landing public).
 // Demo ĐA-MODEL: một ý tưởng → Vyra chọn model AI hợp việc → preview output (video/ảnh/nhân vật/giọng).
 type Beat = { t: string; label: string; text: string };
-type Preset = { label: string; product: string; model: string; kind: string; hook: string; beats: Beat[] };
+type Preset = { label: string; product: string; model: string; kind: string; hook: string; clip?: string; beats: Beat[] };
 
 const PRESETS: Preset[] = [
   {
     label: "Video review", product: "Video review serum", model: "Seedance 2.0", kind: "Video",
-    hook: "Da xỉn 7 ngày trước với giờ — khác một trời một vực!",
+    hook: "Da xỉn 7 ngày trước, giờ căng mịn — khác một trời một vực!",
+    clip: "/showcase/gaixinh.mp4",
     beats: [
       { t: "Hook", label: "Mở", text: "Trước với sau khi dùng serum này, nhìn là biết liền." },
       { t: "Kịch bản", label: "AI viết", text: "Hook → nỗi đau → lợi ích → chốt, theo timecode." },
@@ -23,6 +24,7 @@ const PRESETS: Preset[] = [
   {
     label: "Ảnh sản phẩm", product: "Ảnh serum nền pastel", model: "Gemini · Imagen", kind: "Ảnh",
     hook: "Ảnh studio, ánh sáng mềm, nền pastel — sắc nét, bám mô tả.",
+    clip: "/showcase/apple.mp4",
     beats: [
       { t: "Mô tả", label: "Prompt", text: "Gõ một câu, AI hiểu phong cách bạn muốn." },
       { t: "Style", label: "Phong cách", text: "Editorial, tông pastel hồng, nền sạch." },
@@ -33,6 +35,7 @@ const PRESETS: Preset[] = [
   {
     label: "Nhân vật AI", product: "KOL nữ trẻ trung", model: "Nhân vật AI", kind: "Nhân vật",
     hook: "Diễn viên AI nhất quán — giữ gương mặt qua mọi video.",
+    clip: "/showcase/kol-hero.mp4",
     beats: [
       { t: "Tạo", label: "Khởi tạo", text: "Từ ảnh, mô tả, hoặc tự dựng thuộc tính." },
       { t: "Vibe", label: "Phong cách", text: "Trẻ trung, thân thiện, giọng nữ Việt." },
@@ -144,41 +147,59 @@ export function ScriptPlayground() {
         ))}
       </div>
 
-      {/* kết quả */}
+      {/* kết quả — chữ bên trái, clip THẬT 9:16 bên phải (liveness, tự chạy) */}
       <div className="mt-4 rounded-2xl border border-white/[0.06] bg-bg-base/40 p-4">
-        <div className="text-[11px] uppercase tracking-wider text-ink-low">
-          Model: <span className="text-violet-300">{active.model}</span> · {active.kind}
-        </div>
-        <p className="mt-2 min-h-[2.4em] font-display text-lg font-bold leading-snug text-gradient">
-          {typed}
-          {!done && <span className="caret-blink text-violet-300">▍</span>}
-        </p>
+        <div className="flex gap-4">
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] uppercase tracking-wider text-ink-low">
+              Model: <span className="text-violet-300">{active.model}</span> · {active.kind}
+            </div>
+            <p className="mt-2 min-h-[2.4em] font-display text-lg font-bold leading-snug text-gradient">
+              {typed}
+              {!done && <span className="caret-blink text-violet-300">▍</span>}
+            </p>
 
-        <AnimatePresence>
-          {done && (
-            <motion.ul className="mt-3 flex flex-col gap-1.5">
-              {active.beats.map((b, i) => (
-                <motion.li
-                  key={b.t + b.text}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: reduce ? 0 : 0.12 * i, duration: 0.4 }}
-                  className="flex gap-2.5 text-sm"
-                >
-                  <span className="shrink-0 font-numeric text-[11px] text-ink-low">{b.t}</span>
-                  <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wide text-violet-300/80">
-                    {b.label}
-                  </span>
-                  <span className="text-ink-medium">{b.text}</span>
-                </motion.li>
-              ))}
-            </motion.ul>
+            <AnimatePresence>
+              {done && (
+                <motion.ul className="mt-3 flex flex-col gap-1.5">
+                  {active.beats.map((b, i) => (
+                    <motion.li
+                      key={b.t + b.text}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: reduce ? 0 : 0.12 * i, duration: 0.4 }}
+                      className="flex gap-2.5 text-sm"
+                    >
+                      <span className="shrink-0 font-numeric text-[11px] text-ink-low">{b.t}</span>
+                      <span className="shrink-0 text-[11px] font-semibold uppercase tracking-wide text-violet-300/80">
+                        {b.label}
+                      </span>
+                      <span className="text-ink-medium">{b.text}</span>
+                    </motion.li>
+                  ))}
+                </motion.ul>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {active.clip && (
+            <video
+              key={active.clip}
+              src={active.clip}
+              poster={active.clip.replace(/\.mp4$/, ".jpg")}
+              muted
+              loop
+              autoPlay
+              playsInline
+              preload="metadata"
+              className="hidden aspect-[9/16] w-[92px] shrink-0 self-start overflow-hidden rounded-xl object-cover ring-1 ring-white/10 sm:block"
+            />
           )}
-        </AnimatePresence>
+        </div>
 
         <div className="mt-3 flex items-center gap-1.5 text-[11px] text-ink-low">
           <Pencil className="h-3 w-3" /> Sửa được từng dòng trong app
-          <Sparkles className="ml-auto h-3 w-3 text-violet-300" /> Mô phỏng — bản đầy đủ trong app
+          <Sparkles className="ml-auto h-3 w-3 text-violet-300" /> Clip thật từ Vyra
         </div>
       </div>
     </motion.div>

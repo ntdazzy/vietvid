@@ -28,7 +28,7 @@
   },
   "home": {
     "heroBadge": "Nhiều model AI, một nơi · thử ngay, chưa cần đăng nhập",
-    "heroTitle": "Ý tưởng của bạn,<br></br><grad>Vyra biến thành tốt nhất.</grad>",
+    "heroTitle": "Gõ ý tưởng,<br></br><grad>Vyra dựng thành video chốt đơn.</grad>",
     "heroSub": "Tạo ảnh, video, nhân vật và giọng nói bằng nhiều model AI hàng đầu — chọn đúng model cho từng việc, tất cả trong một nơi. Giao diện Việt, thấy credit trước khi tạo.",
     "ctaCreateFirst": "Bắt đầu tạo",
     "heroSecondaryCta": "Xem model & công cụ",
@@ -44,6 +44,7 @@
     "case_lookbook": "Lookbook thời trang",
     "case_unboxing": "Mở hộp / unboxing",
     "case_trend": "Bắt trend",
+    "case_douyin": "Đu trend Douyin",
     "case_testimonial": "Cảm nhận khách hàng",
     "case_compare": "So sánh sản phẩm",
     "case_ads": "Quảng cáo bán hàng",

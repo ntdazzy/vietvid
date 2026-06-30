@@ -27,6 +27,9 @@ import { ProofStrip } from "@/components/marketing/proof-strip";
 import { Manifesto } from "@/components/marketing/manifesto";
 import { Faq } from "@/components/marketing/faq";
 import { Intro } from "@/components/marketing/intro";
+import { ModelWall } from "@/components/marketing/model-wall";
+import { SocialProof } from "@/components/marketing/social-proof";
+import { PricingBand } from "@/components/marketing/pricing-band";
 
 export default async function LandingPage() {
   const t = await getTranslations("home");
@@ -72,6 +75,9 @@ export default async function LandingPage() {
 
       {/* S0 — HERO */}
       <LandingHero />
+
+      {/* S0b — TƯỜNG MODEL (moat tổng hợp) */}
+      <ModelWall />
 
       {/* S1 — CUỘN THỂ LOẠI (ảnh thật /showcase) — signature "mục lục reel" của trang chủ */}
       <section className="mx-auto max-w-[1600px] px-4 py-20 lg:py-24">
@@ -136,6 +142,9 @@ export default async function LandingPage() {
         </div>
         <p className="mt-5 text-center text-xs text-ink-low">{t("s1bHint")}</p>
       </section>
+
+      {/* §5b — SOCIAL PROOF (KOL/TikTok + đu trend Douyin) */}
+      <SocialProof />
 
       {/* §5 — FEATURED KOL */}
       <FeaturedKol />
@@ -301,6 +310,9 @@ export default async function LandingPage() {
         </Reveal>
       </section>
 
+      {/* §16 — BẢNG GIÁ trên trang chủ (seller thấy giá VND trước khi rời) */}
+      <PricingBand />
+
       {/* §FAQ */}
       <Faq />
 
@@ -327,15 +339,35 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-white/[0.06] px-4 py-8">
-        <div className="mx-auto flex max-w-[1600px] flex-col items-center gap-4 sm:flex-row sm:justify-between">
-          <Logo />
-          <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-ink-low">
-            <Link href="/pricing" className="hover:text-ink-medium">{t("footerPricing")}</Link>
-            <Link href="/terms" className="hover:text-ink-medium">{t("footerTerms")}</Link>
-            <Link href="/privacy" className="hover:text-ink-medium">{t("footerPrivacy")}</Link>
-          </nav>
-          <p className="text-xs text-ink-disabled">{t("footerCopyright")}</p>
+      <footer className="border-t border-white/[0.06] px-4 py-10">
+        <div className="mx-auto max-w-[1600px]">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-xs">
+              <Logo />
+              <p className="mt-3 text-sm text-ink-low">
+                Studio AI tạo mọi nội dung — ảnh, video, KOL, giọng Việt. Một nơi, nhiều model.
+              </p>
+            </div>
+            <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-low">
+              <Link href="/pricing" className="hover:text-ink-medium">{t("footerPricing")}</Link>
+              <a href="#nang-luc" className="hover:text-ink-medium">Tính năng</a>
+              <Link href="/terms" className="hover:text-ink-medium">{t("footerTerms")}</Link>
+              <Link href="/privacy" className="hover:text-ink-medium">{t("footerPrivacy")}</Link>
+            </nav>
+            {/* phương thức thanh toán — trust cho seller Việt */}
+            <div className="flex flex-col gap-2.5">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-low">Thanh toán</span>
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-md bg-[#a50064]/15 px-2.5 py-1 text-xs font-semibold text-[#ff4db8]">MoMo</span>
+                <span className="rounded-md bg-[#0d5cb6]/15 px-2.5 py-1 text-xs font-semibold text-[#4d9bff]">VNPay</span>
+                <span className="rounded-md bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-ink-medium">Chuyển khoản QR</span>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 flex flex-col items-center gap-2 border-t border-white/[0.05] pt-6 sm:flex-row sm:justify-between">
+            <p className="text-xs text-ink-disabled">{t("footerCopyright")}</p>
+            <p className="text-xs text-ink-disabled">Bảo mật TLS · hoàn 100% nếu lỗi hệ thống</p>
+          </div>
         </div>
       </footer>
     </div>

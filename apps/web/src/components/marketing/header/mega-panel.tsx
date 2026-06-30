@@ -9,20 +9,43 @@ import { FeatureRow } from "./feature-row";
 export const TOOLS_GROUPS = CONTENT_GROUPS.slice(1); // "Xây kênh" + "Ảnh & Âm thanh"
 
 // Mỗi mega-panel có 1 "spotlight" trái: ảnh candid + 1 dòng dẫn. Dữ liệu thật, không số bịa.
-export const SPOTLIGHT: Record<"content" | "tools", { image: string; eyebrow: string; title: string; sub: string; href: string }> = {
+export type MegaKind = "content" | "tools" | "models" | "features" | "resources";
+
+export const SPOTLIGHT: Record<MegaKind, { image: string; eyebrow: string; title: string; sub: string; href: string }> = {
   content: {
     image: "/showcase/kol.jpg",
-    eyebrow: "bắt đầu nhanh",
-    title: "Nhập ý tưởng, ra video AI",
-    sub: "Chọn một loại nội dung bên cạnh, hoặc vào thẳng trình tạo video.",
+    eyebrow: "tính năng",
+    title: "Nhập ý tưởng, ra nội dung AI",
+    sub: "Chọn một tính năng bên cạnh, hoặc vào thẳng trình tạo.",
     href: "/app/create",
   },
   tools: {
     image: "/showcase/product.jpg",
-    eyebrow: "công cụ",
-    title: "Ảnh, giọng nói và remix",
-    sub: "Các công cụ rời để dựng kênh ẩn danh và xử lý ảnh, âm thanh.",
+    eyebrow: "công cụ AI",
+    title: "Video, ảnh, giọng nói, nhân vật",
+    sub: "Bộ công cụ tạo nội dung AI — từ ý tưởng tới bản dựng.",
     href: "/app/create",
+  },
+  models: {
+    image: "/showcase/trend.jpg",
+    eyebrow: "đa model",
+    title: "Model AI tốt nhất cho từng việc",
+    sub: "Vyra route tới nhiều model — video, ảnh, giọng, nhân vật — trong một nơi.",
+    href: "/app/create",
+  },
+  features: {
+    image: "/showcase/lookbook.jpg",
+    eyebrow: "tính năng",
+    title: "Mọi loại nội dung, một quy trình",
+    sub: "Chọn nhu cầu bên cạnh, hoặc vào thẳng trình tạo.",
+    href: "/app/create",
+  },
+  resources: {
+    image: "/showcase/explainer.jpg",
+    eyebrow: "tài nguyên",
+    title: "Thư viện, mẫu và công cụ kênh",
+    sub: "Quản lý nội dung, đo hiệu quả, tích hợp hệ thống.",
+    href: "/app/library",
   },
 };
 
@@ -35,10 +58,11 @@ export const PANEL =
  * có ảnh candid + glow accent + lối tắt vào trình tạo; bên phải là các nhóm feature dạng bento.
  * Chỉ màn header mới có layout này → phân biệt với mọi màn khác.
  */
-export function MegaPanel({ kind, groups, cols }: { kind: "content" | "tools"; groups: FeatureGroup[]; cols: number }) {
+export function MegaPanel({ kind, groups, cols }: { kind: MegaKind; groups: FeatureGroup[]; cols: number }) {
   const spot = SPOTLIGHT[kind];
+  // Định vị do CALLER lo (anchor dưới đúng trigger) — panel chỉ là cái hộp.
   return (
-    <div className="absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3">
+    <div className="contents">
       <div
         className={cn(
           "relative overflow-hidden rounded-3xl border border-white/[0.08] bg-bg-elevated/95 backdrop-blur-2xl",

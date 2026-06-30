@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { FilmLabel } from "@/components/ui/cinematic";
 import { Reveal } from "@/components/marketing/reveal";
 import { ACCENTS } from "@/lib/accents";
+import { StudioShell } from "@/components/studio/studio-shell";
 import { cn } from "@/lib/utils/cn";
 
 const ACCENT = ACCENTS.rose;
@@ -54,7 +55,8 @@ export default function AudioToolPage() {
   const count = text.length;
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-6">
+    <StudioShell>
+      <div className="flex flex-col gap-6">
       {/* ── Eyebrow + tiêu đề (gọn, dồn trái) ─────────────────────────── */}
       <Reveal>
         <FilmLabel>{t("eyebrow")}</FilmLabel>
@@ -268,6 +270,7 @@ export default function AudioToolPage() {
           <audio ref={audioRef} controls hidden={!url} className="relative mt-4 w-full" />
         </section>
       </Reveal>
-    </div>
+      </div>
+    </StudioShell>
   );
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {
-  Sparkles, ArrowRight, Wallet, Plus, Film, Palette, AudioLines, type LucideIcon,
+  Sparkles, ArrowRight, Wallet, Plus, Film, Palette, AudioLines, Drama, type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMe, useJobs } from "@/lib/query/hooks";
@@ -38,6 +38,7 @@ const STUDIO: { titleKey: string; descKey: string; href: string; image: string; 
 // Công cụ nhanh (thẻ icon — biến thể so với thẻ ảnh, tránh đồng loạt). titleKey/descKey lấy từ i18n.
 const TOOLS: { icon: LucideIcon; titleKey: string; descKey: string; href: string; accent: Accent }[] = [
   { icon: Palette, titleKey: "toolImageTitle", descKey: "toolImageDesc", href: "/app/image-gen", accent: "sky" },
+  { icon: Drama, titleKey: "toolCharacterTitle", descKey: "toolCharacterDesc", href: "/app/character", accent: "violet" },
   { icon: AudioLines, titleKey: "toolAudioTitle", descKey: "toolAudioDesc", href: "/app/audio", accent: "cyan" },
   { icon: Film, titleKey: "toolLibraryTitle", descKey: "toolLibraryDesc", href: "/app/library", accent: "emerald" },
 ];
@@ -97,7 +98,7 @@ export default function DashboardPage() {
       <Reveal>
         <section className="flex flex-col gap-5">
           <SectionLabel>{t("toolsSectionLabel")}</SectionLabel>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {TOOLS.map((tool) => (
               <ToolCard key={tool.titleKey} icon={tool.icon} title={t(tool.titleKey)} desc={t(tool.descKey)} href={tool.href} accent={tool.accent} />
             ))}
@@ -136,7 +137,13 @@ export default function DashboardPage() {
               const stCls = st?.cls ?? "bg-white/[0.06] text-ink-low";
               return (
                 <Link key={j.id} href="/app/library" className="group relative aspect-[9/16] overflow-hidden rounded-[18px] glass-bordered">
-                  <div className="absolute inset-0 bg-grad-brand-soft opacity-30 transition-opacity group-hover:opacity-60" />
+                  <div className="absolute inset-0 bg-grad-brand-soft opacity-40 transition-opacity group-hover:opacity-60" />
+                  {/* job chưa có ảnh thật → motif phim ở giữa để thẻ đọc rõ là "video", không như tải lỗi */}
+                  <div className="pointer-events-none absolute inset-0 grid place-items-center">
+                    <span className="grid h-12 w-12 place-items-center rounded-full bg-white/[0.06] ring-1 ring-white/10 backdrop-blur-sm transition-transform group-hover:scale-110">
+                      <Film className="h-5 w-5 text-white/40" />
+                    </span>
+                  </div>
                   <div className="relative flex h-full flex-col justify-between p-3">
                     <span className={cn("w-fit rounded-md px-2 py-0.5 text-[10px] font-semibold", stCls)}>{stLabel}</span>
                     <div className="text-[11px] text-ink-low">

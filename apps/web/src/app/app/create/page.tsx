@@ -29,7 +29,7 @@ import type { JobCreateRequest, Template } from "@/lib/api/types";
 function hasPresetSignal() {
   if (typeof window === "undefined") return false;
   const q = new URLSearchParams(window.location.search);
-  return Boolean(q.get("feature") || q.get("template") || q.get("kol") || q.get("brand"));
+  return Boolean(q.get("feature") || q.get("template") || q.get("kol") || q.get("brand") || q.get("character"));
 }
 
 export default function CreatePage() {
@@ -93,6 +93,7 @@ export default function CreatePage() {
     const templateId = q.get("template");
     const kolId = q.get("kol");
     const brandId = q.get("brand");
+    const charId = q.get("character");
     if (brandId) w.patch({ brandKitId: brandId });
     (async () => {
       if (templateId) {
@@ -107,6 +108,20 @@ export default function CreatePage() {
             videoType: "kol_full",
             kolName: k.name,
             voiceGender: (k.voice_gender as "female" | "male") || "female",
+            step: 1,
+          });
+        }
+      }
+      // Nhân vật (Studio): prefill brief quanh nhân vật (tier brief-level, chưa khoá gương mặt render).
+      if (charId) {
+        const c = (await api.characters().catch(() => [])).find((x) => x.id === charId);
+        if (c) {
+          w.patch({
+            videoType: "kol_full",
+            kolName: c.name,
+            voiceGender: (c.voice_gender as "female" | "male") || "female",
+            brief: c.description ? `Video có nhân vật ${c.name}: ${c.description}` : `Video có nhân vật ${c.name}`,
+            frameMode: "ai",
             step: 1,
           });
         }

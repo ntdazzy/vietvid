@@ -11,15 +11,21 @@ export function CreditBadge() {
   const t = useTranslations("credit");
   const { data, isLoading, isError } = useWallet();
 
-  if (isLoading) return <Skeleton className="h-9 w-32" />;
+  if (isLoading) return <Skeleton className="h-9 w-28 rounded-full" />;
+  // Lỗi/chưa có ví: giữ ĐÚNG hình pill (icon + "—") thay vì chữ "Số dư: …" trần (trông như vỡ/mất chữ).
   if (isError || !data)
-    return <span className="text-sm text-ink-low">{t("balance")}: …</span>;
+    return (
+      <div className="glass flex items-center gap-2 rounded-full px-3 py-1.5 text-ink-low" title={t("balance")}>
+        <Coins className="h-4 w-4 text-violet-300/60" />
+        <span className="text-sm tabular-nums">—</span>
+      </div>
+    );
 
   return (
     <div className="flex items-center gap-2">
       <div className="glass flex items-center gap-2 rounded-full px-3 py-1.5">
         <Coins className="h-4 w-4 text-violet-300" />
-        <CreditValue value={data.balance_credits} suffix={null} className="text-sm text-ink-high" />
+        <CreditValue value={data.balance_credits} suffix={null} className="whitespace-nowrap text-sm text-ink-high" />
       </div>
       {data.held_credits > 0 && (
         <div className="flex items-center gap-1.5 rounded-full border border-hold/30 bg-hold/[0.12] px-3 py-1.5 text-hold">

@@ -58,7 +58,7 @@ export default async function LandingPage() {
       <LandingHero />
 
       {/* S1 — CUỘN THỂ LOẠI (ảnh thật /showcase) — signature "mục lục reel" của trang chủ */}
-      <section className="mx-auto max-w-6xl px-4 py-20 lg:py-24">
+      <section className="mx-auto max-w-[1600px] px-4 py-20 lg:py-24">
         <Reveal>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="max-w-xl">
@@ -108,7 +108,7 @@ export default async function LandingPage() {
 
       {/* S1b — MARQUEE 2 chiều: mẫu output thật 9:16 */}
       <section className="py-12 lg:py-16">
-        <div className="mx-auto max-w-6xl px-4">
+        <div className="mx-auto max-w-[1600px] px-4">
           <FilmLabel>{t("s1bLabel")}</FilmLabel>
         </div>
         <div className="mt-7 flex flex-col gap-4">
@@ -125,7 +125,7 @@ export default async function LandingPage() {
       <UseCases />
 
       {/* S2 — LƯỚI 6 NĂNG LỰC 01–06 (demo sống) */}
-      <section id="nang-luc" className="mx-auto max-w-6xl px-4 py-24 lg:py-28">
+      <section id="nang-luc" className="mx-auto max-w-[1600px] px-4 py-24 lg:py-28">
         <SectionHeading
           align="center"
           eyebrow={t("s2Eyebrow")}
@@ -238,7 +238,7 @@ export default async function LandingPage() {
       </section>
 
       {/* S11 — Minh bạch credit — khối "bảng ví" bất đối xứng, ảnh nền /bg/desk */}
-      <section className="mx-auto max-w-6xl px-4 py-12">
+      <section className="mx-auto max-w-[1600px] px-4 py-12">
         <Reveal>
           <div className="glass-bordered relative overflow-hidden p-8 lg:p-12">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -308,7 +308,7 @@ export default async function LandingPage() {
       </section>
 
       <footer className="border-t border-white/[0.06] px-4 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
+        <div className="mx-auto flex max-w-[1600px] flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <Logo />
           <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-ink-low">
             <Link href="/pricing" className="hover:text-ink-medium">{t("footerPricing")}</Link>

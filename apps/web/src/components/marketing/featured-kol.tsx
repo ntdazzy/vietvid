@@ -33,7 +33,7 @@ function FaceAvatar({ img, name, size = "md" }: { img: string; name: string; siz
 
 export function FeaturedKol() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-24 lg:py-28">
+    <section className="mx-auto max-w-[1600px] px-4 py-24 lg:py-28">
       <SectionHeading
         eyebrow="KOL AI · Gương mặt do AI tạo"
         title={<>Một gương mặt KOL. <span className="text-gradient italic">Nhiều video, một outfit nhất quán.</span></>}

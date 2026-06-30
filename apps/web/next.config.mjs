@@ -15,6 +15,14 @@ const nextConfig = {
       { protocol: "http", hostname: "localhost" },
     ],
   },
+  // Proxy API về backend local → khi API_BASE_URL rỗng, trình duyệt gọi same-origin
+  // /v1/* và Next chuyển tiếp về :8099. Cho phép chạy sau MỘT tunnel/proxy duy nhất.
+  async rewrites() {
+    return [
+      { source: "/v1/:path*", destination: "http://127.0.0.1:8099/v1/:path*" },
+      { source: "/api/v1/:path*", destination: "http://127.0.0.1:8099/api/v1/:path*" },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

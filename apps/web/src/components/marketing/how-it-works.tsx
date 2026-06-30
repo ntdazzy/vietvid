@@ -11,7 +11,7 @@ export function HowItWorks() {
   const t = useTranslations("home");
   const STEPS = STEP_KEYS.map((k) => ({ t: t(`step_${k}_t`), d: t(`step_${k}_d`) }));
   return (
-    <div className="mx-auto max-w-6xl px-4">
+    <div className="mx-auto max-w-[1600px] px-4">
       <SectionHeading
         align="center"
         eyebrow={t("howEyebrow")}

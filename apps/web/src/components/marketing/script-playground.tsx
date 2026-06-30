@@ -4,50 +4,50 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Sparkles, Pencil } from "lucide-react";
 
-// MOCK client-side (endpoint /v1/script/* cần auth → không gọi được trên landing public).
-// Data dùng đúng giọng + nhãn góc/beat THẬT của engine (scriptgen.py).
+// MOCK client-side (endpoint thật cần auth → không gọi được trên landing public).
+// Demo ĐA-MODEL: một ý tưởng → Vyra chọn model AI hợp việc → preview output (video/ảnh/nhân vật/giọng).
 type Beat = { t: string; label: string; text: string };
-type Preset = { label: string; product: string; angle: string; hook: string; beats: Beat[] };
+type Preset = { label: string; product: string; model: string; kind: string; hook: string; beats: Beat[] };
 
 const PRESETS: Preset[] = [
   {
-    label: "Serum dưỡng trắng", product: "Serum dưỡng trắng", angle: "Lột xác trước → sau",
+    label: "Video review", product: "Video review serum", model: "Seedance 2.0", kind: "Video",
     hook: "Da xỉn 7 ngày trước với giờ — khác một trời một vực!",
     beats: [
-      { t: "00:00", label: "Hook", text: "Trước với sau khi dùng serum này, nhìn là biết liền." },
-      { t: "00:05", label: "Nỗi đau", text: "Hồi đó da mình xỉn, lỗ chân lông to, ngại soi gương." },
-      { t: "00:12", label: "Lợi ích", text: "Dùng đều mỗi tối là da sáng mịn, tự tin hẳn ra." },
-      { t: "00:20", label: "Chốt", text: "Để link giỏ hàng rồi nha, bấm thử cho biết!" },
+      { t: "Hook", label: "Mở", text: "Trước với sau khi dùng serum này, nhìn là biết liền." },
+      { t: "Kịch bản", label: "AI viết", text: "Hook → nỗi đau → lợi ích → chốt, theo timecode." },
+      { t: "Giọng", label: "Lồng tiếng", text: "Chọn 1 trong 7 giọng Việt thật, phụ đề khớp khung." },
+      { t: "Xuất", label: "Output", text: "Video 60s, đủ 3 tỉ lệ — dọc, vuông, ngang." },
     ],
   },
   {
-    label: "Tai nghe bluetooth", product: "Tai nghe bluetooth", angle: "So sánh hơn hẳn",
-    hook: "Thử tai nghe này xong là khỏi quay lại loại cũ luôn!",
+    label: "Ảnh sản phẩm", product: "Ảnh serum nền pastel", model: "Gemini · Imagen", kind: "Ảnh",
+    hook: "Ảnh studio, ánh sáng mềm, nền pastel — sắc nét, bám mô tả.",
     beats: [
-      { t: "00:00", label: "Hook", text: "Đặt cạnh tai nghe cũ là thấy khác liền." },
-      { t: "00:05", label: "Nỗi đau", text: "Loại rẻ tiền nghe rè, rớt kết nối hoài, bực ghê." },
-      { t: "00:12", label: "Lợi ích", text: "Cái này pin trâu, chống ồn, đáng từng đồng." },
-      { t: "00:20", label: "Chốt", text: "Có nhiêu mà nâng cấp hẳn, bấm giỏ hàng đi nha!" },
+      { t: "Mô tả", label: "Prompt", text: "Gõ một câu, AI hiểu phong cách bạn muốn." },
+      { t: "Style", label: "Phong cách", text: "Editorial, tông pastel hồng, nền sạch." },
+      { t: "Model", label: "Engine", text: "Gemini/Imagen — chữ trong ảnh chuẩn, độ nét cao." },
+      { t: "Xuất", label: "Output", text: "Ảnh tải về ngay, dọc 9:16 hoặc vuông 1:1." },
     ],
   },
   {
-    label: "Nồi chiên không dầu", product: "Nồi chiên không dầu", angle: "Sợ bỏ lỡ / sắp hết",
-    hook: "Nồi chiên đang sale sốc, hết hàng là tiếc lắm nha!",
+    label: "Nhân vật AI", product: "KOL nữ trẻ trung", model: "Nhân vật AI", kind: "Nhân vật",
+    hook: "Diễn viên AI nhất quán — giữ gương mặt qua mọi video.",
     beats: [
-      { t: "00:00", label: "Hook", text: "Canh mãi mới thấy đợt giảm sâu vầy nè." },
-      { t: "00:06", label: "Lợi ích", text: "Đợt này giá hời, qua đợt là về giá gốc liền." },
-      { t: "00:13", label: "Khao khát", text: "Mua về nấu gì cũng nhanh, cả nhà mê tít." },
-      { t: "00:21", label: "Chốt", text: "Còn hàng là còn cơ hội, chốt liền tay nha!" },
+      { t: "Tạo", label: "Khởi tạo", text: "Từ ảnh, mô tả, hoặc tự dựng thuộc tính." },
+      { t: "Vibe", label: "Phong cách", text: "Trẻ trung, thân thiện, giọng nữ Việt." },
+      { t: "Dùng", label: "Tái dùng", text: "Đưa vào ảnh & video sau này." },
+      { t: "Khóa", label: "Nhất quán", text: "Giữ gương mặt mỗi lần sinh lại." },
     ],
   },
   {
-    label: "Áo khoác dù", product: "Áo khoác dù", angle: "Đám đông tin dùng",
-    hook: "Cả nhà rủ nhau mua áo này, mình cũng phải thử!",
+    label: "Giọng đọc", product: "Lồng giọng quảng cáo", model: "Giọng Việt", kind: "Giọng",
+    hook: "7 giọng Việt thật — chọn giọng hợp ngành, nghe thử ngay.",
     beats: [
-      { t: "00:00", label: "Hook", text: "Lướt đâu cũng thấy người ta khoe áo này." },
-      { t: "00:06", label: "Lợi ích", text: "Mặc lên nhẹ, ấm, đi mưa đi nắng đều hợp." },
-      { t: "00:13", label: "Khao khát", text: "Giờ tới lượt mình nghiện, mua là không hối." },
-      { t: "00:21", label: "Chốt", text: "Còn chần chừ gì, chốt cùng hội luôn nè!" },
+      { t: "Chọn", label: "Giọng", text: "Mai, Linh, Khoa… 7 cá tính khác nhau." },
+      { t: "Nhập", label: "Lời thoại", text: "Dán kịch bản, AI đọc tự nhiên như người." },
+      { t: "Nghe", label: "Preview", text: "Nghe thử ngay trước khi dùng." },
+      { t: "Ghép", label: "Lồng video", text: "Khớp phụ đề theo timecode." },
     ],
   },
 ];
@@ -101,7 +101,7 @@ export function ScriptPlayground() {
     setKicked(true);
     // gắn sản phẩm người dùng gõ vào khung kết quả của 1 góc mặc định.
     setActive({ ...PRESETS[0], product: q, label: q,
-      hook: `${q} — thử là mê, chốt đơn liền tay!` });
+      hook: `${q} — Vyra chọn model AI hợp nhất để dựng.` });
   }
 
   return (
@@ -117,7 +117,7 @@ export function ScriptPlayground() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder="Tên sản phẩm của bạn…"
+          placeholder="Mô tả ý tưởng của bạn…"
           className="w-full rounded-xl border border-white/10 bg-bg-base/50 px-3.5 py-2.5 text-sm text-ink-high outline-none placeholder:text-ink-low focus:border-violet-500/40"
         />
         <button
@@ -147,7 +147,7 @@ export function ScriptPlayground() {
       {/* kết quả */}
       <div className="mt-4 rounded-2xl border border-white/[0.06] bg-bg-base/40 p-4">
         <div className="text-[11px] uppercase tracking-wider text-ink-low">
-          Góc: <span className="text-violet-300">{active.angle}</span>
+          Model: <span className="text-violet-300">{active.model}</span> · {active.kind}
         </div>
         <p className="mt-2 min-h-[2.4em] font-display text-lg font-bold leading-snug text-gradient">
           {typed}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
-import { ArrowRight, Mic, Clock, Gift } from "lucide-react";
+import { ArrowRight, Boxes, Clock, Gift } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ScriptPlayground } from "@/components/marketing/script-playground";
@@ -25,6 +25,17 @@ export function LandingHero() {
 
   return (
     <section className="relative isolate overflow-hidden pt-28 pb-20">
+      {/* backdrop AI sinh (Gemini) — dải aurora tím rất mờ tạo chiều sâu, fade dần xuống đáy
+          để không có mép cứng; nằm DƯỚI mọi nội dung (first child) + pointer-events-none */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center opacity-[0.16]"
+        style={{
+          backgroundImage: "url(/bg/gen/mesh-aurora.png)",
+          maskImage: "linear-gradient(to bottom, black 0%, black 45%, transparent 92%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 45%, transparent 92%)",
+        }}
+      />
       {/* glow tím 1-điểm (nguồn sáng tím duy nhất của hero) — parallax nhẹ khi cuộn */}
       <motion.div
         style={{ y: glowY }}
@@ -36,7 +47,7 @@ export function LandingHero() {
         />
       </motion.div>
 
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+      <div className="mx-auto grid max-w-[1600px] items-center gap-10 px-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
         {/* cột trái — copy canh trái */}
         <div className="text-left">
           <motion.span
@@ -87,7 +98,7 @@ export function LandingHero() {
           >
             {[
               { n: "~60s", l: t("statPerVideo"), I: Clock },
-              { n: "7", l: t("statVoices"), I: Mic },
+              { n: "7", l: t("statTools"), I: Boxes },
               { n: "300", l: t("statCredits"), I: Gift },
             ].map(({ n, l, I }) => (
               <div key={l} className="rounded-2xl border border-white/[0.07] bg-white/[0.025] px-3 py-3">

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreditBadge } from "@/components/shell/credit-badge";
-import { CONTENT_GROUPS } from "@/lib/features";
+import { CONTENT_GROUPS, MODELS_GROUPS } from "@/lib/features";
 import { cn } from "@/lib/utils/cn";
 import { PANEL } from "./mega-panel";
 import { FeatureRow } from "./feature-row";
@@ -21,7 +21,7 @@ export function MobileMenu({
   onLogout: () => void;
 }) {
   return (
-    <div className="mx-auto mt-2 max-w-6xl px-4 lg:hidden">
+    <div className="mx-auto mt-2 max-w-[1600px] px-4 lg:hidden">
       <div className={cn(PANEL, "max-h-[78vh] overflow-y-auto p-3")}>
         {isAuthed && (
           <div className="mb-3">
@@ -51,7 +51,7 @@ export function MobileMenu({
             </div>
           </div>
         )}
-        {CONTENT_GROUPS.map((g) => (
+        {[...CONTENT_GROUPS, ...MODELS_GROUPS].map((g) => (
           <div key={g.title} className="mb-3">
             <div className="flex items-center gap-2 px-2 pb-1">
               <span className="h-[3px] w-4 rounded-full bg-grad-brand" />
@@ -64,8 +64,15 @@ export function MobileMenu({
             ))}
           </div>
         ))}
+        <Link
+          href="/pricing"
+          onClick={onClose}
+          className="mb-2 block rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 text-center text-sm font-medium text-ink-medium hover:bg-white/[0.05] hover:text-ink-high"
+        >
+          Bảng giá
+        </Link>
         <Link href={isAuthed ? "/app/create" : "/login"} onClick={onClose}>
-          <Button className="mt-1 w-full">{isAuthed ? "Tạo video" : "Đăng nhập"}</Button>
+          <Button className="mt-1 w-full">{isAuthed ? "Tạo nội dung" : "Đăng nhập"}</Button>
         </Link>
         {isAuthed && (
           <button

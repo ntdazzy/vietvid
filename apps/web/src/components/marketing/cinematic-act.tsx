@@ -90,7 +90,7 @@ export function CinematicAct({
         {num}
       </motion.span>
 
-      <div className="mx-auto max-w-7xl px-4">
+      <div className="mx-auto max-w-[1600px] px-4">
         {/* act divider */}
         <div className="mx-auto mb-12 h-px max-w-xs bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
 

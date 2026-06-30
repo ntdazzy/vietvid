@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-type MenuKey = "content" | "tools" | "support" | "manage";
+export type MenuKey = "tools" | "models" | "features" | "resources";
 
 export function useHoverMenu() {
   const [open, setOpen] = useState<null | MenuKey>(null);

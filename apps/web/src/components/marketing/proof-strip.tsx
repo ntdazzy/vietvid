@@ -11,7 +11,7 @@ const STATS = [
 
 export function ProofStrip() {
   return (
-    <section className="mx-auto max-w-5xl px-4 py-16 lg:py-20">
+    <section className="mx-auto max-w-[1280px] px-4 py-16 lg:py-20">
       <Reveal>
         <p className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.18em] text-violet-300">
           Năng lực sản phẩm

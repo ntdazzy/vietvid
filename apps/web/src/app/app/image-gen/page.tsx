@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FilmLabel } from "@/components/ui/cinematic";
 import { Reveal } from "@/components/marketing/reveal";
 import { ACCENTS } from "@/lib/accents";
+import { StudioShell } from "@/components/studio/studio-shell";
 import { cn } from "@/lib/utils/cn";
 
 const PRESET_KEYS = ["presetMilktea", "presetSerum", "presetHeadphones", "presetJacket"] as const;
@@ -55,7 +56,8 @@ export default function ImageGenPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <StudioShell>
+      <div className="flex flex-col gap-6">
       {/* ── Đầu màn: dải thông tin gọn, không dùng CineHero (bố cục riêng) ── */}
       <Reveal>
         <div className="relative overflow-hidden rounded-3xl glass-bordered p-6 sm:p-7">
@@ -250,6 +252,7 @@ export default function ImageGenPage() {
           </ul>
         </GlassCard>
       </Reveal>
-    </div>
+      </div>
+    </StudioShell>
   );
 }

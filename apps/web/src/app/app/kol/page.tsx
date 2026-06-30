@@ -22,6 +22,7 @@ import { SectionLabel } from "@/components/kol/section-label";
 import { HeroStat } from "@/components/kol/hero-stat";
 import { SceneCard } from "@/components/kol/scene-card";
 import { CreateKol } from "@/components/kol/create-kol-form";
+import { StudioShell } from "@/components/studio/studio-shell";
 
 // Gương mặt AI mẫu cho persona hệ thống (avatar_url rỗng).
 const SYSTEM_FACES: Record<string, string> = { Linh: "/kol/linh.jpg", Minh: "/kol/an.jpg", Hà: "/kol/mai.jpg" };
@@ -98,7 +99,8 @@ export default function KolPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <StudioShell>
+      <div className="flex flex-col gap-8">
       {/* HERO ĐIỆN ẢNH — phòng casting */}
       <CineHero
         accent="rose"
@@ -261,6 +263,7 @@ export default function KolPage() {
           ))}
         </div>
       </section>
-    </div>
+      </div>
+    </StudioShell>
   );
 }

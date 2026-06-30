@@ -18,7 +18,7 @@ export function CompareTable() {
     t(`compareRow_${k}_vyra`),
   ]);
   return (
-    <div className="mx-auto max-w-5xl px-4">
+    <div className="mx-auto max-w-[1280px] px-4">
       <SectionHeading
         align="center"
         eyebrow={t("compareEyebrow")}

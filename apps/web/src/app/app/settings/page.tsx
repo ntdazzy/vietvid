@@ -43,6 +43,15 @@ const GROUPS: Group[] = [
   { id: "developer", label: "developer", icon: KeyRound, accent: "cyan" },
 ];
 
+// Vai trò: enum thô (owner/admin/...) -> nhãn tiếng Việt; không khớp thì giữ nguyên.
+const ROLE_KEY: Record<string, string> = {
+  owner: "roleOwner", admin: "roleAdmin", member: "roleMember", editor: "roleEditor",
+};
+function roleLabel(t: (key: string) => string, role: string): string {
+  const key = ROLE_KEY[role];
+  return key ? t(`account.${key}`) : role;
+}
+
 export default function SettingsPage() {
   const t = useTranslations("settings");
   const me = useMe();
@@ -185,13 +194,16 @@ export default function SettingsPage() {
                   <span className="truncate text-ink-high">{me.data.email || "(dev)"}</span>
                 </Fact>
                 <Fact label={t("account.role")} accent="slate">
-                  <Badge tone="brand">{me.data.role}</Badge>
+                  <Badge tone="brand">{roleLabel(t, me.data.role)}</Badge>
                 </Fact>
                 <Fact label={t("account.workspace")} accent="slate">
-                  <span className="truncate font-mono text-xs text-ink-medium">{me.data.org_id}</span>
+                  {/* Rút gọn UUID workspace -> mã ngắn dễ đọc, không phô định danh code đầy đủ. */}
+                  <span className="truncate font-mono text-xs text-ink-medium">#{me.data.org_id.slice(0, 8)}</span>
                 </Fact>
                 <Fact label={t("account.authMode")} accent="slate">
-                  <span className="text-ink-medium">{me.data.auth_mode}</span>
+                  <span className="text-ink-medium">
+                    {me.data.auth_mode === "dev" ? t("account.authDev") : t("account.authLinked")}
+                  </span>
                 </Fact>
               </div>
             )}

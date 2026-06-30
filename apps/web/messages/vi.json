@@ -374,7 +374,13 @@
       "email": "Email",
       "role": "Vai trò",
       "workspace": "Workspace",
-      "authMode": "Chế độ đăng nhập"
+      "authMode": "Chế độ đăng nhập",
+      "authDev": "Email & mật khẩu",
+      "authLinked": "Tài khoản liên kết",
+      "roleOwner": "Chủ sở hữu",
+      "roleAdmin": "Quản trị",
+      "roleMember": "Thành viên",
+      "roleEditor": "Biên tập viên"
     },
     "profile": {
       "desc": "Tên hiển thị trong workspace và trên video.",

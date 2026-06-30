@@ -374,7 +374,13 @@
       "email": "Email",
       "role": "Role",
       "workspace": "Workspace",
-      "authMode": "Sign-in mode"
+      "authMode": "Sign-in mode",
+      "authDev": "Email & password",
+      "authLinked": "Linked account",
+      "roleOwner": "Owner",
+      "roleAdmin": "Admin",
+      "roleMember": "Member",
+      "roleEditor": "Editor"
     },
     "profile": {
       "desc": "The name shown in your workspace and on videos.",

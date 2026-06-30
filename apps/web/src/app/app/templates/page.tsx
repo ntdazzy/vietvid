@@ -130,22 +130,28 @@ export default function TemplatesPage() {
 
       {/* ── GALLERY ── */}
       {templates.isLoading ? (
-        <div className="grid gap-4 lg:grid-cols-3">
-          <Skeleton className="aspect-[16/10] w-full rounded-2xl lg:row-span-2 lg:aspect-auto" />
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="aspect-[16/10] w-full rounded-2xl" />
-          ))}
+        <div className="flex flex-col gap-4">
+          <Skeleton className="h-48 w-full rounded-2xl" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-[16/10] w-full rounded-2xl" />
+            ))}
+          </div>
         </div>
       ) : all.length === 0 ? (
         <EmptyState />
       ) : (
         <Reveal>
-          {/* bento bất đối xứng: mẫu đầu = thẻ lớn nổi bật, còn lại = lưới đều */}
-          <div className="grid gap-4 lg:grid-cols-3">
+          {/* mẫu đầu = banner ngang full-width nổi bật; còn lại = lưới đều (luôn cân, không hở ô) */}
+          <div className="flex flex-col gap-4">
             {featured && <FeaturedCard t={featured} onRemove={remove} />}
-            {rest.map((t) => (
-              <TemplateCard key={t.id} t={t} onRemove={remove} />
-            ))}
+            {rest.length > 0 && (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {rest.map((t) => (
+                  <TemplateCard key={t.id} t={t} onRemove={remove} />
+                ))}
+              </div>
+            )}
           </div>
         </Reveal>
       )}
@@ -183,31 +189,31 @@ function FilterPill({ active, onClick, label, n }: { active: boolean; onClick: (
   );
 }
 
-/** Mẫu nổi bật — thẻ lớn chiếm 2 hàng (cột trái), tạo nhịp bất đối xứng. */
+/** Mẫu nổi bật — banner NGANG full-width (ảnh trái + nội dung phải). Luôn cân, không hở ô. */
 function FeaturedCard({ t, onRemove }: { t: Template; onRemove: (id: string) => void }) {
   const tr = useTranslations("templates");
   const img = thumb(t);
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl glass-bordered transition-all duration-200 hover:-translate-y-1 hover:shadow-glow-sm hover:ring-1 hover:ring-violet-400/30 lg:row-span-2">
-      <div className="relative flex min-h-[200px] flex-1 overflow-hidden bg-bg-surface">
+    <article className="group relative grid overflow-hidden rounded-2xl glass-bordered transition-all duration-200 hover:-translate-y-1 hover:shadow-glow-sm hover:ring-1 hover:ring-violet-400/30 sm:h-[300px] sm:grid-cols-[minmax(0,42%)_1fr]">
+      {/* ảnh trái — rê chuột phát clip. Chiều cao banner cố định (sm:h-300) để ảnh không tự kéo cao. */}
+      <div className="relative h-[200px] overflow-hidden bg-bg-surface sm:h-auto">
         {img ? (
-          <HoverVideo poster={img} video={clip(t)} alt={t.name} badge={false} className="h-full min-h-[200px] w-full" />
+          <HoverVideo poster={img} video={clip(t)} alt={t.name} badge={false} className="h-full w-full" />
         ) : (
-          <div className="grid h-full min-h-[200px] w-full place-items-center bg-grad-brand-soft">
+          <div className="grid h-full w-full place-items-center bg-grad-brand-soft">
             <LayoutTemplate className="h-10 w-10 text-violet-300/60" />
           </div>
         )}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/30 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base/60 to-transparent sm:bg-gradient-to-r sm:from-transparent sm:to-bg-surface/80" />
         <CardCorner t={t} onRemove={onRemove} />
-        <div className="pointer-events-none absolute inset-x-5 bottom-4">
-          <FilmLabel dot={false} className="text-violet-200">{tr("featuredEyebrow", { category: catLabel(tr, t.category) })}</FilmLabel>
-          <div className="mt-1.5 font-display text-xl font-bold text-white">{t.name}</div>
-          <p className="mt-1 line-clamp-2 max-w-md text-sm text-white/75">{t.description}</p>
-        </div>
       </div>
-      <div className="p-4">
-        <Link href={`/app/create?template=${t.id}`}>
-          <Button className="w-full gap-2">
+      {/* nội dung phải */}
+      <div className="flex flex-col justify-center gap-2.5 p-5 sm:p-7">
+        <FilmLabel dot={false} className="text-violet-200">{tr("featuredEyebrow", { category: catLabel(tr, t.category) })}</FilmLabel>
+        <div className="font-display text-2xl font-bold text-ink-high">{t.name}</div>
+        <p className="line-clamp-3 max-w-md text-sm text-ink-medium">{t.description}</p>
+        <Link href={`/app/create?template=${t.id}`} className="mt-1.5">
+          <Button className="gap-2">
             <Sparkles className="h-4 w-4" /> {tr("useThisTemplate")}
           </Button>
         </Link>

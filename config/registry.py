@@ -608,8 +608,10 @@ REGISTRY: tuple[Key, ...] = (
     # CometAPI (reseller rẻ — ưu tiên giai đoạn đầu). POST /v1/videos → poll → video_url.
     Key("cometapi_api_key", str, "", "video"),
     Key("cometapi_base_url", str, "https://api.cometapi.com", "video"),
-    Key("cometapi_video_model", str, "doubao-seedance-2-0-fast", "video",
-        note="model Seedance 2.0 trên CometAPI: doubao-seedance-2-0-fast (rẻ) | doubao-seedance-2-0 (std)."),
+    Key("cometapi_video_model", str, "doubao-seedance-1-5-pro", "video",
+        note="VERIFY 2026-06-30: doubao-seedance-2-0-fast và -2-0 BỊ KẸT trên CometAPI (task queued→30%→"
+             "không bao giờ xong, timeout 30 phút). doubao-seedance-1-5-pro CHẠY OK (~92s, 720p, $0.024/s 480p|"
+             "$0.052/s 720p) → đặt làm mặc định. Đổi lại 2-0* khi CometAPI fix backend Seedance 2.0."),
     # Runware (fallback). POST api.runware.ai/v1 mảng task videoInference. ⚠️ AIR id cần verify trên trang model.
     Key("runware_api_key", str, "", "video"),
     Key("runware_base_url", str, "https://api.runware.ai/v1", "video"),

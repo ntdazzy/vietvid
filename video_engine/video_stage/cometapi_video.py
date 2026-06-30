@@ -98,12 +98,32 @@ class CometapiVideoProvider:
         else:
             raise VideoEngineError(f"CometAPI job quá {self._max_wait}s chưa xong")
 
-        if not video_url:  # bản không trả url → tải qua endpoint /content
-            clip = httpx.get(f"{self._base}/v1/videos/{task_id}/content",
-                             headers=self._headers(), timeout=self._timeout)
-        else:
-            clip = httpx.get(video_url, timeout=self._timeout)
-        clip.raise_for_status()
-        with open(out_path, "wb") as f:
-            f.write(clip.content)
-        return out_path
+        # Tải clip — CHẶT (VERIFY 2026-06-30): có lúc status='completed' nhưng /content trả ~107 byte
+        # rác (JSON lỗi), không phải video → check size + RETRY (ưu tiên video_url, fallback /content).
+        content_url = f"{self._base}/v1/videos/{task_id}/content"
+        last = b""
+        for _ in range(5):
+            try:
+                if video_url:
+                    clip = httpx.get(video_url, timeout=self._timeout)
+                else:
+                    clip = httpx.get(content_url, headers=self._headers(), timeout=self._timeout)
+                last = clip.content
+                if clip.status_code == 200 and len(clip.content) > 50_000:  # mp4 thật > 50KB
+                    with open(out_path, "wb") as f:
+                        f.write(clip.content)
+                    return out_path
+            except Exception:  # noqa: BLE001 — best-effort, retry
+                pass
+            # chưa được: thử lấy lại video_url từ status rồi chờ
+            try:
+                st = httpx.get(f"{self._base}/v1/videos/{task_id}",
+                               headers=self._headers(), timeout=self._timeout).json()
+                data = st.get("data") or st
+                video_url = data.get("video_url") or st.get("video_url") or data.get("url") or video_url
+            except Exception:  # noqa: BLE001
+                pass
+            time.sleep(self._poll)
+        raise VideoEngineError(
+            f"CometAPI tải clip lỗi sau 5 lần (status completed nhưng content {len(last)}B). task={task_id}"
+        )

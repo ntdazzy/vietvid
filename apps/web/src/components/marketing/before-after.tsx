@@ -8,8 +8,8 @@ import { motion, useInView, useReducedMotion } from "framer-motion";
 const CAPTIONS = ["Trước nhìn chán lắm…", "Có rồi là lên đời, tự tin hẳn.", "Soi gương mà mê!"];
 
 export function BeforeAfter({
-  src = "/samples/fashion-v2.jpg",
-  video = "/samples/fashion-v2.mp4",
+  src = "/showcase/gaixinh.jpg",
+  video = "/showcase/gaixinh.mp4",
 }: {
   src?: string;
   video?: string;
@@ -20,8 +20,12 @@ export function BeforeAfter({
   const inView = useInView(ref, { once: true, margin: "-60px" });
   const [pos, setPos] = useState(50);
   const [cap, setCap] = useState(0);
+  const [manual, setManual] = useState(false); // người dùng đã tự kéo → tắt hiệu ứng tự trượt
   const dragging = useRef(false);
   const touched = useRef(false);
+
+  // tự trượt mượt: dịch giữa các mốc bằng CSS transition (không nhảy cứng → hết giật).
+  const glide = !manual && !reduce ? "clip-path 820ms cubic-bezier(0.4,0,0.2,1), left 820ms cubic-bezier(0.4,0,0.2,1)" : "none";
 
   // video bên phải tự chạy khi lọt khung.
   useEffect(() => {
@@ -54,6 +58,7 @@ export function BeforeAfter({
     const el = ref.current;
     if (!el) return;
     touched.current = true;
+    setManual(true); // chuyển sang kéo tay → bỏ transition để bám con trỏ tức thì
     const r = el.getBoundingClientRect();
     setPos(Math.max(6, Math.min(94, ((clientX - r.left) / r.width) * 100)));
   }
@@ -72,7 +77,7 @@ export function BeforeAfter({
       <img src={src} alt="Ảnh gốc" className="absolute inset-0 h-full w-full object-cover brightness-75 grayscale" />
 
       {/* lớp trên: KHUNG VIDEO THẬT (mp4 chạy), clip phần bên phải đường chia. Chữ CHỈ ở đây. */}
-      <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${pos}%)` }}>
+      <div className="absolute inset-0" style={{ clipPath: `inset(0 0 0 ${pos}%)`, transition: glide, willChange: "clip-path" }}>
         <video
           ref={vref}
           src={video}
@@ -106,7 +111,7 @@ export function BeforeAfter({
       </span>
 
       {/* đường chia + tay cầm */}
-      <div className="absolute inset-y-0 w-[2px] bg-white/80" style={{ left: `${pos}%` }}>
+      <div className="absolute inset-y-0 w-[2px] bg-white/80" style={{ left: `${pos}%`, transition: glide, willChange: "left" }}>
         <span className="absolute top-1/2 left-1/2 grid h-7 w-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white/70 bg-black/50 text-[10px] text-white backdrop-blur-sm">
           ⇆
         </span>

@@ -50,7 +50,8 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
       {/* dải accent tím mảnh trên đỉnh — chữ ký header full-width (kiểu openart) */}
       <div className="h-0.5 w-full bg-gradient-to-r from-violet-500/0 via-violet-500/70 to-indigo-500/0" />
       <div className="flex items-center gap-6 border-b border-white/[0.07] bg-bg-base/80 px-5 py-3 backdrop-blur-xl lg:gap-10 lg:px-10">
-        <Link href={isAuthed ? "/app" : "/"} className="shrink-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60">
+        {/* Logo LUÔN về trang chủ marketing (/). Vào workspace qua menu "Bảng điều khiển". */}
+        <Link href="/" className="shrink-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60">
           <Logo />
         </Link>
 
@@ -60,6 +61,8 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
           onMouseLeave={scheduleClose}
           onMouseEnter={cancelClose}
         >
+          {/* Lối vào workspace cho người đã đăng nhập (logo giờ về home, cần menu này) */}
+          {isAuthed && <NavLink href="/app" onEnter={() => openMenu(null)}>{t("dashboard")}</NavLink>}
           {MENUS.map((m) => (
             <div key={m.k} className="relative" onMouseEnter={() => openMenu(m.k)}>
               <Trigger label={m.label} active={open === m.k} onEnter={() => openMenu(m.k)} />

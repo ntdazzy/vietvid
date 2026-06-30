@@ -5,17 +5,15 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Mail, Lock, User, Zap, AlertCircle, Loader2, ShieldCheck, Check } from "lucide-react";
+import { Mail, Lock, User, AlertCircle, Loader2, ShieldCheck, Check } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Field, inputCls } from "@/components/ui/field";
 import { FilmLabel } from "@/components/ui/cinematic";
 import { registerLocal, loginLocal } from "@/lib/auth/local";
-import { devLogin } from "@/lib/auth/dev";
 import { signInWithProvider, type OAuthProvider } from "@/lib/auth/oauth";
-import { supabaseConfigured } from "@/lib/config";
 
-// "tạo mọi video AI" — đa thể loại, ảnh candid thật từ /showcase (không model nhựa).
+// "tạo mọi nội dung AI" — đa model, ảnh candid thật từ /showcase (không model nhựa).
 // Hai cột trôi ngược chiều = một bức tường output, KHÔNG phải hero CineHero (bố cục riêng màn login).
 const WALL_LEFT = ["/showcase/kol.jpg", "/showcase/lookbook.jpg", "/showcase/food.jpg", "/showcase/explainer.jpg"];
 const WALL_RIGHT = ["/showcase/affiliate.jpg", "/showcase/trend.jpg", "/showcase/product.jpg", "/showcase/shortfilm.jpg"];
@@ -27,7 +25,7 @@ export default function LoginPage() {
   // đồng bộ với ProofStrip trang chủ (không lệch "9 công cụ"). Chỉ dữ liệu THẬT.
   const STATS = [
     { v: "~60s", l: t("statPerVideo") },
-    { v: "7", l: t("statVoices") },
+    { v: "7", l: t("statTools") },
     { v: "300", l: t("statCredits") },
   ];
 
@@ -37,9 +35,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [loading, setLoading] = useState<null | "form" | "dev" | OAuthProvider>(null);
+  const [loading, setLoading] = useState<null | "form" | OAuthProvider>(null);
   const [error, setError] = useState<string | null>(null);
-  const hasSupabase = supabaseConfigured();
 
   // Quay về từ OAuth lỗi (/login?error=oauth) → báo cho người dùng.
   useEffect(() => {
@@ -81,17 +78,6 @@ export default function LoginPage() {
     }
   }
 
-  async function quickDev() {
-    setLoading("dev");
-    setError(null);
-    try {
-      await devLogin();
-      router.push(nextTarget());
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorDevLogin"));
-      setLoading(null);
-    }
-  }
 
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
@@ -99,8 +85,16 @@ export default function LoginPage() {
           hai cột ảnh candid trôi ngược chiều, scrim brand, value-prop dồn đáy.
           Ẩn trên mobile. Khác hẳn CineHero/bento của các màn khác. */}
       <div className="relative hidden overflow-hidden bg-bg-surface lg:block">
-        {/* lưới ảnh trôi — nền chuyển động nhẹ, candid thật, không stock */}
-        <div className="pointer-events-none absolute inset-0 flex justify-center gap-4 opacity-[0.5]">
+        {/* lưới ảnh trôi — nền chuyển động nhẹ, candid thật, không stock.
+            Mask fade TRÁI→PHẢI: cột sau logo+chữ tan biến (hết "mép ảnh ghép lỗi"),
+            chỉ giữ gallery bên phải. */}
+        <div
+          className="pointer-events-none absolute inset-0 flex justify-end gap-4 pr-6 opacity-[0.5]"
+          style={{
+            maskImage: "linear-gradient(to right, transparent 0%, transparent 38%, black 70%)",
+            WebkitMaskImage: "linear-gradient(to right, transparent 0%, transparent 38%, black 70%)",
+          }}
+        >
           <DriftColumn images={WALL_LEFT} dir="up" />
           <DriftColumn images={WALL_RIGHT} dir="down" className="hidden xl:flex" />
         </div>
@@ -231,36 +225,21 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {hasSupabase && (
-            <>
-              <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] text-ink-disabled">
-                <span className="h-px flex-1 bg-white/[0.08]" />
-                {t("orDivider")}
-                <span className="h-px flex-1 bg-white/[0.08]" />
-              </div>
-              <div className="flex flex-col gap-2.5">
-                <Button variant="glass" size="lg" className="w-full gap-2.5" disabled={loading !== null} onClick={() => social("google")}>
-                  {loading === "google" ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
-                  {t("continueGoogle")}
-                </Button>
-                <Button variant="glass" size="lg" className="w-full gap-2.5" disabled={loading !== null} onClick={() => social("facebook")}>
-                  {loading === "facebook" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FacebookIcon />}
-                  {t("continueFacebook")}
-                </Button>
-              </div>
-            </>
-          )}
-
-          {!hasSupabase && (
-            <button
-              onClick={quickDev}
-              disabled={loading !== null}
-              className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs text-ink-low transition-colors hover:text-ink-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/40"
-            >
-              {loading === "dev" ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
-              {t("quickDevLogin")}
-            </button>
-          )}
+          <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] text-ink-disabled">
+            <span className="h-px flex-1 bg-white/[0.08]" />
+            {t("orDivider")}
+            <span className="h-px flex-1 bg-white/[0.08]" />
+          </div>
+          <div className="flex flex-col gap-2.5">
+            <Button variant="glass" size="lg" className="w-full gap-2.5" disabled={loading !== null} onClick={() => social("google")}>
+              {loading === "google" ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
+              {t("continueGoogle")}
+            </Button>
+            <Button variant="glass" size="lg" className="w-full gap-2.5" disabled={loading !== null} onClick={() => social("facebook")}>
+              {loading === "facebook" ? <Loader2 className="h-4 w-4 animate-spin" /> : <FacebookIcon />}
+              {t("continueFacebook")}
+            </Button>
+          </div>
 
           <p className="mt-6 flex items-center justify-center gap-1.5 text-[11px] text-ink-disabled">
             <ShieldCheck className="h-3.5 w-3.5" /> {t("tlsSecurity")}

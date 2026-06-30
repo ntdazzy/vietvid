@@ -260,6 +260,8 @@
     "submitLogin": "Đăng nhập",
     "orDivider": "hoặc",
     "continueGoogle": "Tiếp tục với Google",
+    "continueFacebook": "Tiếp tục với Facebook",
+    "errorOauth": "Đăng nhập mạng xã hội không thành công. Vui lòng thử lại.",
     "quickDevLogin": "Hoặc đăng nhập nhanh (Dev) để thử",
     "tlsSecurity": "Bảo mật TLS · dữ liệu của bạn được cách ly riêng"
   },

@@ -260,6 +260,8 @@
     "submitLogin": "Sign in",
     "orDivider": "or",
     "continueGoogle": "Continue with Google",
+    "continueFacebook": "Continue with Facebook",
+    "errorOauth": "Social sign-in failed. Please try again.",
     "quickDevLogin": "Or quick sign in (Dev) to try",
     "tlsSecurity": "TLS secured · your data is isolated"
   },

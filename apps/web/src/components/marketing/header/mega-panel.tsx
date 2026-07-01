@@ -105,10 +105,11 @@ export function MegaPanel({ kind, groups, cols }: { kind: MegaKind; groups: Feat
             </div>
           </Link>
 
-          {/* BENTO phải — các nhóm feature */}
-          <div className={cn("grid gap-x-4 gap-y-1 p-4", cols === 3 ? "grid-cols-2" : "grid-cols-1")}>
+          {/* BENTO phải — các nhóm feature. cols=3 → 2 cột masonry (columns-2) tự cân chiều
+              cao khi các nhóm dài ngắn khác nhau (vd Video 8 mục vs Ảnh 2 mục), khỏi hở khoảng trống. */}
+          <div className={cn("gap-x-4 p-4", cols === 3 ? "columns-2" : "flex flex-col")}>
             {groups.map((g) => (
-              <div key={g.title} className="px-1">
+              <div key={g.title} className="mb-1 break-inside-avoid px-1">
                 <div className="mb-0.5 flex items-center gap-2 px-2.5 py-1.5">
                   <span className="h-[3px] w-4 rounded-full bg-grad-brand" />
                   <span className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-violet-300/80">

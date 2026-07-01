@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { FilmLabel } from "@/components/ui/cinematic";
 import { Reveal } from "@/components/marketing/reveal";
+import { PricingTrustBand } from "@/components/marketing/pricing-trust-band";
+import { RoiCalculator } from "@/components/marketing/roi-calculator";
 import { ACCENTS } from "@/lib/accents";
 import { cn } from "@/lib/utils/cn";
 
@@ -171,6 +173,12 @@ export default function PricingPage() {
           </p>
         </div>
       </div>
+
+      {/* 3 con hào "hét to" — thanh toán bản địa · render lỗi không trừ tiền · xu không hết hạn */}
+      <PricingTrustBand />
+
+      {/* máy tính ROI — làm video bằng Vyra rẻ hơn thuê người bao nhiêu */}
+      <RoiCalculator />
 
       {/* dẫn về FAQ trên trang chủ */}
       <section className="mx-auto max-w-3xl px-4 pb-24 text-center">

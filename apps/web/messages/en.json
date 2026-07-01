@@ -11,7 +11,8 @@
     "aiTools": "AI Tools",
     "aiModels": "AI Models",
     "features": "Features",
-    "resources": "Resources"
+    "resources": "Resources",
+    "profile": "Profile"
   },
   "common": {
     "login": "Sign in",
@@ -1230,5 +1231,29 @@
     "tool_character_desc": "Your original character",
     "tool_audio_label": "Audio",
     "tool_audio_desc": "Text → Vietnamese voice"
+  },
+  "profile": {
+    "eyebrow": "Profile",
+    "createCta": "Create video",
+    "adminBadge": "Admin",
+    "roleOwner": "Owner",
+    "roleAdmin": "Admin",
+    "roleMember": "Member",
+    "roleEditor": "Editor",
+    "statCredits": "Credit balance",
+    "statHeld": "On hold",
+    "statVideos": "Videos created",
+    "statDone": "Done",
+    "running": "{n} building",
+    "quickTitle": "Quick links",
+    "topup": "Top up credits",
+    "topupDesc": "Add more to keep creating",
+    "library": "My library",
+    "libraryDesc": "Review your videos",
+    "settings": "Account settings",
+    "settingsDesc": "Name, password, security",
+    "projects": "Projects",
+    "projectsDesc": "Your workbench",
+    "logout": "Log out"
   }
 }

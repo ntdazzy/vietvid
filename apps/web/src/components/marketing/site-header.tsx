@@ -89,6 +89,14 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
                   <Plus className="h-4 w-4" /> {tc("createVideo")}
                 </Button>
               </Link>
+              {/* Avatar → trang cá nhân (monogram từ email, dữ liệu thật) */}
+              <Link
+                href="/app/profile"
+                aria-label={t("profile")}
+                className="hidden h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 text-sm font-bold text-white outline-none ring-1 ring-white/10 transition hover:ring-violet-400/50 focus-visible:ring-2 focus-visible:ring-violet-400/60 sm:grid"
+              >
+                {(me.data?.email?.trim()[0] || "V").toUpperCase()}
+              </Link>
               <button
                 onClick={() => {
                   clearSession();

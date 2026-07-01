@@ -11,7 +11,8 @@
     "aiTools": "Công cụ AI",
     "aiModels": "Model AI",
     "features": "Tính năng",
-    "resources": "Tài nguyên"
+    "resources": "Tài nguyên",
+    "profile": "Trang cá nhân"
   },
   "common": {
     "login": "Đăng nhập",
@@ -1237,5 +1238,29 @@
     "tool_character_desc": "Nhân vật gốc của bạn",
     "tool_audio_label": "Âm thanh",
     "tool_audio_desc": "Văn bản → giọng Việt"
+  },
+  "profile": {
+    "eyebrow": "Trang cá nhân",
+    "createCta": "Tạo video",
+    "adminBadge": "Quản trị viên",
+    "roleOwner": "Chủ sở hữu",
+    "roleAdmin": "Quản trị",
+    "roleMember": "Thành viên",
+    "roleEditor": "Biên tập",
+    "statCredits": "Số dư credit",
+    "statHeld": "Đang tạm giữ",
+    "statVideos": "Video đã tạo",
+    "statDone": "Hoàn tất",
+    "running": "{n} đang dựng",
+    "quickTitle": "Lối tắt",
+    "topup": "Nạp credit",
+    "topupDesc": "Nạp thêm để tạo tiếp",
+    "library": "Thư viện của tôi",
+    "libraryDesc": "Xem lại video đã tạo",
+    "settings": "Cài đặt tài khoản",
+    "settingsDesc": "Tên, mật khẩu, bảo mật",
+    "projects": "Dự án",
+    "projectsDesc": "Bàn dựng của bạn",
+    "logout": "Đăng xuất"
   }
 }

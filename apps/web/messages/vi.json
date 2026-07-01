@@ -98,7 +98,7 @@
     "faq_noskill_q": "Tôi không rành kỹ thuật có dùng được không?",
     "faq_noskill_a": "Được. Nhập mô tả hoặc tải một ảnh, chọn công cụ và model, phần còn lại Vyra lo. Vài bước, vài phút là có kết quả.",
     "faq_voice_q": "Vyra dùng những model AI nào?",
-    "faq_voice_a": "Vyra route tới nhiều model theo từng việc: video (Seedance, sắp có Kling/Veo), ảnh (Gemini/Imagen, sắp có Flux/SDXL), cùng giọng Việt thật và nhân vật AI nhất quán. Danh sách model mở rộng dần.",
+    "faq_voice_a": "Vyra tự chọn model hợp cho từng việc: video (Seedance, sắp có Kling/Veo), ảnh (Gemini/Imagen, sắp có Flux/SDXL), cùng giọng Việt thật và nhân vật AI nhất quán. Danh sách model mở rộng dần.",
     "faq_cost_q": "Chi phí tính thế nào?",
     "faq_cost_a": "Trả theo credit, thấy trước số credit mỗi bản dựng trước khi tạo. Đăng ký tặng 300 credit, không cần thẻ. Chỉ trừ khi dùng, và hoàn 100% nếu lỗi hệ thống.",
     "faq_refund_q": "Lỗi hệ thống có được hoàn tiền không?",

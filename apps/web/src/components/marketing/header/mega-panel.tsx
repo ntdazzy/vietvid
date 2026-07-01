@@ -13,28 +13,28 @@ export type MegaKind = "content" | "tools" | "models" | "features" | "resources"
 
 export const SPOTLIGHT: Record<MegaKind, { image: string; eyebrow: string; title: string; sub: string; href: string }> = {
   content: {
-    image: "/showcase/kol.jpg",
+    image: "/showcase/art.jpg",
     eyebrow: "tính năng",
     title: "Nhập ý tưởng, ra nội dung AI",
     sub: "Chọn một tính năng bên cạnh, hoặc vào thẳng trình tạo.",
     href: "/app/create",
   },
   tools: {
-    image: "/showcase/product.jpg",
+    image: "/showcase/character.jpg",
     eyebrow: "công cụ AI",
     title: "Video, ảnh, giọng nói, nhân vật",
     sub: "Bộ công cụ tạo nội dung AI — từ ý tưởng tới bản dựng.",
     href: "/app/create",
   },
   models: {
-    image: "/showcase/trend.jpg",
+    image: "/showcase/v2/genre-shortfilm-rainy-car-night.jpg",
     eyebrow: "đa model",
     title: "Model AI tốt nhất cho từng việc",
-    sub: "Vyra route tới nhiều model — video, ảnh, giọng, nhân vật — trong một nơi.",
+    sub: "Seedance, Kling, Veo, OmniHuman, FLUX... nhiều model, một tài khoản.",
     href: "/app/create",
   },
   features: {
-    image: "/showcase/lookbook.jpg",
+    image: "/showcase/v2/prod-fashion-knit-boutique.jpg",
     eyebrow: "tính năng",
     title: "Mọi loại nội dung, một quy trình",
     sub: "Chọn nhu cầu bên cạnh, hoặc vào thẳng trình tạo.",

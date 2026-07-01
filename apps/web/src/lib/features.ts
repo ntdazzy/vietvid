@@ -89,6 +89,7 @@ export const MODELS_GROUPS: FeatureGroup[] = [
   {
     title: "Model Video",
     items: [
+      { key: "m_seedance25", label: "Seedance 2.5", desc: "Model video thế hệ mới, người thật hơn", icon: Sparkles, badge: "Sắp có", available: false, href: "#" },
       { key: "m_seedance", label: "Seedance 2.0", desc: "Video điện ảnh AI cao cấp", icon: Sparkles, badge: "Nâng cao", available: true, href: "/app/create" },
       { key: "m_kling", label: "Kling", desc: "Chuyển động mượt, dài hơi", icon: Video, badge: "Sắp có", available: false, href: "#" },
       { key: "m_hailuo", label: "Hailuo · MiniMax", desc: "Nhanh, hợp clip ngắn", icon: Clapperboard, badge: "Sắp có", available: false, href: "#" },

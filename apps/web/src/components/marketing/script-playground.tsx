@@ -11,46 +11,47 @@ type Preset = { label: string; product: string; model: string; kind: string; hoo
 
 const PRESETS: Preset[] = [
   {
-    label: "Video review", product: "Video review serum", model: "Seedance 2.0", kind: "Video",
-    hook: "Da xỉn 7 ngày trước, giờ căng mịn — khác một trời một vực!",
-    clip: "/showcase/gaixinh.mp4",
+    label: "Video bán hàng", product: "Video review sản phẩm", model: "Seedance 2.0", kind: "Video",
+    hook: "Dùng thật hai tuần rồi mới quay — review đúng cảm nhận, không diễn.",
+    clip: "/showcase/v2/idol-vlogger.mp4",
     beats: [
-      { t: "Hook", label: "Mở", text: "Trước với sau khi dùng serum này, nhìn là biết liền." },
-      { t: "Kịch bản", label: "AI viết", text: "Hook → nỗi đau → lợi ích → chốt, theo timecode." },
-      { t: "Giọng", label: "Lồng tiếng", text: "Chọn 1 trong 7 giọng Việt thật, phụ đề khớp khung." },
-      { t: "Xuất", label: "Output", text: "Video 60s, đủ 3 tỉ lệ — dọc, vuông, ngang." },
+      { t: "Mở", label: "Hook", text: "3 giây đầu bắt mắt, giữ người xem không lướt." },
+      { t: "Kịch bản", label: "AI viết", text: "Hook → nỗi đau → lợi ích → chốt đơn, theo timecode." },
+      { t: "Giọng", label: "Lồng tiếng", text: "Giọng Việt thật, phụ đề khớp từng khung hình." },
+      { t: "Xuất", label: "Output", text: "Clip dọc 9:16, sẵn để đăng TikTok/Reels." },
     ],
   },
   {
-    label: "Ảnh sản phẩm", product: "Ảnh serum nền pastel", model: "Gemini · Imagen", kind: "Ảnh",
-    hook: "Ảnh studio, ánh sáng mềm, nền pastel — sắc nét, bám mô tả.",
-    clip: "/showcase/apple.mp4",
+    label: "Ảnh sản phẩm", product: "Ảnh sản phẩm lên sàn", model: "FLUX.2", kind: "Ảnh",
+    hook: "Một tấm chụp vội thành ảnh studio nền sạch — đủ đẹp để lên sàn.",
+    clip: "/showcase/v2/prod-fashion-knit-boutique.mp4",
     beats: [
-      { t: "Mô tả", label: "Prompt", text: "Gõ một câu, AI hiểu phong cách bạn muốn." },
-      { t: "Style", label: "Phong cách", text: "Editorial, tông pastel hồng, nền sạch." },
-      { t: "Model", label: "Engine", text: "Gemini/Imagen — chữ trong ảnh chuẩn, độ nét cao." },
-      { t: "Xuất", label: "Output", text: "Ảnh tải về ngay, dọc 9:16 hoặc vuông 1:1." },
+      { t: "Tải lên", label: "Ảnh gốc", text: "Chụp sản phẩm bằng điện thoại, tải lên là được." },
+      { t: "Style", label: "Bối cảnh", text: "Nền sạch, ánh sáng studio, giữ đúng sản phẩm." },
+      { t: "Model", label: "Engine", text: "FLUX.2 — sắc nét, không làm méo sản phẩm." },
+      { t: "Xuất", label: "Output", text: "Ảnh dọc 9:16 hoặc vuông 1:1, tải về ngay." },
     ],
   },
   {
-    label: "Nhân vật AI", product: "KOL nữ trẻ trung", model: "Nhân vật AI", kind: "Nhân vật",
-    hook: "Diễn viên AI nhất quán — giữ gương mặt qua mọi video.",
-    clip: "/showcase/kol-hero.mp4",
+    label: "KOL ảo", product: "Gương mặt KOL cố định", model: "Nhân vật AI", kind: "Nhân vật",
+    hook: "Một gương mặt KOL, giữ nguyên qua mọi video — dựng một lần, dùng mãi.",
+    clip: "/showcase/v2/idol-skincare.mp4",
     beats: [
-      { t: "Tạo", label: "Khởi tạo", text: "Từ ảnh, mô tả, hoặc tự dựng thuộc tính." },
-      { t: "Vibe", label: "Phong cách", text: "Trẻ trung, thân thiện, giọng nữ Việt." },
-      { t: "Dùng", label: "Tái dùng", text: "Đưa vào ảnh & video sau này." },
-      { t: "Khóa", label: "Nhất quán", text: "Giữ gương mặt mỗi lần sinh lại." },
+      { t: "Tạo", label: "Khởi tạo", text: "Từ ảnh có sẵn, hoặc để AI dựng gương mặt mới." },
+      { t: "Khóa", label: "Nhất quán", text: "Giữ đúng gương mặt mỗi lần sinh lại." },
+      { t: "Dùng", label: "Tái dùng", text: "Đưa vào mọi ảnh & video sau này, miễn phí." },
+      { t: "Vibe", label: "Phong cách", text: "Chọn tuổi, phong cách, giọng nói phù hợp ngành." },
     ],
   },
   {
-    label: "Giọng đọc", product: "Lồng giọng quảng cáo", model: "Giọng Việt", kind: "Giọng",
-    hook: "7 giọng Việt thật — chọn giọng hợp ngành, nghe thử ngay.",
+    label: "Giọng Việt", product: "Lồng giọng quảng cáo", model: "Giọng Việt", kind: "Giọng",
+    hook: "Bảy giọng Việt thật — đọc số tiền và tên hàng chuẩn, nghe như người.",
+    clip: "/showcase/v2/face-tech-reviewer-messy-desk-male.mp4",
     beats: [
-      { t: "Chọn", label: "Giọng", text: "Mai, Linh, Khoa… 7 cá tính khác nhau." },
-      { t: "Nhập", label: "Lời thoại", text: "Dán kịch bản, AI đọc tự nhiên như người." },
-      { t: "Nghe", label: "Preview", text: "Nghe thử ngay trước khi dùng." },
-      { t: "Ghép", label: "Lồng video", text: "Khớp phụ đề theo timecode." },
+      { t: "Chọn", label: "Giọng", text: "Mai, Linh, Khoa… bảy cá tính khác nhau." },
+      { t: "Nhập", label: "Lời thoại", text: "Dán kịch bản, AI đọc tự nhiên, có cảm xúc." },
+      { t: "Nghe", label: "Preview", text: "Nghe thử ngay trước khi dùng credit." },
+      { t: "Ghép", label: "Lồng video", text: "Khớp phụ đề theo timecode từng câu." },
     ],
   },
 ];
@@ -192,7 +193,7 @@ export function ScriptPlayground() {
               autoPlay
               playsInline
               preload="metadata"
-              className="hidden aspect-[9/16] w-[92px] shrink-0 self-start overflow-hidden rounded-xl object-cover ring-1 ring-white/10 sm:block"
+              className="hidden aspect-[9/16] w-[118px] shrink-0 self-start overflow-hidden rounded-xl object-cover ring-1 ring-white/10 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.8)] sm:block"
             />
           )}
         </div>

@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils/cn";
 import { FilmLabel } from "@/components/ui/cinematic";
 import { Reveal } from "@/components/marketing/reveal";
 
-// THƯ VIỆN VYRA — tường video thật (9:16) kiểu autovis, nhưng tile ĐỘNG: mỗi ô tự đổi
-// qua nhiều clip, rê chuột thì phát đúng clip đang hiện + phóng to nhẹ. Clip lấy từ /showcase/v2
-// (đều có poster .jpg). Text VN cứng (giống model-wall) — đây là khối showcase, không qua i18n.
+// THƯ VIỆN VYRA — tường video thật kiểu BENTO lộn xộn (vuông / chữ nhật / dọc / ngang) để có
+// điểm nhấn, không đều tăm tắp. Tile ĐỘNG: tự đổi clip (chậm), có hiệu ứng fade+zoom khi đổi,
+// rê chuột phát đúng clip + phóng to. Clip lấy từ /showcase/v2 (đều có poster .jpg).
 type Cat = "Bán hàng" | "KOL ảo" | "Thể loại" | "Sản phẩm";
 type Item = { title: string; note: string; cat: Cat; clips: string[] };
 
@@ -34,16 +34,28 @@ const LIB: Item[] = [
 
 export const LIBRARY_CATS: Cat[] = ["Bán hàng", "KOL ảo", "Thể loại", "Sản phẩm"];
 
-function LibraryTile({ item, i }: { item: Item; i: number }) {
+// Nhịp BENTO — lặp theo vị trí ô hiện ra (không theo item) để mọi bộ lọc vẫn có điểm nhấn.
+// big = ô lớn 2×2, tall = dọc 1×2, wide = ngang 2×1, sq = vuông 1×1. `grid-flow-row-dense`
+// tự chèn ô nhỏ lấp chỗ trống → mosaic lộn xộn mà kín.
+const SHAPES = [
+  "col-span-2 row-span-2", // big
+  "row-span-2",            // tall (dọc)
+  "col-span-2",            // wide (ngang)
+  "",                      // sq (vuông)
+  "row-span-2",            // tall
+  "",                      // sq
+  "col-span-2",            // wide
+] as const;
+
+function LibraryTile({ item, i, shape }: { item: Item; i: number; shape: string }) {
   const [idx, setIdx] = useState(0);
   const [hover, setHover] = useState(false);
   const ref = useRef<HTMLVideoElement>(null);
 
-  // Tự xoay clip khi KHÔNG hover (đang hover thì giữ để phát trọn clip). Chu kỳ lệch nhau
-  // theo i để các ô không đổi cùng lúc → tường sống động, không "nhấp nháy đồng loạt".
+  // Tự xoay clip khi KHÔNG hover — CHẬM (6–9.6s) để mắt kịp xem, chu kỳ lệch nhau theo i.
   useEffect(() => {
     if (hover || item.clips.length < 2) return;
-    const period = 3800 + (i % 6) * 520;
+    const period = 6000 + (i % 5) * 900;
     const id = setInterval(() => setIdx((v) => (v + 1) % item.clips.length), period);
     return () => clearInterval(id);
   }, [hover, item.clips.length, i]);
@@ -52,12 +64,17 @@ function LibraryTile({ item, i }: { item: Item; i: number }) {
 
   return (
     <div
-      className="group relative aspect-[9/16] overflow-hidden rounded-2xl glass-bordered"
+      className={cn(
+        "group relative overflow-hidden rounded-2xl glass-bordered",
+        "transition-transform duration-500 ease-out hover:z-10 hover:-translate-y-0.5",
+        shape,
+      )}
       onMouseEnter={() => { setHover(true); ref.current?.play().catch(() => {}); }}
       onMouseLeave={() => { setHover(false); const v = ref.current; if (v) { v.pause(); v.currentTime = 0; } }}
     >
-      {/* lớp media zoom nhẹ khi hover */}
-      <div className="absolute inset-0 transition-transform duration-[900ms] ease-out group-hover:scale-[1.08]">
+      {/* lớp media — hover phóng to MẠNH (1.14) */}
+      <div className="absolute inset-0 transition-transform duration-[900ms] ease-out group-hover:scale-[1.14]">
+        {/* ảnh đổi kèm hiệu ứng: fade + zoom nhẹ mỗi lần đổi clip (key đổi → animate lại) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           key={clip}
@@ -65,7 +82,7 @@ function LibraryTile({ item, i }: { item: Item; i: number }) {
           alt=""
           loading="lazy"
           decoding="async"
-          className="h-full w-full animate-in fade-in object-cover duration-700"
+          className="h-full w-full animate-in fade-in-0 zoom-in-95 object-cover duration-[1200ms] ease-out"
         />
         <video
           ref={ref}
@@ -77,13 +94,15 @@ function LibraryTile({ item, i }: { item: Item; i: number }) {
           playsInline
           preload="none"
           className={cn(
-            "absolute inset-0 h-full w-full object-cover transition-opacity duration-300",
+            "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
             hover ? "opacity-100" : "opacity-0",
           )}
         />
       </div>
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/15 to-transparent" />
+      {/* viền sáng tím khi hover — tăng điểm nhấn */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/0 transition duration-500 group-hover:ring-violet-400/40" />
 
       {/* chấm báo số clip trong ô (tile động) */}
       {item.clips.length > 1 && (
@@ -110,9 +129,9 @@ export function VideoLibrary({ limit, filter }: { limit?: number; filter?: Cat |
   const filtered = filter && filter !== "Tất cả" ? LIB.filter((it) => it.cat === filter) : LIB;
   const items = limit ? filtered.slice(0, limit) : filtered;
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-flow-row-dense auto-rows-[132px] grid-cols-2 gap-2.5 sm:auto-rows-[150px] sm:grid-cols-4 sm:gap-3 lg:auto-rows-[140px] lg:grid-cols-6">
       {items.map((it, i) => (
-        <LibraryTile key={it.title} item={it} i={i} />
+        <LibraryTile key={it.title} item={it} i={i} shape={SHAPES[i % SHAPES.length]} />
       ))}
     </div>
   );
@@ -121,7 +140,7 @@ export function VideoLibrary({ limit, filter }: { limit?: number; filter?: Cat |
 /** Khối THƯ VIỆN trên trang chủ — tiêu đề + tường video + lối sang trang Khám phá. */
 export function LibrarySection() {
   return (
-    <section className="mx-auto max-w-[1600px] px-4 py-20 lg:py-24">
+    <section className="mx-auto max-w-[1600px] px-4 py-12 sm:py-16 lg:py-24">
       <Reveal>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-xl">

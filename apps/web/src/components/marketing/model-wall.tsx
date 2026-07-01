@@ -9,12 +9,13 @@ import { Reveal } from "@/components/marketing/reveal";
 // Seedance 2.5 làm ĐIỂM NHẤN (spotlight ảnh nền + hiệu ứng hover). Dữ liệu model THẬT
 // (khớp provider CometAPI/Runware) — không khoe model chưa tích hợp như đã có.
 type Model = { n: string; tag?: "hot" | "soon" };
-const GROUPS: { cat: string; note: string; icon: LucideIcon; models: Model[] }[] = [
-  { cat: "Video", note: "chữ/ảnh → clip", icon: Clapperboard, models: [{ n: "Seedance 2.5", tag: "soon" }, { n: "Seedance 2.0" }, { n: "Kling 3.0" }, { n: "Veo 3.1" }, { n: "Wan 2.6" }, { n: "Hailuo" }] },
-  { cat: "Ảnh", note: "KOL + sản phẩm", icon: ImageIcon, models: [{ n: "Grok Img 1.5", tag: "hot" }, { n: "FLUX.2" }, { n: "Seedream 5" }, { n: "Nano-Banana" }, { n: "Ideogram" }] },
-  { cat: "Mặt nói bán hàng", note: "ảnh + giọng → nói", icon: Speech, models: [{ n: "OmniHuman 1.5", tag: "hot" }, { n: "Kling Avatar 2.0" }] },
-  { cat: "Khoá mặt KOL", note: "1 gương mặt nhất quán", icon: ScanFace, models: [{ n: "InstantID" }, { n: "PuLID" }, { n: "DreamO" }] },
-  { cat: "Giọng Việt", note: "đọc tự nhiên, cảm xúc", icon: Mic2, models: [{ n: "VieNeu-TTS" }, { n: "Fish Audio" }] },
+const V = "/showcase/v2";
+const GROUPS: { cat: string; note: string; icon: LucideIcon; img: string; models: Model[] }[] = [
+  { cat: "Video", note: "chữ/ảnh → clip", icon: Clapperboard, img: `${V}/genre-cinematic-film-noir.jpg`, models: [{ n: "Seedance 2.5", tag: "soon" }, { n: "Seedance 2.0" }, { n: "Kling 3.0" }, { n: "Veo 3.1" }, { n: "Wan 2.6" }, { n: "Hailuo" }] },
+  { cat: "Ảnh", note: "KOL + sản phẩm", icon: ImageIcon, img: `${V}/prod-jewelry-gold-sparkle.jpg`, models: [{ n: "Grok Img 1.5", tag: "hot" }, { n: "FLUX.2" }, { n: "Seedream 5" }, { n: "Nano-Banana" }, { n: "Ideogram" }] },
+  { cat: "Mặt nói bán hàng", note: "ảnh + giọng → nói", icon: Speech, img: `${V}/idol-vlogger.jpg`, models: [{ n: "OmniHuman 1.5", tag: "hot" }, { n: "Kling Avatar 2.0" }] },
+  { cat: "Khoá mặt KOL", note: "1 gương mặt nhất quán", icon: ScanFace, img: `${V}/face-streetwear-golden-hour-male.jpg`, models: [{ n: "InstantID" }, { n: "PuLID" }, { n: "DreamO" }] },
+  { cat: "Giọng Việt", note: "đọc tự nhiên, cảm xúc", icon: Mic2, img: `${V}/face-skincare-vanity-warm-lamp.jpg`, models: [{ n: "VieNeu-TTS" }, { n: "Fish Audio" }] },
 ];
 
 // Đếm THẬT từ dữ liệu — số hiển thị không bao giờ lệch danh sách (trước để cứng "10+").
@@ -110,9 +111,14 @@ export function ModelWall() {
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {GROUPS.map((g, i) => (
             <Reveal key={g.cat} delay={0.03 * i}>
-              <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.09] bg-bg-elevated/70 p-4 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-400/30 hover:bg-bg-elevated/90 hover:shadow-glow-sm">
-                <div className="mb-3 flex items-center gap-2.5">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-violet-400/20 bg-violet-500/10 text-violet-300 transition-colors group-hover:bg-violet-500/20">
+              <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.09] p-4 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-400/30 hover:shadow-glow-sm">
+                {/* ảnh nền cinematic + scrim đục → thẻ premium, chữ vẫn đọc rõ */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={g.img} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover object-top opacity-[0.22] transition-all duration-500 group-hover:scale-105 group-hover:opacity-30" />
+                <div className="absolute inset-0 bg-gradient-to-b from-bg-elevated/80 via-bg-elevated/90 to-bg-elevated/96" />
+                <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-violet-500/15 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+                <div className="relative mb-3 flex items-center gap-2.5">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-violet-400/25 bg-violet-500/15 text-violet-200 backdrop-blur-sm transition-colors group-hover:bg-violet-500/25">
                     <g.icon className="h-[18px] w-[18px]" />
                   </span>
                   <div className="min-w-0">
@@ -120,7 +126,7 @@ export function ModelWall() {
                     <div className="truncate text-[11px] text-ink-low">{g.note}</div>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="relative flex flex-wrap gap-1.5">
                   {g.models.map((m) => (
                     <span
                       key={m.n}

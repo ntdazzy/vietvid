@@ -28,7 +28,7 @@ const CASES: { icon: typeof UserSquare2; key: string; hot?: boolean }[] = [
 export function UseCases() {
   const t = useTranslations("home");
   return (
-    <section className="mx-auto max-w-[1600px] px-4 py-24 lg:py-28">
+    <section className="mx-auto max-w-[1600px] px-4 py-14 sm:py-20 lg:py-28">
       <SectionHeading
         eyebrow={t("useCasesEyebrow")}
         title={t.rich("useCasesTitle", { grad: (c) => <span className="text-gradient">{c}</span> })}

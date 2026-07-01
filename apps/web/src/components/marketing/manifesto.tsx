@@ -10,7 +10,7 @@ import { Reveal } from "@/components/marketing/reveal";
 export function Manifesto() {
   const t = useTranslations("home");
   return (
-    <section className="px-4 py-28 lg:py-32">
+    <section className="px-4 py-16 sm:py-24 lg:py-32">
       <Reveal className="mx-auto max-w-3xl text-center">
         <div className="mx-auto mb-8 h-px max-w-xs bg-gradient-to-r from-transparent via-violet-500/70 to-transparent" />
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-300">

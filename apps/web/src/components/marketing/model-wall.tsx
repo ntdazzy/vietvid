@@ -28,7 +28,7 @@ function chipCls(tag?: "hot" | "soon") {
 
 export function ModelWall() {
   return (
-    <section className="relative overflow-hidden py-20 lg:py-28">
+    <section className="relative overflow-hidden py-14 sm:py-20 lg:py-28">
       {/* Nền cinematic + scrim tan xuống bg-base + 1 vầng glow (đúng luật 1 glow/màn). */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -63,14 +63,14 @@ export default async function LandingPage() {
       <UseCases />
 
       {/* S2 — LƯỚI 6 NĂNG LỰC 01–06 (demo sống) */}
-      <section id="nang-luc" className="mx-auto max-w-[1600px] px-4 py-24 lg:py-28">
+      <section id="nang-luc" className="mx-auto max-w-[1600px] px-4 py-14 sm:py-20 lg:py-28">
         <SectionHeading
           align="center"
           eyebrow={t("s2Eyebrow")}
           title={t.rich("s2Title", { grad: (c) => <span className="text-gradient italic">{c}</span> })}
           sub={t("s2Sub")}
         />
-        <div className="mt-12">
+        <div className="mt-8 sm:mt-12">
           <CapabilityGrid />
         </div>
       </section>
@@ -167,12 +167,12 @@ export default async function LandingPage() {
       <Manifesto />
 
       {/* S9 — Cách Vyra hoạt động */}
-      <section className="py-24 lg:py-28">
+      <section className="py-14 sm:py-20 lg:py-28">
         <HowItWorks />
       </section>
 
       {/* S10 — So sánh */}
-      <section className="py-20 lg:py-24">
+      <section className="py-12 sm:py-16 lg:py-24">
         <CompareTable />
       </section>
 
@@ -227,7 +227,7 @@ export default async function LandingPage() {
       <Faq />
 
       {/* S11b — CTA đóng trang */}
-      <section className="relative overflow-hidden px-4 py-28 text-center">
+      <section className="relative overflow-hidden px-4 py-16 sm:py-20 lg:py-28 text-center">
         <div className="glow-radial pointer-events-none absolute inset-x-0 -top-10 mx-auto h-64 max-w-2xl" />
         <span className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 -translate-y-1/2 select-none text-center font-display text-[clamp(5rem,22vw,18rem)] font-extrabold leading-none text-white/[0.03]">
           VYRA

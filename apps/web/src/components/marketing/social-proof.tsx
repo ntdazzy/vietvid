@@ -37,7 +37,7 @@ const QUOTES = [
 
 export function SocialProof() {
   return (
-    <section className="mx-auto max-w-[1600px] px-4 py-20 lg:py-24">
+    <section className="mx-auto max-w-[1600px] px-4 py-12 sm:py-16 lg:py-24">
       <Reveal>
         <div className="mx-auto max-w-2xl text-center">
           <FilmLabel className="justify-center">Được nhà sáng tạo tin dùng</FilmLabel>

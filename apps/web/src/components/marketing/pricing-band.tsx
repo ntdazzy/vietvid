@@ -18,7 +18,7 @@ const PACKS = [
 
 export function PricingBand() {
   return (
-    <section id="bang-gia" className="mx-auto max-w-[1600px] px-4 py-24 lg:py-28">
+    <section id="bang-gia" className="mx-auto max-w-[1600px] px-4 py-14 sm:py-20 lg:py-28">
       <Reveal>
         <div className="mx-auto max-w-2xl text-center">
           <FilmLabel className="justify-center">Bảng giá minh bạch</FilmLabel>

@@ -31,7 +31,7 @@ function Item({ q, a }: { q: string; a: string }) {
 export function Faq() {
   const t = useTranslations("home");
   return (
-    <section id="faq" className="mx-auto max-w-3xl px-4 py-24 lg:py-28">
+    <section id="faq" className="mx-auto max-w-3xl px-4 py-14 sm:py-20 lg:py-28">
       <SectionHeading
         align="center"
         eyebrow={t("faqEyebrow")}

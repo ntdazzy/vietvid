@@ -25,7 +25,7 @@ export function CapabilityCard({
 }) {
   const num = String(index).padStart(2, "0");
   return (
-    <div className="group relative flex min-h-[380px] flex-col overflow-hidden rounded-[20px] glass-bordered p-5 transition-all duration-300 hover:-translate-y-1">
+    <div className="group relative flex min-h-[300px] sm:min-h-[380px] flex-col overflow-hidden rounded-[20px] glass-bordered p-5 transition-all duration-300 hover:-translate-y-1">
       {/* số mờ + viền tím khi hover */}
       <span className="pointer-events-none absolute right-4 top-1 font-display text-[5rem] font-bold leading-none text-white/[0.05]">
         {num}
@@ -35,7 +35,7 @@ export function CapabilityCard({
       <ActBadge tone={tone} label={badge} className="relative w-fit" />
 
       {/* demo sống */}
-      <div className="relative mt-4 flex-1 overflow-hidden">{children}</div>
+      <div className="relative mt-4 max-h-[240px] flex-1 overflow-hidden sm:max-h-none">{children}</div>
 
       {/* đáy: tiêu đề + mô tả + link */}
       <div className="relative mt-4">

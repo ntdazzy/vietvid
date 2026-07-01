@@ -23,7 +23,7 @@ const PERSONAS = [
 
 export function FeaturedKol() {
   return (
-    <section className="mx-auto max-w-[1600px] px-4 py-24 lg:py-28">
+    <section className="mx-auto max-w-[1600px] px-4 py-14 sm:py-20 lg:py-28">
       <SectionHeading
         eyebrow="KOL AI · 9 gương mặt do AI tạo"
         title={<>Chín gương mặt KOL. <span className="text-gradient italic">Mỗi người một ngành, một outfit nhất quán.</span></>}

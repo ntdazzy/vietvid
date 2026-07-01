@@ -76,7 +76,7 @@ export function CinematicAct({
   );
 
   return (
-    <section id={id} ref={ref} className={cn("relative overflow-hidden", center ? "py-32 lg:py-44" : "py-28 lg:py-40")}>
+    <section id={id} ref={ref} className={cn("relative overflow-hidden", center ? "py-20 sm:py-28 lg:py-44" : "py-16 sm:py-24 lg:py-40")}>
       {/* số 0N khổng lồ mờ — parallax */}
       <motion.span
         aria-hidden
@@ -92,15 +92,15 @@ export function CinematicAct({
 
       <div className="mx-auto max-w-[1600px] px-4">
         {/* act divider */}
-        <div className="mx-auto mb-12 h-px max-w-xs bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
+        <div className="mx-auto mb-8 sm:mb-12 h-px max-w-xs bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
 
         {center ? (
           <div className="mx-auto max-w-3xl">
             <Reveal>{copy}</Reveal>
-            <Reveal delay={0.12} className="mt-12">{demo}</Reveal>
+            <Reveal delay={0.12} className="mt-8 sm:mt-12">{demo}</Reveal>
           </div>
         ) : (
-          <div className="grid items-center gap-12 lg:grid-cols-12">
+          <div className="grid items-center gap-8 sm:gap-12 lg:grid-cols-12">
             <Reveal className={cn("lg:col-span-5", side === "left" ? "lg:order-2 lg:col-start-8" : "")}>
               {copy}
             </Reveal>

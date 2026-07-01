@@ -899,7 +899,8 @@
     "adClaimWarning": "Ad content warning (VN law)",
     "wordCount": "{count}/{target} words · {seconds}s",
     "scriptTip": "Tip: add a Gemini/Groq key for sharper AI-written scripts.",
-    "downloadSrt": "Download .srt captions"
+    "downloadSrt": "Download .srt captions",
+    "previewMonitor": "Preview"
   },
   "admin": {
     "noAccess": "You don't have permission to access the admin page.",
@@ -1202,5 +1203,32 @@
   "credit": {
     "balance": "Balance",
     "held": "On hold"
+  },
+  "director": {
+    "eyebrow": "Workbench",
+    "title": "Your projects",
+    "subtitle": "Everything you're building — video, images, characters, voice — in one place.",
+    "newProject": "New",
+    "statTotal": "Total projects",
+    "statDone": "Done",
+    "statRunning": "Building",
+    "quickStart": "Quick start",
+    "recent": "Recent",
+    "viewAll": "View all",
+    "empty": "No projects yet. Pick a tool above to start.",
+    "kindKol": "AI KOL",
+    "kindProduct": "Product video",
+    "tool_video_label": "Video",
+    "tool_video_desc": "Link → sales clip",
+    "tool_batch_label": "Batch",
+    "tool_batch_desc": "Many videos at once",
+    "tool_image_label": "Image",
+    "tool_image_desc": "Describe → a frame",
+    "tool_kol_label": "KOL",
+    "tool_kol_desc": "Consistent AI face",
+    "tool_character_label": "Character",
+    "tool_character_desc": "Your original character",
+    "tool_audio_label": "Audio",
+    "tool_audio_desc": "Text → Vietnamese voice"
   }
 }

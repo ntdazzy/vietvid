@@ -906,7 +906,8 @@
     "adClaimWarning": "Cảnh báo nội dung quảng cáo (luật VN)",
     "wordCount": "{count}/{target} từ · {seconds}s",
     "scriptTip": "Mẹo: thêm key Gemini/Groq để AI viết kịch bản sắc hơn.",
-    "downloadSrt": "Tải phụ đề .srt"
+    "downloadSrt": "Tải phụ đề .srt",
+    "previewMonitor": "Xem trước"
   },
   "admin": {
     "noAccess": "Bạn không có quyền truy cập trang quản trị.",
@@ -1209,5 +1210,32 @@
   "credit": {
     "balance": "Số dư",
     "held": "Đang giữ"
+  },
+  "director": {
+    "eyebrow": "Bàn dựng",
+    "title": "Dự án của bạn",
+    "subtitle": "Mọi thứ bạn đang dựng — video, ảnh, nhân vật, giọng — tụ về một chỗ.",
+    "newProject": "Tạo mới",
+    "statTotal": "Tổng dự án",
+    "statDone": "Hoàn tất",
+    "statRunning": "Đang dựng",
+    "quickStart": "Bắt đầu nhanh",
+    "recent": "Gần đây",
+    "viewAll": "Xem tất cả",
+    "empty": "Chưa có dự án nào. Chọn một công cụ ở trên để bắt đầu.",
+    "kindKol": "KOL AI",
+    "kindProduct": "Video sản phẩm",
+    "tool_video_label": "Video",
+    "tool_video_desc": "Dán link → clip bán hàng",
+    "tool_batch_label": "Hàng loạt",
+    "tool_batch_desc": "Nhiều video một lần",
+    "tool_image_label": "Ảnh",
+    "tool_image_desc": "Mô tả → khung hình",
+    "tool_kol_label": "KOL",
+    "tool_kol_desc": "Gương mặt ảo cố định",
+    "tool_character_label": "Nhân vật",
+    "tool_character_desc": "Nhân vật gốc của bạn",
+    "tool_audio_label": "Âm thanh",
+    "tool_audio_desc": "Văn bản → giọng Việt"
   }
 }

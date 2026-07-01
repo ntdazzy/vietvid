@@ -30,7 +30,9 @@ export function middleware(request: NextRequest) {
   // (3) Auth-guard: CHỈ chặn màn TẠO (/app/create) khi chưa có cookie cờ phiên
   //     -> /login (kèm ?next để quay lại). Các màn /app/* khác xem tự do.
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith("/app/create") && !request.cookies.has(AUTH_COOKIE)) {
+  // Trình TẠO (tốn credit) phải đăng nhập: /app/create + /app/batch (làm hàng loạt).
+  const isCreator = pathname.startsWith("/app/create") || pathname.startsWith("/app/batch");
+  if (isCreator && !request.cookies.has(AUTH_COOKIE)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);

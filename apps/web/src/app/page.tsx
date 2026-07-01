@@ -9,6 +9,7 @@ import { ScrollToTop } from "@/components/marketing/scroll-to-top";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { SectionHeading } from "@/components/marketing/section-heading";
 import { LibrarySection } from "@/components/marketing/video-library";
+import { Solutions } from "@/components/marketing/solutions";
 import { CapabilityGrid } from "@/components/marketing/capability-grid";
 import { CinematicAct } from "@/components/marketing/cinematic-act";
 import { BeforeAfter } from "@/components/marketing/before-after";
@@ -48,6 +49,9 @@ export default async function LandingPage() {
 
       {/* S1 — THƯ VIỆN VYRA (tường video thật, tile động) — gộp REEL + Marquee + GenreWall + ProductReel */}
       <LibrarySection />
+
+      {/* S1c — GIẢI PHÁP (đau người bán → Vyra lo) — đối ứng 'solutions' autovis, mạnh hơn */}
+      <Solutions />
 
       {/* §5b — SOCIAL PROOF (KOL/TikTok + đu trend Douyin) */}
       <SocialProof />

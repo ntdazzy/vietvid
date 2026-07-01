@@ -29,6 +29,7 @@ export const metadata: Metadata = {
   title: "Vyra - Tạo mọi loại video bằng AI, giọng Việt thật",
   description:
     "Quảng cáo, KOL, bắt trend, phim ngắn, kể chuyện — Vyra dựng video 60 giây với giọng Việt thật. Minh bạch từng credit, hoàn 100% nếu lỗi hệ thống.",
+  icons: { icon: "/icon.svg", apple: "/icon.svg" },
 };
 
 export const viewport: Viewport = {

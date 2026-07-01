@@ -150,6 +150,15 @@ export function PreviewRail() {
 
   return (
     <div className="glass-bordered flex flex-col gap-5 rounded-2xl p-5">
+      {/* HUD "màn hình dựng" — chấm REC nhấp nháy + timecode → cảm giác monitor phòng dựng
+          (KHÔNG dùng khung-ngắm 4 góc: đó là dấu hiệu autovis, đã cố ý bỏ). */}
+      <div className="flex items-center justify-between text-[10px] font-medium uppercase tracking-[0.2em] text-ink-low">
+        <span className="flex items-center gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.8)] motion-safe:animate-pulse" />
+          {t("previewMonitor")}
+        </span>
+        <span className="font-numeric tracking-normal">{w.aspect} · {w.seconds}s</span>
+      </div>
       <AspectFrame />
       <ConfigDigest />
 

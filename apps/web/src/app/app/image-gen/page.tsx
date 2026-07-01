@@ -28,14 +28,19 @@ const REEL = [
 
 const ASPECT_RATIO: Record<string, string> = { "9:16": "9 / 16", "1:1": "1 / 1", "16:9": "16 / 9" };
 
+type Recent = { url: string; prompt: string; aspect: string };
+
 export default function ImageGenPage() {
   const t = useTranslations("imagegen");
+  const td = useTranslations("director");
   const a = ACCENTS.sky;
   const [prompt, setPrompt] = useState("");
   const [aspect, setAspect] = useState("9:16");
   const [url, setUrl] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  // "Gần đây" — ảnh đã tạo trong PHIÊN (blob: URL chỉ sống trong phiên nên không lưu đĩa).
+  const [recents, setRecents] = useState<Recent[]>([]);
 
   function addStyle(s: string) {
     setPrompt((p) => (p.trim() ? `${p.replace(/[,\s]+$/, "")}, ${s}` : s));
@@ -47,7 +52,9 @@ export default function ImageGenPage() {
     setErr(null);
     setUrl(undefined);
     try {
-      setUrl((await api.generateImage(prompt.trim(), aspect)).url);
+      const res = await api.generateImage(prompt.trim(), aspect);
+      setUrl(res.url);
+      setRecents((prev) => [{ url: res.url, prompt: prompt.trim(), aspect }, ...prev].slice(0, 8));
     } catch (e) {
       setErr(e instanceof Error ? e.message : t("errGenerate"));
     } finally {
@@ -89,9 +96,14 @@ export default function ImageGenPage() {
           <div className="relative flex min-h-[420px] flex-col overflow-hidden rounded-3xl glass-bordered">
             {/* dải nhãn trên canvas */}
             <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] px-5 py-3">
-              <span className="flex items-center gap-2 text-xs font-medium text-ink-medium">
-                <span className={cn("h-1.5 w-1.5 rounded-full", url ? "bg-emerald-400" : loading ? "bg-sky-400 animate-pulse" : a.bar)} />
-                {loading ? t("statusBuilding") : url ? t("statusResult") : t("statusEmpty")}
+              <span className="flex items-center gap-2.5 text-xs font-medium text-ink-medium">
+                <span className="flex items-center gap-2">
+                  <span className={cn("h-1.5 w-1.5 rounded-full", url ? "bg-emerald-400" : loading ? "bg-sky-400 animate-pulse" : a.bar)} />
+                  {loading ? t("statusBuilding") : url ? t("statusResult") : t("statusEmpty")}
+                </span>
+                <span className="hidden items-center gap-1 rounded-md border border-sky-400/20 bg-sky-500/[0.08] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-200 sm:inline-flex">
+                  <Sparkles className="h-2.5 w-2.5" /> Vyra AI
+                </span>
               </span>
               {url && (
                 <a href={url} download="vyra-image.png" aria-label={t("downloadAria")}>
@@ -235,6 +247,35 @@ export default function ImageGenPage() {
           </GlassCard>
         </Reveal>
       </div>
+
+      {/* ── Gần đây — ảnh đã tạo trong phiên, bấm để xem lại (kho kết quả kiểu studio) ── */}
+      {recents.length > 0 && (
+        <Reveal delay={0.12}>
+          <div>
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink-medium">
+              <ImageIcon className={cn("h-4 w-4", a.icon)} /> {td("recent")}
+              <span className="font-numeric text-xs text-ink-disabled">({recents.length})</span>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-1">
+              {recents.map((r, i) => (
+                <button
+                  key={r.url + i}
+                  onClick={() => { setUrl(r.url); setPrompt(r.prompt); setAspect(r.aspect); }}
+                  title={r.prompt}
+                  className={cn(
+                    "group relative aspect-[3/4] w-24 shrink-0 overflow-hidden rounded-xl border transition",
+                    url === r.url ? "border-sky-400/60 ring-1 ring-sky-400/40" : "border-white/10 hover:border-sky-400/40",
+                  )}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={r.url} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.06]" />
+                  <span className="absolute bottom-1 right-1 rounded bg-bg-base/70 px-1 font-numeric text-[9px] text-ink-medium backdrop-blur-sm">{r.aspect}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+      )}
 
       {/* ── Mẹo viết mô tả — dải ngang dưới đáy ── */}
       <Reveal delay={0.15}>

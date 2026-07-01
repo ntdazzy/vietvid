@@ -22,14 +22,19 @@ const WAVE = [
   76, 90, 68, 48, 30, 42, 62, 80, 92, 70, 52, 36, 24, 40, 60, 78, 86, 64, 44, 28,
 ];
 
+type RecentTake = { url: string; text: string; name: string };
+
 export default function AudioToolPage() {
   const t = useTranslations("audio");
+  const td = useTranslations("director");
   const [text, setText] = useState("");
   const [personas, setPersonas] = useState<VoicePersona[]>([]);
   const [persona, setPersona] = useState<VoicePersona | null>(null);
   const [url, setUrl] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  // "Gần đây" — bản giọng đã tạo trong PHIÊN (blob: URL, không lưu đĩa được).
+  const [recents, setRecents] = useState<RecentTake[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -43,12 +48,18 @@ export default function AudioToolPage() {
     try {
       const u = await api.voicePreview(text.trim(), persona.gender, persona.id);
       setUrl(u);
+      setRecents((prev) => [{ url: u, text: text.trim(), name: persona.name }, ...prev].slice(0, 6));
       if (audioRef.current) { audioRef.current.src = u; await audioRef.current.play(); }
     } catch {
       setErr(t("error"));
     } finally {
       setLoading(false);
     }
+  }
+
+  function playTake(tk: RecentTake) {
+    setUrl(tk.url);
+    if (audioRef.current) { audioRef.current.src = tk.url; audioRef.current.play().catch(() => {}); }
   }
 
   const ready = Boolean(text.trim()) && Boolean(persona);
@@ -270,6 +281,38 @@ export default function AudioToolPage() {
           <audio ref={audioRef} controls hidden={!url} className="relative mt-4 w-full" />
         </section>
       </Reveal>
+
+      {/* ── Gần đây — bản giọng đã tạo trong phiên, bấm nghe lại ── */}
+      {recents.length > 0 && (
+        <Reveal delay={0.18}>
+          <section className="rounded-3xl glass-bordered p-5">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink-medium">
+              <AudioLines className={cn("h-4 w-4", ACCENT.icon)} /> {td("recent")}
+              <span className="font-numeric text-xs text-ink-disabled">({recents.length})</span>
+            </div>
+            <div className="flex flex-col gap-2">
+              {recents.map((tk, i) => (
+                <button
+                  key={tk.url + i}
+                  onClick={() => playTake(tk)}
+                  className={cn(
+                    "group flex items-center gap-3 rounded-xl border p-2.5 text-left transition",
+                    url === tk.url ? "border-rose-400/50 bg-rose-500/[0.08]" : "border-white/10 hover:border-rose-400/30 hover:bg-white/[0.03]",
+                  )}
+                >
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-rose-500/15 text-rose-200 transition group-hover:scale-105">
+                    <Play className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm text-ink-high">{tk.text}</span>
+                    <span className="text-[11px] text-ink-low">{t("readBy", { name: tk.name })}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </Reveal>
+      )}
       </div>
     </StudioShell>
   );

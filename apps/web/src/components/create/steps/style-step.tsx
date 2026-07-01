@@ -23,6 +23,19 @@ const ASPECTS = [
   { value: "16:9", labelKey: "aspectHorizontal", box: { width: 32, height: 18 } },
 ];
 
+// Thẻ trực quan (thay chip trần): mỗi lựa chọn kèm 1 gợi ý ngắn để bấm-chọn không cần đoán.
+const DURATIONS = [
+  { s: 5, hint: "Hook nhanh" },
+  { s: 8, hint: "Chuẩn bán hàng" },
+  { s: 10, hint: "Đủ ý" },
+  { s: 15, hint: "Kể chuyện" },
+];
+const RESOLUTIONS = [
+  { v: "480p", hint: "Nhẹ, rẻ" },
+  { v: "720p", hint: "Khuyên dùng" },
+  { v: "1080p", hint: "Nét nhất" },
+];
+
 export function StyleStep() {
   const t = useTranslations("create");
   const w = useWizard();
@@ -45,25 +58,51 @@ export function StyleStep() {
         />
       </Field>
 
-      <Field label={t("duration")}>
-        <ChipGroup
-          value={w.seconds}
-          onChange={(v) => w.patch({ seconds: v })}
-          options={[5, 8, 10, 15].map((s) => ({ value: s, label: `${s}s` }))}
-        />
-      </Field>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label={t("duration")}>
+          <div className="grid grid-cols-4 gap-2">
+            {DURATIONS.map((d) => {
+              const active = w.seconds === d.s;
+              return (
+                <button
+                  key={d.s}
+                  type="button"
+                  onClick={() => w.patch({ seconds: d.s })}
+                  className={cn(
+                    "flex flex-col items-center gap-0.5 rounded-xl border py-2.5 transition-colors",
+                    active ? "border-violet-500/60 bg-violet-500/10" : "border-white/10 hover:border-white/25",
+                  )}
+                >
+                  <span className={cn("font-numeric text-base font-bold", active ? "text-ink-high" : "text-ink-medium")}>{d.s}s</span>
+                  <span className="text-[10px] leading-tight text-ink-low">{d.hint}</span>
+                </button>
+              );
+            })}
+          </div>
+        </Field>
 
-      <Field label={t("resolution")}>
-        <ChipGroup
-          value={w.resolution}
-          onChange={(v) => w.patch({ resolution: v })}
-          options={[
-            { value: "480p", label: "480p" },
-            { value: "720p", label: "720p" },
-            { value: "1080p", label: "1080p" },
-          ]}
-        />
-      </Field>
+        <Field label={t("resolution")}>
+          <div className="grid grid-cols-3 gap-2">
+            {RESOLUTIONS.map((r) => {
+              const active = w.resolution === r.v;
+              return (
+                <button
+                  key={r.v}
+                  type="button"
+                  onClick={() => w.patch({ resolution: r.v })}
+                  className={cn(
+                    "flex flex-col items-center gap-0.5 rounded-xl border py-2.5 transition-colors",
+                    active ? "border-violet-500/60 bg-violet-500/10" : "border-white/10 hover:border-white/25",
+                  )}
+                >
+                  <span className={cn("text-sm font-semibold", active ? "text-ink-high" : "text-ink-medium")}>{r.v}</span>
+                  <span className="text-[10px] leading-tight text-ink-low">{r.hint}</span>
+                </button>
+              );
+            })}
+          </div>
+        </Field>
+      </div>
 
       <Field label={t("aspectRatio")} hint={t("aspectHint")}>
         <div className="grid grid-cols-3 gap-3">

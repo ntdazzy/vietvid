@@ -181,16 +181,16 @@ export default function LoginPage() {
         <Link href="/" className="absolute left-6 top-6 lg:hidden">
           <Logo />
         </Link>
-        {/* nút trở về trang chủ (desktop) — user không bị kẹt ở màn đăng nhập */}
-        <Link
-          href="/"
-          className="absolute right-6 top-6 hidden items-center gap-1.5 text-sm text-ink-low transition-colors hover:text-ink-medium lg:flex"
-        >
-          <span aria-hidden>←</span> Trang chủ
-        </Link>
 
         {/* thẻ kính viền-gradient — bản sắc Vyra (KHÔNG bare column như cũ) */}
         <div className="w-full max-w-sm rounded-3xl glass-bordered p-7 sm:p-8">
+          {/* nút trở về trang chủ — NẰM TRONG card cho gọn đẹp (user không bị kẹt ở màn đăng nhập) */}
+          <Link
+            href="/"
+            className="mb-5 flex w-fit items-center gap-1.5 text-xs font-medium text-ink-low transition-colors hover:text-ink-medium"
+          >
+            <span aria-hidden>←</span> Trang chủ
+          </Link>
           <FilmLabel className="mb-4">{mode === "register" ? t("cardLabelRegister") : t("cardLabelLogin")}</FilmLabel>
           <h2 className="font-display text-2xl font-bold text-ink-high">
             {mode === "register" ? t("cardTitleRegister") : t("cardTitleLogin")}

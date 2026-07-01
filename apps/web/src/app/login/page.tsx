@@ -25,7 +25,7 @@ export default function LoginPage() {
   // đồng bộ với ProofStrip trang chủ (không lệch "9 công cụ"). Chỉ dữ liệu THẬT.
   const STATS = [
     { v: "~60s", l: t("statPerVideo") },
-    { v: "7", l: t("statTools") },
+    { v: "10+", l: t("statTools") },
     { v: "300", l: t("statCredits") },
   ];
 
@@ -132,7 +132,10 @@ export default function LoginPage() {
 
         {/* nội dung trái: logo trên — value-prop dưới (bất đối xứng, dồn đáy) */}
         <div className="relative flex h-full flex-col justify-between p-10 xl:p-12">
-          <Logo />
+          {/* logo bấm được → về trang chủ (trước đây trơ, user kẹt ở login) */}
+          <Link href="/" aria-label="Về trang chủ" className="w-fit">
+            <Logo />
+          </Link>
 
           <div className="max-w-md">
             <FilmLabel>{t("studioLabel")}</FilmLabel>
@@ -177,6 +180,13 @@ export default function LoginPage() {
       <div className="relative grid place-items-center overflow-hidden mesh-bg px-4 py-10">
         <Link href="/" className="absolute left-6 top-6 lg:hidden">
           <Logo />
+        </Link>
+        {/* nút trở về trang chủ (desktop) — user không bị kẹt ở màn đăng nhập */}
+        <Link
+          href="/"
+          className="absolute right-6 top-6 hidden items-center gap-1.5 text-sm text-ink-low transition-colors hover:text-ink-medium lg:flex"
+        >
+          <span aria-hidden>←</span> Trang chủ
         </Link>
 
         {/* thẻ kính viền-gradient — bản sắc Vyra (KHÔNG bare column như cũ) */}

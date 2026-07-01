@@ -98,7 +98,7 @@ export function LandingHero() {
           >
             {[
               { n: "~60s", l: t("statPerVideo"), I: Clock },
-              { n: "7", l: t("statTools"), I: Boxes },
+              { n: "10+", l: t("statTools"), I: Boxes },
               { n: "300", l: t("statCredits"), I: Gift },
             ].map(({ n, l, I }) => (
               <div key={l} className="rounded-2xl border border-white/[0.07] bg-white/[0.025] px-3 py-3">

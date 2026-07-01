@@ -7,107 +7,117 @@ import { cn } from "@/lib/utils/cn";
 import { FilmLabel } from "@/components/ui/cinematic";
 import { Reveal } from "@/components/marketing/reveal";
 
-// THƯ VIỆN VYRA — tường video thật kiểu BENTO lộn xộn (vuông / chữ nhật / dọc / ngang) để có
-// điểm nhấn, không đều tăm tắp. Tile ĐỘNG: tự đổi clip (chậm), có hiệu ứng fade+zoom khi đổi,
-// rê chuột phát đúng clip + phóng to. Clip lấy từ /showcase/v2 (đều có poster .jpg).
+// THƯ VIỆN VYRA — tường video thật kiểu MASONRY (Pinterest): mỗi ô lấy ĐÚNG tỉ lệ thật của clip
+// (dọc 9:16 hoặc ngang 16:9) nên KHÔNG bao giờ cắt mặt / cắt đầu. Ô cao–thấp xen kẽ tạo bố cục
+// lộn xộn có điểm nhấn mà vẫn kín. Đổi clip CHẬM + hiệu ứng cao cấp: crossfade mượt + Ken Burns
+// (ảnh "thở" nhẹ). Rê chuột phát đúng clip (không phóng to). Clip lấy từ /showcase/v2 (đều có poster).
 type Cat = "Bán hàng" | "KOL ảo" | "Phim & trend" | "Thể loại" | "Sản phẩm";
-type Item = { title: string; note: string; cat: Cat; clips: string[] };
+type Orient = "p" | "l"; // p = dọc 9:16, l = ngang 16:9
+type Item = { title: string; note: string; cat: Cat; orient: Orient; clips: string[] };
 
 const V = "/showcase/v2";
+
+// Thứ tự đã trộn dọc/ngang + nhóm để cột masonry cân và trang chủ (18 ô đầu) đa dạng nhất.
 const LIB: Item[] = [
-  { title: "KOL review sản phẩm", note: "video chốt đơn", cat: "Bán hàng", clips: [`${V}/idol-vlogger`, `${V}/face-skincare-vanity-warm-lamp`] },
-  { title: "Quảng cáo shop online", note: "ảnh SP → clip bán hàng", cat: "Bán hàng", clips: [`${V}/prod-fashion-knit-boutique`, `${V}/prod-footwear-sneakers-step`] },
-  { title: "Unbox mỹ phẩm", note: "mở hộp, cận cảnh", cat: "Bán hàng", clips: [`${V}/idol-skincare`, `${V}/prod-decor-vase-candle`] },
-  { title: "Gương mặt KOL cố định", note: "1 mặt, mọi video", cat: "KOL ảo", clips: [`${V}/idol-vlogger`, `${V}/face-girl-next-door-bedroom-vlogger`] },
-  { title: "KOL nam công nghệ", note: "review đồ tech", cat: "KOL ảo", clips: [`${V}/face-tech-reviewer-messy-desk-male`, `${V}/face-streetwear-golden-hour-male`] },
-  { title: "Mẹ bỉm & em bé", note: "nội dung gia đình", cat: "KOL ảo", clips: [`${V}/face-young-mom-kitchen-baby`, `${V}/genre-mom-baby-tender`] },
-  { title: "Phim ma / kinh dị", note: "điện ảnh, hù dọa", cat: "Phim & trend", clips: [`${V}/genre-horror-ghost-hallway`, `${V}/genre-shortfilm-rainy-car-night`] },
-  { title: "Siêu anh hùng", note: "hoành tráng, điện ảnh", cat: "Phim & trend", clips: [`${V}/genre-superhero-rooftop-dusk`, `${V}/genre-cinematic-film-noir`] },
-  { title: "Hoạt hình 3D", note: "nhân vật dễ thương", cat: "Phim & trend", clips: [`${V}/genre-animation-3d-character`] },
-  { title: "Đu trend bóng đá", note: "cổ vũ, ăn mừng", cat: "Phim & trend", clips: [`${V}/genre-football-fan-celebrate`, `${V}/genre-street-fashion-walk`] },
-  { title: "Phim / điện ảnh", note: "khung hình điện ảnh", cat: "Phim & trend", clips: [`${V}/genre-cinematic-film-noir`, `${V}/genre-storyteller-window`] },
-  { title: "Douyin biến hình", note: "chuyển cảnh, thay đồ", cat: "Phim & trend", clips: [`${V}/genre-douyin-transform-glam`, `${V}/genre-street-fashion-walk`] },
-  { title: "Đu trend đường phố", note: "bắt sóng nhanh", cat: "Thể loại", clips: [`${V}/genre-street-fashion-walk`, `${V}/face-streetwear-golden-hour-male`] },
-  { title: "Ẩm thực đường phố", note: "food b-roll", cat: "Thể loại", clips: [`${V}/genre-cafe-streetfood-eating`, `${V}/genre-home-cooking-pov`] },
-  { title: "Phim ngắn / kể chuyện", note: "điện ảnh, đêm mưa", cat: "Thể loại", clips: [`${V}/genre-shortfilm-rainy-car-night`, `${V}/genre-storyteller-window`] },
-  { title: "Du lịch & đời sống", note: "b-roll chân thực", cat: "Thể loại", clips: [`${V}/genre-travel-broll-traveler`, `${V}/genre-cozy-cafe-latte-broll`] },
-  { title: "Bất động sản", note: "walkthrough căn hộ", cat: "Thể loại", clips: [`${V}/genre-real-estate-walkthrough`, `${V}/genre-cute-pet-no-person`] },
-  { title: "Yoga & thể thao", note: "chuyển động mượt", cat: "Thể loại", clips: [`${V}/face-morning-yoga-dewy`, `${V}/face-pale-elegant-rainy-cafe`] },
-  { title: "Ảnh sản phẩm thời trang", note: "nền sạch, lên sàn", cat: "Sản phẩm", clips: [`${V}/prod-fashion-knit-boutique`, `${V}/prod-accessory-leather-bag`] },
-  { title: "Tai nghe & đồ tech", note: "cận cảnh chi tiết", cat: "Sản phẩm", clips: [`${V}/prod-tech-earbuds-desk`, `${V}/prod-appliance-espresso-shot`] },
-  { title: "Giày & phụ kiện", note: "xoay 360, bắt sáng", cat: "Sản phẩm", clips: [`${V}/prod-footwear-sneakers-step`, `${V}/prod-accessory-leather-bag`] },
+  // — mở đầu: mặt KOL đẹp nhất + 1 khung điện ảnh ngang làm điểm nhấn —
+  { title: "KOL review sản phẩm", note: "video chốt đơn", cat: "Bán hàng", orient: "p", clips: [`${V}/idol-vlogger`, `${V}/face-skincare-vanity-warm-lamp`] },
+  { title: "Phim điện ảnh", note: "khung hình noir, ánh phim", cat: "Phim & trend", orient: "l", clips: [`${V}/genre-cinematic-film-noir`] },
+  { title: "Siêu anh hùng", note: "hoành tráng, mái nhà hoàng hôn", cat: "Phim & trend", orient: "p", clips: [`${V}/genre-superhero-rooftop-dusk`] },
+  { title: "Quảng cáo shop online", note: "ảnh SP → clip bán hàng", cat: "Bán hàng", orient: "p", clips: [`${V}/prod-fashion-knit-boutique`, `${V}/prod-footwear-sneakers-step`] },
+  { title: "Du lịch & đời sống", note: "b-roll chân thực", cat: "Thể loại", orient: "l", clips: [`${V}/genre-travel-broll-traveler`] },
+  { title: "Douyin biến hình", note: "chuyển cảnh, thay đồ", cat: "Phim & trend", orient: "p", clips: [`${V}/genre-douyin-transform-glam`] },
+  { title: "Unbox mỹ phẩm", note: "mở hộp, cận cảnh", cat: "Bán hàng", orient: "p", clips: [`${V}/idol-skincare`] },
+  { title: "Phim ma / kinh dị", note: "điện ảnh, hù dọa", cat: "Phim & trend", orient: "l", clips: [`${V}/genre-horror-ghost-hallway`] },
+  { title: "KOL nam streetwear", note: "phong cách đường phố", cat: "KOL ảo", orient: "p", clips: [`${V}/face-streetwear-golden-hour-male`] },
+  { title: "Đu trend bóng đá", note: "cổ vũ, ăn mừng", cat: "Phim & trend", orient: "p", clips: [`${V}/genre-football-fan-celebrate`] },
+  { title: "Cafe cozy b-roll", note: "hơi ấm, latte art", cat: "Thể loại", orient: "l", clips: [`${V}/genre-cozy-cafe-latte-broll`] },
+  { title: "Mẹ bỉm & em bé", note: "nội dung gia đình", cat: "KOL ảo", orient: "p", clips: [`${V}/face-young-mom-kitchen-baby`, `${V}/genre-mom-baby-tender`] },
+  { title: "Hoạt hình 3D", note: "nhân vật dễ thương", cat: "Phim & trend", orient: "p", clips: [`${V}/genre-animation-3d-character`] },
+  { title: "Phim ngắn đêm mưa", note: "kể chuyện, trong xe", cat: "Phim & trend", orient: "l", clips: [`${V}/genre-shortfilm-rainy-car-night`] },
+  { title: "Nam review công nghệ", note: "đập hộp đồ tech", cat: "Bán hàng", orient: "p", clips: [`${V}/face-tech-reviewer-messy-desk-male`, `${V}/prod-tech-earbuds-desk`] },
+  { title: "Nàng thơ cafe mưa", note: "nhẹ nhàng, điện ảnh", cat: "KOL ảo", orient: "p", clips: [`${V}/face-pale-elegant-rainy-cafe`] },
+  { title: "Bất động sản", note: "walkthrough căn hộ", cat: "Thể loại", orient: "l", clips: [`${V}/genre-real-estate-walkthrough`] },
+  { title: "Thời trang đường phố", note: "bắt sóng nhanh", cat: "Phim & trend", orient: "p", clips: [`${V}/genre-street-fashion-walk`] },
+  // — phần còn lại (trang Khám phá hiện hết) —
+  { title: "Gương mặt KOL cố định", note: "1 mặt, mọi video", cat: "KOL ảo", orient: "p", clips: [`${V}/idol-vlogger`, `${V}/face-girl-next-door-bedroom-vlogger`] },
+  { title: "Ẩm thực đường phố", note: "food b-roll, cận cảnh", cat: "Thể loại", orient: "p", clips: [`${V}/genre-cafe-streetfood-eating`] },
+  { title: "Máy pha cafe", note: "cận cảnh, bắt sáng", cat: "Sản phẩm", orient: "l", clips: [`${V}/prod-appliance-espresso-shot`] },
+  { title: "Cô nàng nhà bên", note: "vlog phòng ngủ", cat: "KOL ảo", orient: "p", clips: [`${V}/face-girl-next-door-bedroom-vlogger`] },
+  { title: "Kể chuyện bên cửa sổ", note: "tự sự, ánh sáng dịu", cat: "Phim & trend", orient: "p", clips: [`${V}/genre-storyteller-window`] },
+  { title: "Túi & phụ kiện da", note: "chất liệu, đường may", cat: "Sản phẩm", orient: "l", clips: [`${V}/prod-accessory-leather-bag`] },
+  { title: "Yoga & thể thao", note: "chuyển động mượt", cat: "Thể loại", orient: "p", clips: [`${V}/face-morning-yoga-dewy`] },
+  { title: "Nấu ăn tại nhà POV", note: "góc nhìn thứ nhất", cat: "Thể loại", orient: "p", clips: [`${V}/genre-home-cooking-pov`] },
+  { title: "Trang trí & decor", note: "bình hoa, nến thơm", cat: "Sản phẩm", orient: "l", clips: [`${V}/prod-decor-vase-candle`] },
+  { title: "Thư sinh tiệm sách", note: "rụt rè, ánh nắng", cat: "KOL ảo", orient: "p", clips: [`${V}/face-bookshop-shy-reader`] },
+  { title: "Gen Z selfie", note: "tàn nhang, tự nhiên", cat: "KOL ảo", orient: "p", clips: [`${V}/face-genz-student-freckles-selfie`] },
+  { title: "Thú cưng đáng yêu", note: "không cần người", cat: "Thể loại", orient: "p", clips: [`${V}/genre-cute-pet-no-person`] },
+  { title: "Chốt đơn livestream", note: "hook 3 giây", cat: "Bán hàng", orient: "p", clips: [`${V}/face-skincare-vanity-warm-lamp`] },
+  { title: "Ảnh sản phẩm thời trang", note: "nền sạch, lên sàn", cat: "Sản phẩm", orient: "p", clips: [`${V}/prod-fashion-knit-boutique`] },
+  { title: "Giày sneaker", note: "xoay 360, bắt sáng", cat: "Sản phẩm", orient: "p", clips: [`${V}/prod-footwear-sneakers-step`] },
+  { title: "Tai nghe & đồ tech", note: "cận cảnh chi tiết", cat: "Sản phẩm", orient: "p", clips: [`${V}/prod-tech-earbuds-desk`] },
 ];
 
 export const LIBRARY_CATS: Cat[] = ["Bán hàng", "KOL ảo", "Phim & trend", "Thể loại", "Sản phẩm"];
 
-// Nhịp BENTO — lặp theo vị trí ô hiện ra (không theo item) để mọi bộ lọc vẫn có điểm nhấn.
-// big = ô lớn 2×2, tall = dọc 1×2, wide = ngang 2×1, sq = vuông 1×1. `grid-flow-row-dense`
-// tự chèn ô nhỏ lấp chỗ trống → mosaic lộn xộn mà kín.
-const SHAPES = [
-  "col-span-2 row-span-2", // big
-  "row-span-2",            // tall (dọc)
-  "col-span-2",            // wide (ngang)
-  "",                      // sq (vuông)
-  "row-span-2",            // tall
-  "",                      // sq
-  "col-span-2",            // wide
-] as const;
-
-function LibraryTile({ item, i, shape }: { item: Item; i: number; shape: string }) {
+function LibraryTile({ item, i }: { item: Item; i: number }) {
   const [idx, setIdx] = useState(0);
   const [hover, setHover] = useState(false);
   const ref = useRef<HTMLVideoElement>(null);
 
-  // Tự xoay clip khi KHÔNG hover — CHẬM (6–9.6s) để mắt kịp xem, chu kỳ lệch nhau theo i.
+  // Tự xoay clip khi KHÔNG hover — CHẬM (5.2–9.2s), chu kỳ lệch nhau theo i để không đổi đồng loạt.
   useEffect(() => {
     if (hover || item.clips.length < 2) return;
-    const period = 6000 + (i % 5) * 900;
+    const period = 5200 + (i % 6) * 800;
     const id = setInterval(() => setIdx((v) => (v + 1) % item.clips.length), period);
     return () => clearInterval(id);
   }, [hover, item.clips.length, i]);
 
-  const clip = item.clips[idx];
+  // KHUNG = đúng tỉ lệ thật của clip → object-cover gần như không cắt gì (mọi clip đã chuẩn 9:16 / 16:9).
+  const aspect = item.orient === "p" ? "aspect-[9/16]" : "aspect-[16/9]";
+  // Ken Burns lệch pha theo tile (delay âm) để mỗi ô "thở" khác nhịp, không đồng loạt.
+  const kbDelay = `-${(i * 3.5) % 24}s`;
 
   return (
     <div
-      className={cn(
-        "group relative overflow-hidden rounded-2xl glass-bordered",
-        "transition-transform duration-500 ease-out hover:z-10 hover:-translate-y-0.5",
-        shape,
-      )}
+      className={cn("group relative block w-full overflow-hidden rounded-2xl glass-bordered", aspect)}
       onMouseEnter={() => { setHover(true); ref.current?.play().catch(() => {}); }}
       onMouseLeave={() => { setHover(false); const v = ref.current; if (v) { v.pause(); v.currentTime = 0; } }}
     >
-      {/* lớp media — hover phóng to MẠNH (1.14) */}
-      <div className="absolute inset-0 transition-transform duration-[900ms] ease-out group-hover:scale-[1.14]">
-        {/* ảnh đổi kèm hiệu ứng: fade + zoom nhẹ mỗi lần đổi clip (key đổi → animate lại) */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+      {/* Các lớp ảnh xếp chồng — đổi clip = crossfade opacity 1.6s (mượt cao cấp). Mỗi lớp Ken Burns nhẹ. */}
+      {item.clips.map((c, k) => (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
-          key={clip}
-          src={`${clip}.jpg`}
+          key={c}
+          src={`${c}.jpg`}
           alt=""
           loading="lazy"
           decoding="async"
-          className="h-full w-full animate-in fade-in-0 zoom-in-95 object-cover duration-[1200ms] ease-out"
-        />
-        <video
-          ref={ref}
-          key={`${clip}-v`}
-          src={`${clip}.mp4`}
-          poster={`${clip}.jpg`}
-          muted
-          loop
-          playsInline
-          preload="none"
+          style={{ animationDelay: kbDelay }}
           className={cn(
-            "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
-            hover ? "opacity-100" : "opacity-0",
+            "absolute inset-0 h-full w-full animate-kenburns object-cover transition-opacity duration-[1600ms] ease-[cubic-bezier(0.4,0,0.2,1)]",
+            k === idx ? "opacity-100" : "opacity-0",
           )}
         />
-      </div>
+      ))}
 
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/15 to-transparent" />
-      {/* viền sáng tím khi hover — tăng điểm nhấn */}
+      {/* video phát khi hover (KHÔNG phóng to) */}
+      <video
+        ref={ref}
+        key={`${item.clips[idx]}-v`}
+        src={`${item.clips[idx]}.mp4`}
+        poster={`${item.clips[idx]}.jpg`}
+        muted
+        loop
+        playsInline
+        preload="none"
+        className={cn(
+          "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
+          hover ? "opacity-100" : "opacity-0",
+        )}
+      />
+
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base/95 via-bg-base/10 to-transparent" />
+      {/* viền sáng tím khi hover — điểm nhấn nhẹ, không zoom */}
       <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/0 transition duration-500 group-hover:ring-violet-400/40" />
 
       {/* chấm báo số clip trong ô (tile động) */}
@@ -128,16 +138,19 @@ function LibraryTile({ item, i, shape }: { item: Item; i: number; shape: string 
 }
 
 /**
- * `limit` — số ô hiển thị (trang chủ giới hạn ~10). Bỏ trống = hiện hết.
+ * `limit` — số ô hiển thị (trang chủ giới hạn ~18). Bỏ trống = hiện hết.
  * `filter` — lọc theo nhóm (trang Khám phá dùng tab). "Tất cả" = không lọc.
+ * Bố cục MASONRY (CSS columns): ô dọc cao, ô ngang thấp → xen kẽ lộn xộn mà kín, KHÔNG cắt mặt.
  */
 export function VideoLibrary({ limit, filter }: { limit?: number; filter?: Cat | "Tất cả" }) {
   const filtered = filter && filter !== "Tất cả" ? LIB.filter((it) => it.cat === filter) : LIB;
   const items = limit ? filtered.slice(0, limit) : filtered;
   return (
-    <div className="grid grid-flow-row-dense auto-rows-[132px] grid-cols-2 gap-2.5 sm:auto-rows-[150px] sm:grid-cols-4 sm:gap-3 lg:auto-rows-[140px] lg:grid-cols-6">
+    <div className="gap-2.5 [column-fill:balance] columns-2 sm:gap-3 sm:columns-3 lg:columns-4 xl:columns-5">
       {items.map((it, i) => (
-        <LibraryTile key={it.title} item={it} i={i} shape={SHAPES[i % SHAPES.length]} />
+        <div key={it.title} className="mb-2.5 break-inside-avoid sm:mb-3">
+          <LibraryTile item={it} i={i} />
+        </div>
       ))}
     </div>
   );
@@ -165,7 +178,7 @@ export function LibrarySection() {
         </div>
       </Reveal>
       <div className="mt-9">
-        <VideoLibrary limit={12} />
+        <VideoLibrary limit={18} />
       </div>
     </section>
   );

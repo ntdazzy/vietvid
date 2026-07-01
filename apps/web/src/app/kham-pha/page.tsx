@@ -36,8 +36,8 @@ export default function KhamPhaPage() {
             Thư viện video <span className="text-gradient italic">dựng bằng Vyra</span>
           </h1>
           <p className="mt-4 text-ink-medium">
-            Video thật 9:16, đủ mọi thể loại — bán hàng, KOL ảo, thể loại, ảnh sản phẩm. Rê chuột để
-            xem clip chạy. Thấy kiểu nào ưng, bấm tạo cái của bạn trong 60 giây.
+            Video thật đủ khung — dọc 9:16, ngang 16:9, điện ảnh — đủ mọi thể loại: bán hàng, KOL ảo,
+            phim & trend, ảnh sản phẩm. Rê chuột để xem clip chạy. Thấy kiểu nào ưng, bấm tạo cái của bạn trong 60 giây.
           </p>
         </div>
 

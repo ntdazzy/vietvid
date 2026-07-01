@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FilmLabel } from "@/components/ui/cinematic";
 import { Reveal } from "@/components/marketing/reveal";
 import { SiteHeader } from "@/components/marketing/site-header";
+import { ScrollToTop } from "@/components/marketing/scroll-to-top";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { SectionHeading } from "@/components/marketing/section-heading";
 import { SampleMarquee } from "@/components/marketing/sample-marquee";
@@ -81,6 +82,7 @@ export default async function LandingPage() {
     <div className="relative min-h-dvh mesh-bg">
       <Intro />
       <SiteHeader />
+      <ScrollToTop />
 
       {/* S0 — HERO */}
       <LandingHero />

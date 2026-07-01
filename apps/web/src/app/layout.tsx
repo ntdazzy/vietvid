@@ -9,6 +9,9 @@ import "./globals.css";
 const display = Be_Vietnam_Pro({
   subsets: ["latin", "vietnamese"],
   weight: ["600", "700", "800"],
+  // italic THẬT (không để browser nghiêng-giả) — nghiêng-giả + bg-clip-text cắt mất
+  // phần tràn của chữ HOA nghiêng (vd "AI") ở mép dòng. Sửa gốc cho MỌI heading gradient-italic.
+  style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });

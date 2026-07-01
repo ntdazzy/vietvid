@@ -24,6 +24,7 @@ import {
   Link2,
   Webhook,
   HelpCircle,
+  Download,
   type LucideIcon,
 } from "lucide-react";
 
@@ -123,19 +124,33 @@ export const FEATURES_GROUPS: FeatureGroup[] = [
   {
     title: "Bán hàng & KOL",
     items: [
-      { key: "f_kol", label: "KOL AI", desc: "Gương mặt ảo review nhất quán", icon: Flame, available: true, href: "/app/kol" },
+      { key: "f_ad", label: "Quảng cáo sản phẩm", desc: "1 ảnh → video chốt đơn", icon: Megaphone, available: true, href: "/features/product_ad" },
       { key: "f_review", label: "Video review", desc: "KOL review theo kịch bản", icon: Film, available: true, href: "/features/review" },
       { key: "f_lookbook", label: "Lookbook thời trang", desc: "Trình diễn SP bối cảnh editorial", icon: Shirt, available: true, href: "/features/lookbook" },
-      { key: "f_ad", label: "Quảng cáo sản phẩm", desc: "1 ảnh → video chốt đơn", icon: Megaphone, available: true, href: "/features/product_ad" },
+      { key: "f_kol", label: "KOL AI", desc: "Gương mặt ảo review nhất quán", icon: Flame, available: true, href: "/app/kol" },
+      { key: "f_tryon", label: "Thử đồ KOL", desc: "Mặc thử sản phẩm lên người mẫu AI", icon: Shirt, badge: "Sắp có", available: false, href: "#" },
+      { key: "f_faceswap", label: "Nhập vai (đưa mặt vào video)", desc: "Đưa gương mặt bạn vào clip AI", icon: ScanFace, badge: "Sắp có", available: false, href: "#" },
     ],
   },
   {
-    title: "Sáng tạo & câu chuyện",
+    title: "Sáng tạo & thể loại",
     items: [
-      { key: "f_t2v", label: "Văn bản → Video", desc: "Ý tưởng → khung AI", icon: Type, available: true, href: "/features/text_to_video" },
+      { key: "f_t2v", label: "Văn bản → Video", desc: "Ý tưởng → khung AI dựng clip", icon: Type, available: true, href: "/features/text_to_video" },
       { key: "f_image", label: "Tạo ảnh AI", desc: "Mô tả một câu, AI vẽ ảnh", icon: Palette, available: true, href: "/features/ai_image" },
-      { key: "f_composite", label: "Ghép video & ảnh", desc: "Nhiều ảnh thành video", icon: Layers, available: true, href: "/features/composite" },
-      { key: "f_story", label: "Kể chuyện / phim ngắn", desc: "Storyboard theo timecode", icon: BookOpen, badge: "Sắp có", available: false, href: "#" },
+      { key: "f_composite", label: "Ghép video & ảnh", desc: "Nhiều ảnh thành 1 video", icon: Layers, available: true, href: "/features/composite" },
+      { key: "f_story", label: "Phim ngắn / kể chuyện", desc: "Storyboard theo timecode", icon: BookOpen, badge: "Sắp có", available: false, href: "#" },
+      { key: "f_anime", label: "Hoạt hình / anime", desc: "Dựng clip phong cách hoạt hình", icon: Sparkles, badge: "Sắp có", available: false, href: "#" },
+      { key: "f_trend", label: "Đu trend / biến hình", desc: "Douyin transform, nhảy trend", icon: Music2, badge: "Sắp có", available: false, href: "#" },
+    ],
+  },
+  {
+    title: "Phân tích & Kênh",
+    items: [
+      { key: "f_order", label: "Phân tích đơn Shopee/TikTok", desc: "Tìm SP thắng + gợi ý kịch bản", icon: Boxes, badge: "Sắp có", available: false, href: "#" },
+      { key: "f_moviereview", label: "Review phim tự động", desc: "Kịch bản + giọng đọc AI bám phim", icon: Film, badge: "Sắp có", available: false, href: "#" },
+      { key: "f_download", label: "Tải video không logo", desc: "TikTok / Facebook / YouTube", icon: Download, badge: "Sắp có", available: false, href: "#" },
+      { key: "f_affiliate", label: "Affiliate", desc: "Gắn link, đo hoa hồng", icon: Link2, available: true, href: "/app/affiliate" },
+      { key: "f_reports", label: "Báo cáo hiệu quả", desc: "Đo click, view, bản thắng", icon: BarChart3, available: true, href: "/app/reports" },
     ],
   },
 ];

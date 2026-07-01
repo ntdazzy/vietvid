@@ -41,7 +41,7 @@ export function SiteHeader({ authed = false }: { authed?: boolean }) {
   const MENUS: { k: MenuKey; label: string; groups: FeatureGroup[]; cols: number }[] = [
     { k: "tools", label: t("aiTools"), groups: CONTENT_GROUPS, cols: 3 },
     { k: "models", label: t("aiModels"), groups: MODELS_GROUPS, cols: 3 },
-    { k: "features", label: t("features"), groups: FEATURES_GROUPS, cols: 2 },
+    { k: "features", label: t("features"), groups: FEATURES_GROUPS, cols: 3 },
     { k: "resources", label: t("resources"), groups: RESOURCES_GROUPS, cols: 2 },
   ];
 

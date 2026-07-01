@@ -13,14 +13,14 @@ export type MegaKind = "content" | "tools" | "models" | "features" | "resources"
 
 export const SPOTLIGHT: Record<MegaKind, { image: string; eyebrow: string; title: string; sub: string; href: string }> = {
   content: {
-    image: "/showcase/v2/genre-cozy-cafe-latte-broll.jpg",
+    image: "/showcase/v2/genre-storyteller-window.jpg",
     eyebrow: "tính năng",
     title: "Nhập ý tưởng, ra nội dung AI",
     sub: "Chọn một tính năng bên cạnh, hoặc vào thẳng trình tạo.",
     href: "/app/create",
   },
   tools: {
-    image: "/showcase/v2/face-girl-next-door-bedroom-vlogger.jpg",
+    image: "/showcase/v2/genre-street-fashion-walk.jpg",
     eyebrow: "công cụ AI",
     title: "Video, ảnh, giọng nói, nhân vật",
     sub: "Bộ công cụ tạo nội dung AI — từ ý tưởng tới bản dựng.",
@@ -34,14 +34,14 @@ export const SPOTLIGHT: Record<MegaKind, { image: string; eyebrow: string; title
     href: "/app/create",
   },
   features: {
-    image: "/showcase/v2/prod-fashion-knit-boutique.jpg",
+    image: "/showcase/v2/genre-cafe-streetfood-eating.jpg",
     eyebrow: "tính năng",
     title: "Mọi loại nội dung, một quy trình",
     sub: "Chọn nhu cầu bên cạnh, hoặc vào thẳng trình tạo.",
     href: "/app/create",
   },
   resources: {
-    image: "/showcase/v2/genre-real-estate-walkthrough.jpg",
+    image: "/showcase/v2/genre-cozy-cafe-latte-broll.jpg",
     eyebrow: "tài nguyên",
     title: "Thư viện, mẫu và công cụ kênh",
     sub: "Quản lý nội dung, đo hiệu quả, tích hợp hệ thống.",
@@ -85,7 +85,7 @@ export function MegaPanel({ kind, groups, cols }: { kind: MegaKind; groups: Feat
               src={spot.image}
               alt=""
               loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover opacity-[0.48] transition-transform duration-500 group-hover:scale-[1.06] group-hover:opacity-60"
+              className="absolute inset-0 h-full w-full object-cover opacity-[0.55] transition-all duration-500 group-hover:scale-[1.06] group-hover:opacity-70"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-bg-elevated via-bg-elevated/85 to-bg-elevated/40" />
             <div className="pointer-events-none absolute -left-10 top-1/3 h-40 w-40 rounded-full bg-violet-500/20 blur-3xl" />

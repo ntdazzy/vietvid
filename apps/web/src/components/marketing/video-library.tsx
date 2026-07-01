@@ -10,7 +10,7 @@ import { Reveal } from "@/components/marketing/reveal";
 // THƯ VIỆN VYRA — tường video thật kiểu BENTO lộn xộn (vuông / chữ nhật / dọc / ngang) để có
 // điểm nhấn, không đều tăm tắp. Tile ĐỘNG: tự đổi clip (chậm), có hiệu ứng fade+zoom khi đổi,
 // rê chuột phát đúng clip + phóng to. Clip lấy từ /showcase/v2 (đều có poster .jpg).
-type Cat = "Bán hàng" | "KOL ảo" | "Thể loại" | "Sản phẩm";
+type Cat = "Bán hàng" | "KOL ảo" | "Phim & trend" | "Thể loại" | "Sản phẩm";
 type Item = { title: string; note: string; cat: Cat; clips: string[] };
 
 const V = "/showcase/v2";
@@ -21,6 +21,12 @@ const LIB: Item[] = [
   { title: "Gương mặt KOL cố định", note: "1 mặt, mọi video", cat: "KOL ảo", clips: [`${V}/idol-vlogger`, `${V}/face-girl-next-door-bedroom-vlogger`] },
   { title: "KOL nam công nghệ", note: "review đồ tech", cat: "KOL ảo", clips: [`${V}/face-tech-reviewer-messy-desk-male`, `${V}/face-streetwear-golden-hour-male`] },
   { title: "Mẹ bỉm & em bé", note: "nội dung gia đình", cat: "KOL ảo", clips: [`${V}/face-young-mom-kitchen-baby`, `${V}/genre-mom-baby-tender`] },
+  { title: "Phim ma / kinh dị", note: "điện ảnh, hù dọa", cat: "Phim & trend", clips: [`${V}/genre-horror-ghost-hallway`, `${V}/genre-shortfilm-rainy-car-night`] },
+  { title: "Siêu anh hùng", note: "hoành tráng, điện ảnh", cat: "Phim & trend", clips: [`${V}/genre-superhero-rooftop-dusk`, `${V}/genre-cinematic-film-noir`] },
+  { title: "Hoạt hình 3D", note: "nhân vật dễ thương", cat: "Phim & trend", clips: [`${V}/genre-animation-3d-character`] },
+  { title: "Đu trend bóng đá", note: "cổ vũ, ăn mừng", cat: "Phim & trend", clips: [`${V}/genre-football-fan-celebrate`, `${V}/genre-street-fashion-walk`] },
+  { title: "Phim / điện ảnh", note: "khung hình điện ảnh", cat: "Phim & trend", clips: [`${V}/genre-cinematic-film-noir`, `${V}/genre-storyteller-window`] },
+  { title: "Douyin biến hình", note: "chuyển cảnh, thay đồ", cat: "Phim & trend", clips: [`${V}/genre-douyin-transform-glam`, `${V}/genre-street-fashion-walk`] },
   { title: "Đu trend đường phố", note: "bắt sóng nhanh", cat: "Thể loại", clips: [`${V}/genre-street-fashion-walk`, `${V}/face-streetwear-golden-hour-male`] },
   { title: "Ẩm thực đường phố", note: "food b-roll", cat: "Thể loại", clips: [`${V}/genre-cafe-streetfood-eating`, `${V}/genre-home-cooking-pov`] },
   { title: "Phim ngắn / kể chuyện", note: "điện ảnh, đêm mưa", cat: "Thể loại", clips: [`${V}/genre-shortfilm-rainy-car-night`, `${V}/genre-storyteller-window`] },
@@ -32,7 +38,7 @@ const LIB: Item[] = [
   { title: "Giày & phụ kiện", note: "xoay 360, bắt sáng", cat: "Sản phẩm", clips: [`${V}/prod-footwear-sneakers-step`, `${V}/prod-accessory-leather-bag`] },
 ];
 
-export const LIBRARY_CATS: Cat[] = ["Bán hàng", "KOL ảo", "Thể loại", "Sản phẩm"];
+export const LIBRARY_CATS: Cat[] = ["Bán hàng", "KOL ảo", "Phim & trend", "Thể loại", "Sản phẩm"];
 
 // Nhịp BENTO — lặp theo vị trí ô hiện ra (không theo item) để mọi bộ lọc vẫn có điểm nhấn.
 // big = ô lớn 2×2, tall = dọc 1×2, wide = ngang 2×1, sq = vuông 1×1. `grid-flow-row-dense`
@@ -159,7 +165,7 @@ export function LibrarySection() {
         </div>
       </Reveal>
       <div className="mt-9">
-        <VideoLibrary limit={10} />
+        <VideoLibrary limit={12} />
       </div>
     </section>
   );

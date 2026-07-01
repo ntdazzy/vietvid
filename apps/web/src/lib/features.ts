@@ -160,7 +160,7 @@ export const FEATURES_GROUPS: FeatureGroup[] = [
   {
     title: "Phân tích & Kênh",
     items: [
-      { key: "f_order", label: "Phân tích đơn Shopee/TikTok", desc: "Tìm SP thắng + gợi ý kịch bản", icon: Boxes, badge: "Sắp có", available: false, href: "#" },
+      { key: "f_order", label: "Phân tích đơn Shopee/TikTok", desc: "Tìm SP thắng + gợi ý kịch bản", icon: Boxes, badge: "Mới", available: true, href: "/app/order-analysis" },
       { key: "f_moviereview", label: "Review phim tự động", desc: "Kịch bản + giọng đọc AI bám phim", icon: Film, badge: "Sắp có", available: false, href: "#" },
       { key: "f_download", label: "Tải video không logo", desc: "TikTok / Facebook / YouTube", icon: Download, badge: "Sắp có", available: false, href: "#" },
       { key: "f_affiliate", label: "Affiliate", desc: "Gắn link, đo hoa hồng", icon: Link2, available: true, href: "/app/affiliate" },

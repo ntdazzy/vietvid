@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro, Inter, Space_Grotesk } from "next/font/google";
 import { GeistMono } from "geist/font/mono";
 import { Providers } from "./providers";
+import { NavProgress } from "@/components/shell/nav-progress";
 import { getLocale, getMessages } from "@/lib/i18n/server";
 import "./globals.css";
 
@@ -49,6 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       suppressHydrationWarning
     >
       <body className="min-h-dvh overflow-x-clip antialiased">
+        <NavProgress />
         <Providers locale={locale} messages={messages}>
           {children}
         </Providers>

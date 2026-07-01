@@ -1,27 +1,35 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
+import { Clapperboard, Image as ImageIcon, Speech, ScanFace, Mic2 } from "lucide-react";
 import { FilmLabel } from "@/components/ui/cinematic";
 import { Reveal } from "@/components/marketing/reveal";
 
 // "Tổng hợp nhiều model AI" — khối QUẢNG CÁO chính: Vyra gom mọi model xịn vào 1 tài khoản.
 // Seedance 2.5 làm ĐIỂM NHẤN (spotlight ảnh nền + hiệu ứng hover). Dữ liệu model THẬT
 // (khớp provider CometAPI/Runware) — không khoe model chưa tích hợp như đã có.
-const GROUPS: { cat: string; note: string; models: { n: string; tag?: "hot" | "soon" }[] }[] = [
-  { cat: "Video", note: "chữ/ảnh → clip", models: [{ n: "Seedance 2.5", tag: "soon" }, { n: "Seedance 2.0" }, { n: "Kling 3.0" }, { n: "Veo 3.1" }, { n: "Wan 2.6" }, { n: "Hailuo" }] },
-  { cat: "Ảnh", note: "KOL + sản phẩm", models: [{ n: "FLUX.2" }, { n: "Seedream 5" }, { n: "Nano-Banana", tag: "hot" }, { n: "Ideogram" }] },
-  { cat: "Mặt nói bán hàng", note: "ảnh + giọng → nói", models: [{ n: "OmniHuman 1.5", tag: "hot" }, { n: "Kling Avatar 2.0" }] },
-  { cat: "Khoá mặt KOL", note: "1 gương mặt nhất quán", models: [{ n: "InstantID" }, { n: "PuLID" }, { n: "DreamO" }] },
-  { cat: "Giọng Việt", note: "đọc tự nhiên, cảm xúc", models: [{ n: "VieNeu-TTS" }, { n: "Fish Audio" }] },
+type Model = { n: string; tag?: "hot" | "soon" };
+const GROUPS: { cat: string; note: string; icon: LucideIcon; models: Model[] }[] = [
+  { cat: "Video", note: "chữ/ảnh → clip", icon: Clapperboard, models: [{ n: "Seedance 2.5", tag: "soon" }, { n: "Seedance 2.0" }, { n: "Kling 3.0" }, { n: "Veo 3.1" }, { n: "Wan 2.6" }, { n: "Hailuo" }] },
+  { cat: "Ảnh", note: "KOL + sản phẩm", icon: ImageIcon, models: [{ n: "Grok Img 1.5", tag: "hot" }, { n: "FLUX.2" }, { n: "Seedream 5" }, { n: "Nano-Banana" }, { n: "Ideogram" }] },
+  { cat: "Mặt nói bán hàng", note: "ảnh + giọng → nói", icon: Speech, models: [{ n: "OmniHuman 1.5", tag: "hot" }, { n: "Kling Avatar 2.0" }] },
+  { cat: "Khoá mặt KOL", note: "1 gương mặt nhất quán", icon: ScanFace, models: [{ n: "InstantID" }, { n: "PuLID" }, { n: "DreamO" }] },
+  { cat: "Giọng Việt", note: "đọc tự nhiên, cảm xúc", icon: Mic2, models: [{ n: "VieNeu-TTS" }, { n: "Fish Audio" }] },
 ];
 
 // Đếm THẬT từ dữ liệu — số hiển thị không bao giờ lệch danh sách (trước để cứng "10+").
 const MODEL_COUNT = GROUPS.reduce((s, g) => s + g.models.length, 0);
 
+function chipCls(tag?: "hot" | "soon") {
+  if (tag === "soon") return "border-violet-400/40 bg-violet-500/10 text-violet-200";
+  if (tag === "hot") return "border-amber-400/40 bg-amber-500/10 text-amber-200";
+  return "border-white/10 bg-white/[0.04] text-ink-medium group-hover:border-white/20";
+}
+
 export function ModelWall() {
   return (
     <section className="relative overflow-hidden py-20 lg:py-28">
-      {/* Nền cinematic + scrim tan xuống bg-base + 1 vầng glow (đúng luật 1 glow/màn).
-          Ảnh chỉ hiện mờ ở đỉnh → tạo chiều sâu, KHÔNG đè lên thẻ phía dưới. */}
+      {/* Nền cinematic + scrim tan xuống bg-base + 1 vầng glow (đúng luật 1 glow/màn). */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -30,25 +38,27 @@ export function ModelWall() {
           className="h-full w-full object-cover object-top opacity-[0.16]"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-bg-base/70 via-bg-base/92 to-bg-base" />
-        <div className="glow-radial absolute left-1/2 top-[-6rem] h-[520px] w-[860px] -translate-x-1/2 opacity-70" />
+        <div className="glow-radial absolute left-1/3 top-[-6rem] h-[520px] w-[820px] -translate-x-1/2 opacity-70" />
       </div>
 
       <div className="mx-auto max-w-[1600px] px-4">
-        {/* HEADER — căn giữa, nâng tầm: eyebrow + tiêu đề lớn (italic thật, hết cắt chữ) + dẫn */}
+        {/* HEADER — căn TRÁI (đồng bộ với các section khác), nhưng lớn & nổi bật */}
         <Reveal>
-          <div className="mx-auto max-w-3xl text-center">
-            <FilmLabel className="justify-center">Tổng hợp nhiều model AI hàng đầu</FilmLabel>
-            <h2 className="mt-4 font-display text-[clamp(2rem,5vw,3.4rem)] font-bold leading-[1.12] tracking-tight text-ink-high">
-              Một tài khoản. <span className="text-gradient italic">Mọi model AI xịn nhất.</span>
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ink-medium">
-              Vyra gom {MODEL_COUNT} model hàng đầu thế giới vào một chỗ và tự chọn cái tốt + rẻ cho
-              từng việc. Bạn khỏi cần nhiều tài khoản nước ngoài, khỏi thẻ Visa, khỏi rành kỹ thuật.
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <FilmLabel>Tổng hợp nhiều model AI hàng đầu</FilmLabel>
+              <h2 className="mt-3 font-display text-[clamp(2rem,4.4vw,3rem)] font-bold leading-[1.12] tracking-tight text-ink-high">
+                Một tài khoản. <span className="text-gradient italic">Mọi model AI xịn nhất.</span>
+              </h2>
+            </div>
+            <p className="max-w-sm text-sm leading-relaxed text-ink-low sm:text-right">
+              Vyra gom {MODEL_COUNT} model hàng đầu thế giới vào một chỗ, tự chọn cái tốt + rẻ cho từng
+              việc. Bạn khỏi nhiều tài khoản nước ngoài, khỏi thẻ Visa, khỏi rành kỹ thuật.
             </p>
           </div>
         </Reveal>
 
-        <div className="mt-12 grid gap-4 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {/* SPOTLIGHT Seedance 2.5 — ảnh nền cinematic + hover glow, chiếm 2/3 */}
           <Reveal className="lg:col-span-2">
             <div className="group relative h-full min-h-[300px] overflow-hidden rounded-3xl border border-white/[0.08]">
@@ -96,27 +106,29 @@ export function ModelWall() {
           </Reveal>
         </div>
 
-        {/* Lưới model theo nhóm — mỗi nhóm 1 thẻ, chip model + hover */}
+        {/* Lưới model theo nhóm — thẻ premium: icon + tiêu đề rõ + chip model dễ đọc */}
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {GROUPS.map((g, i) => (
             <Reveal key={g.cat} delay={0.03 * i}>
-              <div className="group h-full rounded-2xl glass-bordered p-4 transition-colors hover:border-violet-400/25">
-                <div className="font-display text-sm font-bold text-ink-high">{g.cat}</div>
-                <div className="text-[11px] text-ink-low">{g.note}</div>
-                <div className="mt-3 flex flex-wrap gap-1.5">
+              <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.09] bg-bg-elevated/70 p-4 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-400/30 hover:bg-bg-elevated/90 hover:shadow-glow-sm">
+                <div className="mb-3 flex items-center gap-2.5">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-violet-400/20 bg-violet-500/10 text-violet-300 transition-colors group-hover:bg-violet-500/20">
+                    <g.icon className="h-[18px] w-[18px]" />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="font-display text-sm font-bold leading-tight text-ink-high">{g.cat}</div>
+                    <div className="truncate text-[11px] text-ink-low">{g.note}</div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
                   {g.models.map((m) => (
                     <span
                       key={m.n}
-                      className={
-                        "rounded-lg border px-2 py-0.5 text-[11px] transition-colors " +
-                        (m.tag === "soon"
-                          ? "border-violet-400/40 bg-violet-500/10 text-violet-200"
-                          : m.tag === "hot"
-                            ? "border-amber-400/30 bg-amber-500/10 text-amber-200"
-                            : "border-white/10 bg-white/[0.03] text-ink-medium group-hover:border-white/20")
-                      }
+                      className={"inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[11.5px] font-medium transition-colors " + chipCls(m.tag)}
                     >
-                      {m.n}{m.tag === "soon" ? " · sắp" : m.tag === "hot" ? " · hot" : ""}
+                      {m.n}
+                      {m.tag === "hot" && <span className="text-[9px] font-bold uppercase text-amber-300">hot</span>}
+                      {m.tag === "soon" && <span className="text-[9px] font-bold uppercase text-violet-300">sắp</span>}
                     </span>
                   ))}
                 </div>

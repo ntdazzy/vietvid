@@ -93,28 +93,42 @@ export const MODELS_GROUPS: FeatureGroup[] = [
   {
     title: "Model Video",
     items: [
-      { key: "m_seedance25", label: "Seedance 2.5", desc: "Model video thế hệ mới, người thật hơn", icon: Sparkles, badge: "Sắp có", available: false, href: "#" },
-      { key: "m_seedance", label: "Seedance 2.0", desc: "Video điện ảnh AI cao cấp", icon: Sparkles, badge: "Nâng cao", available: true, href: "/app/create" },
-      { key: "m_kling", label: "Kling", desc: "Chuyển động mượt, dài hơi", icon: Video, badge: "Sắp có", available: false, href: "#" },
-      { key: "m_hailuo", label: "Hailuo · MiniMax", desc: "Nhanh, hợp clip ngắn", icon: Clapperboard, badge: "Sắp có", available: false, href: "#" },
-      { key: "m_veo", label: "Runway · Veo", desc: "Chất điện ảnh cao cấp", icon: Film, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_seedance", label: "Seedance 2.0", desc: "Video điện ảnh AI, đang chạy thật", icon: Sparkles, badge: "Nâng cao", available: true, href: "/app/create" },
+      { key: "m_seedance25", label: "Seedance 2.5", desc: "Thế hệ mới, người thật hơn", icon: Sparkles, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_kling", label: "Kling 3.0", desc: "Chuyển động mượt, dài hơi", icon: Video, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_veo", label: "Veo 3.1", desc: "Chất điện ảnh cao cấp", icon: Film, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_wan", label: "Wan 2.6", desc: "Bám prompt sát, ổn định", icon: Clapperboard, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_hailuo", label: "Hailuo · MiniMax", desc: "Nhanh, hợp clip ngắn", icon: Video, badge: "Sắp có", available: false, href: "#" },
     ],
   },
   {
     title: "Model Ảnh",
     items: [
-      { key: "m_gemini", label: "Gemini · Imagen", desc: "Ảnh sắc nét, bám mô tả", icon: ImageIcon, available: true, href: "/app/image-gen" },
-      { key: "m_flux", label: "Flux", desc: "Ảnh thực, chữ trong ảnh chuẩn", icon: Wand2, badge: "Sắp có", available: false, href: "#" },
-      { key: "m_sdxl", label: "Stable Diffusion XL", desc: "Tùy biến mạnh + LoRA", icon: Boxes, badge: "Sắp có", available: false, href: "#" },
-      { key: "m_dalle", label: "DALL·E", desc: "Phác ý tưởng nhanh", icon: Palette, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_gemini", label: "Gemini · Imagen", desc: "Ảnh sắc nét, đang chạy thật", icon: ImageIcon, available: true, href: "/app/image-gen" },
+      { key: "m_grok", label: "Grok Img 1.5", desc: "Ảnh người siêu thực, bắt sáng", icon: Wand2, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_flux", label: "FLUX.2", desc: "Ảnh thực, chữ trong ảnh chuẩn", icon: Boxes, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_seedream", label: "Seedream 5", desc: "Ảnh sản phẩm nét, đủ sáng", icon: Sparkles, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_nanobanana", label: "Nano-Banana", desc: "Sửa ảnh bằng câu lệnh", icon: Palette, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_ideogram", label: "Ideogram", desc: "Chữ & poster trong ảnh", icon: Type, badge: "Sắp có", available: false, href: "#" },
+    ],
+  },
+  {
+    title: "Mặt nói & khoá mặt",
+    items: [
+      { key: "m_omnihuman", label: "OmniHuman 1.5", desc: "Ảnh + giọng → mặt nói bán hàng", icon: Drama, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_klingavatar", label: "Kling Avatar 2.0", desc: "Avatar nói chuyện tự nhiên", icon: Drama, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_instantid", label: "InstantID", desc: "Khoá gương mặt khi sinh lại", icon: ScanFace, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_pulid", label: "PuLID", desc: "Giữ danh tính, đổi bối cảnh", icon: ScanFace, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_dreamo", label: "DreamO", desc: "1 gương mặt nhất quán mọi cảnh", icon: ScanFace, badge: "Sắp có", available: false, href: "#" },
     ],
   },
   {
     title: "Giọng & Nhân vật",
     items: [
-      { key: "m_voice", label: "Giọng Việt thật", desc: "7 giọng cá tính, nghe thử ngay", icon: AudioLines, available: true, href: "/app/audio" },
+      { key: "m_voice", label: "Giọng Việt thật", desc: "7 giọng cá tính, đang chạy thật", icon: AudioLines, available: true, href: "/app/audio" },
       { key: "m_character", label: "Nhân vật AI", desc: "Diễn viên nhất quán, tái dùng", icon: Drama, available: true, href: "/app/character" },
-      { key: "m_instantid", label: "Giữ gương mặt", desc: "Khóa danh tính khi sinh lại (InstantID)", icon: ScanFace, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_vieneu", label: "VieNeu-TTS", desc: "Giọng Việt neural, cảm xúc", icon: Mic2, badge: "Sắp có", available: false, href: "#" },
+      { key: "m_fishaudio", label: "Fish Audio", desc: "Nhân bản giọng, đa ngôn ngữ", icon: AudioLines, badge: "Sắp có", available: false, href: "#" },
     ],
   },
 ];

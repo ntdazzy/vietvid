@@ -95,7 +95,7 @@ export const FEATURE_PAGES: Record<string, FeaturePage> = {
     results: [
       { img: "/showcase/v2/genre-street-fashion-walk.jpg", video: "/showcase/v2/genre-street-fashion-walk.mp4", ratio: "9:16", caption: "Street style" },
       { img: "/showcase/v2/face-pale-elegant-rainy-cafe.jpg", video: "/showcase/v2/face-pale-elegant-rainy-cafe.mp4", ratio: "9:16", caption: "Lookbook editorial" },
-      { img: "/showcase/v2/face-genz-student-freckles-selfie.jpg", video: "/showcase/v2/face-genz-student-freckles-selfie.mp4", ratio: "9:16", caption: "Phối phụ kiện" },
+      { img: "/showcase/v2/prod-accessory-leather-bag.jpg", video: "/showcase/v2/prod-accessory-leather-bag.mp4", ratio: "9:16", caption: "Phối phụ kiện" },
     ],
     useCases: [
       { tag: "Shop quần áo", t: "Lên đồ cho SP mới", d: "Không cần thuê mẫu cho mỗi mẫu áo." },

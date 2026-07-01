@@ -13,7 +13,7 @@ const PRESETS: Preset[] = [
   {
     label: "Video bán hàng", product: "Video review sản phẩm", model: "Seedance 2.0", kind: "Video",
     hook: "Dùng thật hai tuần rồi mới quay — review đúng cảm nhận, không diễn.",
-    clip: "/showcase/v2/face-genz-student-freckles-selfie.mp4",
+    clip: "/showcase/v2/face-bookshop-shy-reader.mp4",
     beats: [
       { t: "Mở", label: "Hook", text: "3 giây đầu bắt mắt, giữ người xem không lướt." },
       { t: "Kịch bản", label: "AI viết", text: "Hook → nỗi đau → lợi ích → chốt đơn, theo timecode." },

@@ -56,7 +56,6 @@ const LIB: Item[] = [
   { title: "Đồ ăn vặt ASMR", note: "giòn tan, cận cảnh", cat: "Thể loại", orient: "p", clips: [`${V}/genre-snack-asmr-eating`] },
   { title: "Trang trí & decor", note: "bình hoa, nến thơm", cat: "Sản phẩm", orient: "l", clips: [`${V}/prod-decor-vase-candle`] },
   { title: "Thư sinh tiệm sách", note: "rụt rè, ánh nắng", cat: "KOL ảo", orient: "p", clips: [`${V}/face-bookshop-shy-reader`] },
-  { title: "Gen Z selfie", note: "tàn nhang, tự nhiên", cat: "KOL ảo", orient: "p", clips: [`${V}/face-genz-student-freckles-selfie`] },
   { title: "Thú cưng đáng yêu", note: "không cần người", cat: "Thể loại", orient: "p", clips: [`${V}/genre-cute-pet-no-person`] },
   { title: "Hoạt hình 3D", note: "nhân vật dễ thương", cat: "Phim & trend", orient: "p", clips: [`${V}/genre-animation-3d-character`] },
   { title: "Chốt đơn livestream", note: "hook 3 giây", cat: "Bán hàng", orient: "p", clips: [`${V}/face-skincare-vanity-warm-lamp`] },

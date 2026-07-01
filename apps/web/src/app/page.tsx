@@ -8,12 +8,11 @@ import { SiteHeader } from "@/components/marketing/site-header";
 import { ScrollToTop } from "@/components/marketing/scroll-to-top";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { SectionHeading } from "@/components/marketing/section-heading";
-import { SampleMarquee } from "@/components/marketing/sample-marquee";
+import { LibrarySection } from "@/components/marketing/video-library";
 import { CapabilityGrid } from "@/components/marketing/capability-grid";
 import { CinematicAct } from "@/components/marketing/cinematic-act";
 import { BeforeAfter } from "@/components/marketing/before-after";
 import { MiniReel } from "@/components/marketing/mini-reel";
-import { HoverVideo } from "@/components/ui/hover-video";
 import { VariantLeaderboard } from "@/components/marketing/winner-loop";
 import { LoopStrip } from "@/components/marketing/loop-strip";
 import { VoiceRail } from "@/components/marketing/voice-rail";
@@ -24,8 +23,6 @@ import { HowItWorks } from "@/components/marketing/how-it-works";
 import { CompareTable } from "@/components/marketing/compare-table";
 import { UseCases } from "@/components/marketing/use-cases";
 import { FeaturedKol } from "@/components/marketing/featured-kol";
-import { GenreWall } from "@/components/marketing/genre-wall";
-import { ProductReel } from "@/components/marketing/product-reel";
 import { ProofStrip } from "@/components/marketing/proof-strip";
 import { Manifesto } from "@/components/marketing/manifesto";
 import { Faq } from "@/components/marketing/faq";
@@ -36,47 +33,6 @@ import { PricingBand } from "@/components/marketing/pricing-band";
 
 export default async function LandingPage() {
   const t = await getTranslations("home");
-
-  // 9 THỂ LOẠI nội dung KHÁC nhau (đều clip thật 9:16 từ showcase) → marquee không lặp lại 1 nhóm
-  // ảnh, mỗi tile 1 kiểu video web dựng được: KOL, đu trend, beauty, người dẫn, nhân vật AI,
-  // mở hộp, ảnh SP, ẩm thực, nghệ thuật. Poster = frame của chính clip → rê chuột khớp 100%.
-  const SAMPLES = [
-    { file: "showcase/kol-hero", label: t("sampleKol") },
-    { file: "showcase/trend-dance", label: t("sampleDouyin") },
-    { file: "showcase/gaixinh", label: t("sampleBeauty") },
-    { file: "showcase/presenter", label: t("samplePresenter") },
-    { file: "showcase/character", label: t("sampleCharacter") },
-    { file: "showcase/unbox-prod", label: t("sampleUnbox") },
-    { file: "showcase/apple", label: t("sampleProduct") },
-    { file: "showcase/food", label: t("sampleFood") },
-    { file: "showcase/art", label: t("sampleArt") },
-  ];
-
-  // Bento NGANG-DỌC trộn (lưới 6 cột): MẶT người → ô DỌC 9:16 (ảnh 3:4 chỉ crop 2 bên, KHÔNG
-  // mất đầu); sản phẩm/cảnh → ô NGANG 2:1 + video 16:9; vật thể → ô vuông. `obj` = object-position
-  // (top giữ đầu/mặt khi crop). Card người dùng ẢNH THẬT kol/*.jpg (video người bị Seedance kiểm
-  // duyệt nên để tĩnh); card sản phẩm/vật chạy video khớp tỉ lệ ô khi rê chuột.
-  // Xếp thành 2 băng 6×2 ô để grid-flow-dense lấp KÍN 4 hàng (không hở đáy):
-  // Băng A (hàng 1-2): lớn(2×2) + dọc + dọc + ngang(2×1) + vuông + vuông.
-  // Băng B (hàng 3-4): dọc + dọc + ngang + ngang + vuông×4.
-  // MỌI card đều video đúng chủ đề (Seedance): người = t2v (KOL/gái xinh/nhảy trend/presenter),
-  // sản phẩm = Apple/unbox/quảng cáo. Poster = 1 frame trích từ chính clip → hover khớp 100%.
-  const REEL = [
-    { cls: "col-span-2 row-span-2", obj: "object-center", img: "/showcase/kol-hero.jpg", video: "/showcase/kol-hero.mp4", title: t("reelKolTitle"), note: t("reelKolNote"), href: "/app/kol" },
-    { cls: "row-span-2", obj: "object-center", img: "/showcase/trend-dance.jpg", video: "/showcase/trend-dance.mp4", title: t("reelTrendTitle"), note: t("reelTrendNote"), href: "/login" },
-    { cls: "row-span-2", obj: "object-center", img: "/showcase/gaixinh.jpg", video: "/showcase/gaixinh.mp4", title: t("reelKol2Title"), note: t("reelKol2Note"), href: "/app/kol" },
-    { cls: "col-span-2", obj: "object-center", img: "/showcase/product.jpg", video: "/showcase/product-w.mp4", title: t("reelAdTitle"), note: t("reelAdNote"), href: "/login" },
-    { cls: "", obj: "object-top", img: "/showcase/character.jpg", video: "/showcase/character.mp4", title: t("reelCharacterTitle"), note: t("reelCharacterNote"), href: "/app/character" },
-    { cls: "", obj: "object-center", img: "/showcase/art.jpg", video: "/showcase/art.mp4", title: t("reelArtTitle"), note: t("reelArtNote"), href: "/app/image-gen" },
-    { cls: "row-span-2", obj: "object-center", img: "/showcase/presenter.jpg", video: "/showcase/presenter.mp4", title: t("reelExplainerTitle"), note: t("reelExplainerNote"), href: "/login" },
-    { cls: "row-span-2", obj: "object-center", img: "/showcase/apple.jpg", video: "/showcase/apple.mp4", title: t("reelProductShotTitle"), note: t("reelProductShotNote"), href: "/app/image-gen" },
-    { cls: "col-span-2", obj: "object-center", img: "/showcase/affiliate-w.jpg", video: "/showcase/affiliate-w.mp4", title: t("reelAffiliateTitle"), note: t("reelAffiliateNote"), href: "/login" },
-    { cls: "col-span-2", obj: "object-center", img: "/showcase/lookbook-w.jpg", video: "/showcase/lookbook-w.mp4", title: t("reelLookbookTitle"), note: t("reelLookbookNote"), href: "/login" },
-    { cls: "", obj: "object-center", img: "/samples/food.jpg", video: "/showcase/food.mp4", title: t("reelFoodTitle"), note: t("reelFoodNote"), href: "/login" },
-    { cls: "", obj: "object-center", img: "/samples/home.jpg", video: "/showcase/recreate.mp4", title: t("reelRecreateTitle"), note: t("reelRecreateNote"), href: "/login" },
-    { cls: "", obj: "object-center", img: "/showcase/unbox-prod.jpg", video: "/showcase/unbox-prod.mp4", title: t("reelProductTitle"), note: t("reelProductNote"), href: "/login" },
-    { cls: "", obj: "object-center", img: "/samples/gen/review.jpg", video: "/samples/gen/review.mp4", title: t("reelReviewTitle"), note: t("reelReviewNote"), href: "/login" },
-  ];
 
   return (
     <div className="relative min-h-dvh mesh-bg">
@@ -90,81 +46,14 @@ export default async function LandingPage() {
       {/* S0b — TƯỜNG MODEL (moat tổng hợp) */}
       <ModelWall />
 
-      {/* S1 — CUỘN THỂ LOẠI (ảnh thật /showcase) — signature "mục lục reel" của trang chủ */}
-      <section className="mx-auto max-w-[1600px] px-4 py-20 lg:py-24">
-        <Reveal>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div className="max-w-xl">
-              <FilmLabel>{t("s1Label")}</FilmLabel>
-              <h2 className="mt-3 font-display text-[clamp(1.75rem,4vw,2.6rem)] font-bold leading-[1.08] tracking-tight text-ink-high">
-                {t.rich("s1Title", { grad: (c) => <span className="text-gradient">{c}</span> })}
-              </h2>
-            </div>
-            <p className="max-w-xs text-sm text-ink-low sm:text-right">
-              {t("s1Sub")}
-            </p>
-          </div>
-        </Reveal>
-
-        {/* bento NGANG-DỌC trộn (6 cột): ô vuông/dọc(9:16)/ngang(2:1)/lớn xen kẽ — tỉ lệ ô khớp ảnh
-            nên KHÔNG cắt đầu/sản phẩm. grid-flow-dense lấp ô trống. Card vật/SP rê chuột chạy clip. */}
-        <div className="mt-9 grid auto-rows-[148px] grid-flow-dense grid-cols-2 gap-3 sm:auto-rows-[172px] sm:grid-cols-4 lg:auto-rows-[210px] lg:grid-cols-6 lg:gap-4">
-          {REEL.map((r, i) => {
-            const featured = r.cls.includes("row-span-2") || r.cls.includes("col-span-2");
-            return (
-              <Reveal key={r.title} delay={0.03 * i} className={r.cls}>
-                <Link
-                  href={r.href}
-                  className="group relative block h-full overflow-hidden rounded-2xl glass-bordered transition-all duration-200 hover:-translate-y-1 hover:ring-1 hover:ring-violet-400/30"
-                >
-                  <HoverVideo
-                    poster={r.img}
-                    video={r.video}
-                    alt=""
-                    badge={false}
-                    objectClass={r.obj}
-                    className="absolute inset-0 h-full w-full opacity-[0.88] transition-opacity duration-500 group-hover:opacity-100"
-                  />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/25 to-transparent" />
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3.5">
-                    <div className={featured ? "font-display text-base font-bold leading-tight text-ink-high" : "font-display text-sm font-semibold leading-tight text-ink-high"}>
-                      {r.title}
-                    </div>
-                    <div className="mt-0.5 text-[11px] text-ink-low">{r.note}</div>
-                  </div>
-                  <span className="pointer-events-none absolute right-2.5 top-2.5 grid h-6 w-6 place-items-center rounded-full bg-black/40 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
-                    <span className="ml-0.5 block h-0 w-0 border-y-[5px] border-l-[8px] border-y-transparent border-l-white/90" />
-                  </span>
-                </Link>
-              </Reveal>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* S1b — MARQUEE 2 chiều: mẫu output thật 9:16 */}
-      <section className="py-12 lg:py-16">
-        <div className="mx-auto max-w-[1600px] px-4">
-          <FilmLabel>{t("s1bLabel")}</FilmLabel>
-        </div>
-        <div className="mt-7 flex flex-col gap-4">
-          <SampleMarquee tiles={SAMPLES} direction="left" />
-          <SampleMarquee tiles={[...SAMPLES].reverse()} direction="right" />
-        </div>
-        <p className="mt-5 text-center text-xs text-ink-low">{t("s1bHint")}</p>
-      </section>
+      {/* S1 — THƯ VIỆN VYRA (tường video thật, tile động) — gộp REEL + Marquee + GenreWall + ProductReel */}
+      <LibrarySection />
 
       {/* §5b — SOCIAL PROOF (KOL/TikTok + đu trend Douyin) */}
       <SocialProof />
 
       {/* §5 — FEATURED KOL (9 gương mặt) */}
       <FeaturedKol />
-
-      {/* §5c — TƯỜNG THỂ LOẠI (11 clip v2: ẩm thực/du lịch/fitness/phim ngắn...) */}
-      <GenreWall />
-
-      {/* §5d — REEL SẢN PHẨM (6 clip v2: thời trang/công nghệ/décor...) */}
-      <ProductReel />
 
       {/* S1.5 — LOẠI NỘI DUNG (đa dạng chủ đề, không chỉ quảng cáo SP) */}
       <UseCases />

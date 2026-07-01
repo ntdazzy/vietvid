@@ -81,6 +81,19 @@ Xen kẽ (Nhóm B): gộp mục trùng trang chủ, tường video thật, menu 
 
 ---
 
+## 4b. 4 RỦI RO phải xử lý (từ đánh giá phản biện) — QUAN TRỌNG
+
+| # | Rủi ro | Cách xử lý |
+|---|---|---|
+| **1** | **Chặn bot Shopee/TikTok** — trang chặn crawl rất gắt (Cloudflare/Akamai), "trình duyệt ẩn" thường sẽ bị chặn khi làm nhiều | **Bắt buộc** có phương án dự phòng: cho user **upload ảnh + dán text/chụp màn hình** thủ công. Cân nhắc **API crawl bên thứ 3** chuyên Shopee/TikTok, hoặc **proxy dân cư (residential) xoay vòng**. Không phụ thuộc 1 scraper mỏng manh |
+| **2** | **Chi phí video ($0.65–2) vs giá gói** — nếu bán gói không giới hạn/credit quá rẻ → **âm dòng tiền** | **Credit minh bạch theo loại**: video thường (HTML+giọng) = 1 credit; video **mặt AI nói** = ~5 credit. Có **trang lịch sử trừ credit** rõ ràng, tránh tranh chấp |
+| **3** | **Trải nghiệm "làm hàng loạt"** — 20 link ≈ 15–30 phút render; treo trình duyệt chờ → user bỏ đi | **Hàng đợi (queue) ở backend** + **thông báo khi xong** (Zalo OA / Telegram / Email / Web Push). User đóng máy vẫn nhận kết quả |
+| **4** | **Bản quyền mặt + kiểm duyệt TikTok** — user upload mặt người nổi tiếng → Vyra chịu liên đới; TikTok quét deepfake gắt | **Điều khoản miễn trừ (ToS)** rõ khi upload ảnh. **Ưu tiên đẩy kho KOL AI có sẵn** (thiết kế sạch, không dính bản quyền); mặt-thật-upload để tier cao + có consent |
+
+> Kết luận phản biện: kế hoạch **khả thi ~85%**. Đúng hướng: không làm AI đa năng, mà giải đúng nỗi đau **"ra đơn nhanh"**. 4 rủi ro trên phải có phương án TRƯỚC khi scale.
+
+---
+
 ## 5. Bước đi cụ thể tiếp theo (chờ user duyệt)
 
 **Nếu duyệt thứ tự trên, việc đầu tiên mình làm cho Việc #1:**

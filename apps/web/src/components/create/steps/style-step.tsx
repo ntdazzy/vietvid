@@ -7,6 +7,7 @@ import { Field, ChipGroup, inputCls } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
 import { ScriptStudio } from "./script-studio";
+import { SceneBuilder } from "./scene-builder";
 
 // name = tên thương hiệu (giữ nguyên); noteKey hiển thị lấy từ i18n.
 const ENGINES = [
@@ -167,7 +168,10 @@ export function StyleStep() {
       </Field>
 
       <Field label={t("scriptAndIdeas")} hint={t("scriptHint")}>
-        <ScriptStudio />
+        <SceneBuilder />
+        <div className="mt-3">
+          <ScriptStudio />
+        </div>
         <textarea
           className={cn(inputCls, "mt-3 min-h-[72px] resize-y")}
           value={w.brief}

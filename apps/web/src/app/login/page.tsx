@@ -134,7 +134,7 @@ export default function LoginPage() {
         <div className="relative flex h-full flex-col justify-between p-10 xl:p-12">
           {/* logo bấm được → về trang chủ (trước đây trơ, user kẹt ở login) */}
           <Link href="/" aria-label="Về trang chủ" className="w-fit">
-            <Logo />
+            <Logo size="lg" />
           </Link>
 
           <div className="max-w-md">
@@ -179,18 +179,11 @@ export default function LoginPage() {
       {/* ── RIGHT — thẻ auth nổi trên mesh ─────────────────────────────────── */}
       <div className="relative grid place-items-center overflow-hidden mesh-bg px-4 py-10">
         <Link href="/" className="absolute left-6 top-6 lg:hidden">
-          <Logo />
+          <Logo size="lg" />
         </Link>
 
         {/* thẻ kính viền-gradient — bản sắc Vyra (KHÔNG bare column như cũ) */}
         <div className="w-full max-w-sm rounded-3xl glass-bordered p-7 sm:p-8">
-          {/* nút trở về trang chủ — NẰM TRONG card cho gọn đẹp (user không bị kẹt ở màn đăng nhập) */}
-          <Link
-            href="/"
-            className="mb-5 flex w-fit items-center gap-1.5 text-xs font-medium text-ink-low transition-colors hover:text-ink-medium"
-          >
-            <span aria-hidden>←</span> Trang chủ
-          </Link>
           <FilmLabel className="mb-4">{mode === "register" ? t("cardLabelRegister") : t("cardLabelLogin")}</FilmLabel>
           <h2 className="font-display text-2xl font-bold text-ink-high">
             {mode === "register" ? t("cardTitleRegister") : t("cardTitleLogin")}
@@ -276,7 +269,15 @@ export default function LoginPage() {
             </Button>
           </div>
 
-          <p className="mt-6 flex items-center justify-center gap-1.5 text-[11px] text-ink-disabled">
+          {/* nút trở về trang chủ — ĐẶT DƯỚI nút Google/Facebook (user không bị kẹt ở màn đăng nhập) */}
+          <Link
+            href="/"
+            className="mt-5 flex items-center justify-center gap-1.5 text-sm font-medium text-ink-low transition-colors hover:text-ink-medium"
+          >
+            <span aria-hidden>←</span> Về trang chủ
+          </Link>
+
+          <p className="mt-5 flex items-center justify-center gap-1.5 text-[11px] text-ink-disabled">
             <ShieldCheck className="h-3.5 w-3.5" /> {t("tlsSecurity")}
           </p>
         </div>

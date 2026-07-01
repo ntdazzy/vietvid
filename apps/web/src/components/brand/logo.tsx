@@ -30,13 +30,23 @@ export function VyraMark({ className, animated = false }: { className?: string; 
   );
 }
 
-/** Logo Vyra — mark + wordmark. */
-export function Logo({ className, showWord = true }: { className?: string; showWord?: boolean }) {
+/** Logo Vyra — mark + wordmark. `size`: md (mặc định) | lg (to hơn, dùng ở login). */
+export function Logo({
+  className,
+  showWord = true,
+  size = "md",
+}: {
+  className?: string;
+  showWord?: boolean;
+  size?: "md" | "lg";
+}) {
+  const mark = size === "lg" ? "h-11 w-11" : "h-8 w-8";
+  const word = size === "lg" ? "text-2xl" : "text-[19px]";
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      <VyraMark className="h-8 w-8 drop-shadow-[0_0_10px_rgba(124,77,255,0.35)]" />
+    <span className={cn("inline-flex items-center gap-2.5", className)}>
+      <VyraMark className={cn(mark, "drop-shadow-[0_0_10px_rgba(124,77,255,0.35)]")} />
       {showWord && (
-        <span className="font-display text-[19px] font-extrabold tracking-tight text-ink-high">
+        <span className={cn("font-display font-extrabold tracking-tight text-ink-high", word)}>
           Vyra
         </span>
       )}

@@ -7,7 +7,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-dvh mesh-bg">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl overflow-x-clip px-4 pb-20 pt-28 lg:px-8">{children}</main>
+      {/* Studio full-bleed kiểu openart: nới rộng để rail + canvas lấp gần hết màn (trước max-w-6xl=1152 quá hẹp).
+          Màn quản lý (settings/billing) có max-w riêng bên trong nên KHÔNG bị kéo giãn. */}
+      <main className="mx-auto w-full max-w-[1760px] overflow-x-clip px-4 pb-20 pt-28 lg:px-6 xl:px-8">{children}</main>
     </div>
   );
 }

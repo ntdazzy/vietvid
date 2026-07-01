@@ -55,6 +55,44 @@ def test_batch_creates_job_per_product(client, user):
                 pass
 
 
+def test_batch_carries_product_image(client, user):
+    # Ảnh SP (image_url/image_path) PHẢI round-trip vào job spec — engine tải ảnh lúc render.
+    # Khoá lại bug frontend từng rớt image_url khi gọi /v1/batch (video ra không có ảnh SP).
+    img = "https://cdn.example.com/ao-thun.jpg"
+    r = client.post("/v1/batch", headers=user["headers"], json={
+        "idempotency_key": f"b-{uuid.uuid4().hex[:10]}",
+        "mode": "product_ad", "seconds": 3, "resolution": "480p", "brief": "x",
+        "items": [
+            {"product": {"name": "Áo thun", "image_url": img}},
+            {"product": {"name": "Quần jean", "image_path": "uploads/images/quan.jpg"}},
+        ],
+    })
+    assert r.status_code == 201, r.text
+    job_ids = r.json()["job_ids"]
+    with tenant_session(user["org_id"]) as s:
+        by_name = {
+            row[0]: (row[1], row[2])
+            for row in (
+                s.execute(
+                    text("SELECT params->'product'->>'name', "
+                         "params->'product'->>'image_url', "
+                         "params->'product'->>'image_path' FROM jobs WHERE id=:id"),
+                    {"id": uuid.UUID(j)},
+                ).one()
+                for j in job_ids
+            )
+        }
+    assert by_name["Áo thun"][0] == img                      # image_url không bị rớt
+    assert by_name["Quần jean"][1] == "uploads/images/quan.jpg"  # image_path cũng qua
+    for j in job_ids:
+        with tenant_session(user["org_id"]) as s:
+            try:
+                from app_api import jobs as jobs_svc
+                jobs_svc.release_hold(s, uuid.UUID(user["org_id"]), uuid.UUID(j), note="cleanup")
+            except Exception:
+                pass
+
+
 def test_batch_insufficient_credit_402_atomic(client, user):
     # 5 SP × 15s → vượt 300 credit free → 402, KHÔNG tạo nửa vời (rollback cả loạt)
     before = client.get("/v1/jobs", headers=user["headers"]).json()["count"]

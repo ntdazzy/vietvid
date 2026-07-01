@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Sparkles, Link2, X, AlertCircle, Layers } from "lucide-react";
+import { Loader2, Sparkles, Link2, X, AlertCircle, Layers, ImagePlus } from "lucide-react";
 import { api } from "@/lib/api/endpoints";
 import { ApiError } from "@/lib/api/client";
 import { StudioShell } from "@/components/studio/studio-shell";
@@ -11,7 +11,16 @@ import { Button } from "@/components/ui/button";
 import { ChipGroup, inputCls } from "@/components/ui/field";
 import { cn } from "@/lib/utils/cn";
 
-type Item = { link: string; name: string; price: string; description: string; image_url?: string };
+type Item = {
+  link: string;
+  name: string;
+  price: string;
+  description: string;
+  image_url?: string; // ảnh scrape được (URL) — engine tự tải
+  image_path?: string; // ảnh user tự tải lên (đường dẫn server) — ưu tiên hơn image_url
+  previewUrl?: string; // blob local CHỈ để hiển thị (không gửi backend)
+  uploading?: boolean;
+};
 
 // LÀM HÀNG LOẠT: dán nhiều link SP → nhập tất cả → tạo N video 1 lượt (mỗi SP 1 clip).
 // Điểm khác biệt vs autovis (họ chỉ tạo từng cái). Gọi /v1/batch (atomic credit hold cả loạt).
@@ -64,7 +73,22 @@ export default function BatchPage() {
     setItems((xs) => xs.filter((_, idx) => idx !== i));
   }
 
-  const ready = items.filter((it) => it.name.trim());
+  // Link chặn scrape ảnh (Shopee hay chặn) → user tự tải ảnh SP lên cho từng dòng.
+  async function uploadItemImage(i: number, file: File) {
+    patchItem(i, { uploading: true });
+    try {
+      const { image_path } = await api.uploadImage(file);
+      patchItem(i, { image_path, previewUrl: URL.createObjectURL(file), uploading: false });
+    } catch (e) {
+      patchItem(i, { uploading: false });
+      setError(e instanceof Error ? e.message : "Tải ảnh lỗi.");
+    }
+  }
+
+  const hasImage = (it: Item) => Boolean(it.image_url?.trim() || it.image_path?.trim());
+  // Batch = product_ad → BẮT BUỘC có ảnh SP (engine raise nếu thiếu). Không ảnh = không sẵn sàng.
+  const ready = items.filter((it) => it.name.trim() && hasImage(it));
+  const missingImage = items.filter((it) => it.name.trim() && !hasImage(it)).length;
 
   async function create() {
     if (ready.length < 2) {
@@ -83,7 +107,13 @@ export default function BatchPage() {
         aspect,
         voice_gender: voiceGender,
         items: ready.map((it) => ({
-          product: { name: it.name, price: it.price, description: it.description },
+          product: {
+            name: it.name,
+            price: it.price,
+            description: it.description,
+            image_url: it.image_url || "",
+            image_path: it.image_path || "",
+          },
         })),
       });
       router.push(`/app/series/${res.batch_group}`);
@@ -135,14 +165,37 @@ export default function BatchPage() {
         {items.length > 0 && (
           <div className="flex flex-col gap-2">
             <div className="text-xs font-medium text-ink-medium">{ready.length}/{items.length} sản phẩm sẵn sàng</div>
+            {missingImage > 0 && (
+              <p className="flex items-center gap-1.5 text-[11px] text-hold">
+                <AlertCircle className="h-3.5 w-3.5" />
+                {missingImage} sản phẩm thiếu ảnh — bấm ô ảnh để tải lên (video cần ảnh sản phẩm).
+              </p>
+            )}
             {items.map((it, i) => (
               <div key={i} className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-2.5">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {it.image_url ? (
-                  <img src={it.image_url} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
-                ) : (
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-white/[0.04] text-ink-low">?</div>
-                )}
+                <label
+                  className="relative grid h-12 w-12 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-lg bg-white/[0.04] text-ink-low ring-1 ring-transparent hover:ring-violet-400/40"
+                  title="Bấm để tải ảnh sản phẩm lên"
+                >
+                  {it.uploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : it.previewUrl || it.image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={it.previewUrl || it.image_url} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <ImagePlus className="h-4 w-4" />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) uploadItemImage(i, f);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
                 <div className="grid flex-1 gap-1.5 sm:grid-cols-2">
                   <input
                     className={cn(inputCls, "py-1.5 text-sm")}

@@ -1,6 +1,6 @@
 "use client";
 
-import { UserSquare2, Star, Shirt, Package, TrendingUp, MessageSquare, GitCompare, Megaphone, Sparkles, Music2, UtensilsCrossed, Plane, Baby, Film, BookOpen, Home } from "lucide-react";
+import { UserSquare2, Star, Shirt, Package, TrendingUp, MessageSquare, GitCompare, Megaphone, Sparkles, Music2, UtensilsCrossed, Plane, Baby, Film, BookOpen, Home, Palette, Clapperboard, Ghost, Zap, Drama, Wand2, Goal } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/marketing/reveal";
 import { SectionHeading } from "@/components/marketing/section-heading";
@@ -8,11 +8,18 @@ import { SectionHeading } from "@/components/marketing/section-heading";
 // Khẳng định độ RỘNG: Vyra dựng đủ loại video, không chỉ quảng cáo sản phẩm.
 const CASES: { icon: typeof UserSquare2; key: string; hot?: boolean }[] = [
   { icon: UserSquare2, key: "kol", hot: true },
+  { icon: Drama, key: "roleplay", hot: true },
   { icon: Star, key: "review" },
   { icon: Shirt, key: "lookbook" },
+  { icon: Wand2, key: "outfit" },
   { icon: Package, key: "unboxing" },
   { icon: TrendingUp, key: "trend", hot: true },
   { icon: Music2, key: "douyin", hot: true },
+  { icon: Goal, key: "football", hot: true },
+  { icon: Palette, key: "animation" },
+  { icon: Clapperboard, key: "movie" },
+  { icon: Ghost, key: "horror" },
+  { icon: Zap, key: "superhero" },
   { icon: MessageSquare, key: "testimonial" },
   { icon: GitCompare, key: "compare" },
   { icon: Megaphone, key: "ads" },

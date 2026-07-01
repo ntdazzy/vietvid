@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Clapperboard, ImageIcon, UserRound, Drama, AudioLines, FolderKanban } from "lucide-react";
+import { Clapperboard, ImageIcon, UserRound, Drama, AudioLines, FolderKanban, Layers } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 // Các "công cụ" studio — rail trái cố định kiểu openart. href trỏ route THẬT (tránh 404);
 // character/director tạm trỏ route gần nhất tới khi dựng màn riêng.
 const TOOLS = [
   { key: "video", label: "Video", href: "/app/create", icon: Clapperboard },
+  { key: "batch", label: "Hàng loạt", href: "/app/batch", icon: Layers },
   { key: "image", label: "Ảnh", href: "/app/image-gen", icon: ImageIcon },
   { key: "kol", label: "KOL", href: "/app/kol", icon: UserRound },
   { key: "character", label: "Nhân vật", href: "/app/character", icon: Drama },

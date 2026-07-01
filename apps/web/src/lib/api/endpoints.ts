@@ -34,6 +34,7 @@ import type {
   PaymentStatusResponse,
   ScriptAngle,
   SeriesResponse,
+  BatchResponse,
   Template,
   TopupRequestBody,
   TopupResponse,
@@ -75,6 +76,7 @@ export const api = {
   scriptCaptions: (beats: unknown[], fmt = "srt") =>
     apiPost<{ format: string; content: string; cues: unknown[] }>("/v1/script/captions", { beats, fmt }),
   createSeries: (body: Record<string, unknown>) => apiPost<SeriesResponse>("/v1/series", body),
+  batchCreate: (body: Record<string, unknown>) => apiPost<BatchResponse>("/v1/batch", body),
   seriesPerformance: (group: string) =>
     apiGet<VariantPerf[]>(`/v1/series/${group}/performance`),
   // URL authed thô (cần Bearer — render-timeline fetch kèm header rồi tạo blob).

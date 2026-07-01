@@ -169,6 +169,16 @@ export interface SeriesResponse {
   tracked: boolean;
 }
 
+// Làm hàng loạt: N sản phẩm KHÁC nhau → N video (gom bằng batch_group = series_group backend).
+export interface BatchResponse {
+  batch_group: string;
+  job_ids: string[];
+  count: number;
+  total_hold_credits: number;
+  balance_credits: number;
+  held_credits: number;
+}
+
 export interface VariantPerf {
   job_id: string;
   label: string;

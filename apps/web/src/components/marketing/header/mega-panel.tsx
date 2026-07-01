@@ -13,14 +13,14 @@ export type MegaKind = "content" | "tools" | "models" | "features" | "resources"
 
 export const SPOTLIGHT: Record<MegaKind, { image: string; eyebrow: string; title: string; sub: string; href: string }> = {
   content: {
-    image: "/showcase/art.jpg",
+    image: "/showcase/v2/genre-cozy-cafe-latte-broll.jpg",
     eyebrow: "tính năng",
     title: "Nhập ý tưởng, ra nội dung AI",
     sub: "Chọn một tính năng bên cạnh, hoặc vào thẳng trình tạo.",
     href: "/app/create",
   },
   tools: {
-    image: "/showcase/character.jpg",
+    image: "/showcase/v2/face-girl-next-door-bedroom-vlogger.jpg",
     eyebrow: "công cụ AI",
     title: "Video, ảnh, giọng nói, nhân vật",
     sub: "Bộ công cụ tạo nội dung AI — từ ý tưởng tới bản dựng.",
@@ -41,7 +41,7 @@ export const SPOTLIGHT: Record<MegaKind, { image: string; eyebrow: string; title
     href: "/app/create",
   },
   resources: {
-    image: "/showcase/explainer.jpg",
+    image: "/showcase/v2/genre-real-estate-walkthrough.jpg",
     eyebrow: "tài nguyên",
     title: "Thư viện, mẫu và công cụ kênh",
     sub: "Quản lý nội dung, đo hiệu quả, tích hợp hệ thống.",
@@ -85,7 +85,7 @@ export function MegaPanel({ kind, groups, cols }: { kind: MegaKind; groups: Feat
               src={spot.image}
               alt=""
               loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover opacity-30 transition-transform duration-500 group-hover:scale-[1.06]"
+              className="absolute inset-0 h-full w-full object-cover opacity-[0.48] transition-transform duration-500 group-hover:scale-[1.06] group-hover:opacity-60"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-bg-elevated via-bg-elevated/85 to-bg-elevated/40" />
             <div className="pointer-events-none absolute -left-10 top-1/3 h-40 w-40 rounded-full bg-violet-500/20 blur-3xl" />

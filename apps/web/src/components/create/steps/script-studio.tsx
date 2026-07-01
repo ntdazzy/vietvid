@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Wand2, Loader2, Sparkles, RefreshCw, Download, ShieldAlert } from "lucide-react";
 import { useWizard } from "@/store/wizard";
@@ -22,6 +22,10 @@ export function ScriptStudio() {
   const [script, setScript] = useState<Script | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  // Load 6 GÓC CHỐT ĐƠN ngay khi mở (không chờ bấm Tạo) — làm nổi điểm khác biệt vs đối thủ.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { ensureAngles(); }, []);
 
   async function ensureAngles() {
     if (angles.length) return;
@@ -93,24 +97,34 @@ export function ScriptStudio() {
         </Button>
       </div>
 
-      {/* chọn góc thuyết phục */}
-      {(angles.length > 0 || script) && (
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {(angles.length ? angles : [{ value: angle, label: script?.angle_label ?? "" }]).map((a) => (
-            <button
-              key={a.value}
-              type="button"
-              onClick={() => { setAngle(a.value); gen(a.value); }}
-              className={cn(
-                "rounded-lg border px-2.5 py-1 text-xs transition-colors",
-                angle === a.value ? "border-violet-500/60 bg-violet-500/15 text-violet-100" : "border-white/10 text-ink-low hover:border-white/25",
-              )}
-            >
-              {a.label}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* chọn GÓC CHỐT ĐƠN — hiện ngay từ đầu (không chờ bấm Tạo). Fallback về góc của script nếu load lỗi. */}
+      {(() => {
+        const shown = angles.length ? angles : (script ? [{ value: angle, label: script.angle_label ?? angle }] : []);
+        if (!shown.length) return null;
+        return (
+          <div className="mt-3">
+            <div className="mb-1.5 text-[11px] font-medium text-violet-200">
+              Góc chốt đơn — chọn cách thuyết phục, AI viết kịch bản theo góc đó
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {shown.map((a) => (
+                <button
+                  key={a.value}
+                  type="button"
+                  // Trước khi có script: bấm = chọn góc. Sau khi có: bấm = viết lại theo góc mới.
+                  onClick={() => { setAngle(a.value); if (script) gen(a.value); }}
+                  className={cn(
+                    "rounded-lg border px-2.5 py-1 text-xs transition-colors",
+                    angle === a.value ? "border-violet-500/60 bg-violet-500/15 text-violet-100" : "border-white/10 text-ink-low hover:border-white/25",
+                  )}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {err && <p className="mt-2 text-xs text-danger">{err}</p>}
 

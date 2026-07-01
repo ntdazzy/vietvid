@@ -101,6 +101,34 @@ export function SourceStep() {
         )}
       </div>
 
+      {/* "Vyra đã hiểu SP" — định vị CHỐT ĐƠN: hiện khi có tên SP (từ link hoặc gõ tay).
+          Cho người bán thấy AI đã nắm được gì trước khi dựng → tin tưởng luồng. */}
+      {w.product.name.trim() && (
+        <div className="rounded-xl border border-success/25 bg-success/[0.05] p-3.5">
+          <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-success">
+            <Check className="h-3.5 w-3.5" /> Vyra đã hiểu sản phẩm của bạn
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            <span className="rounded-md bg-white/[0.06] px-2 py-0.5 text-[11px] text-ink-medium">
+              Tên: <span className="text-ink-high">{w.product.name}</span>
+            </span>
+            {w.product.price.trim() && (
+              <span className="rounded-md bg-white/[0.06] px-2 py-0.5 text-[11px] text-ink-medium">
+                Giá: <span className="text-ink-high">{w.product.price}</span>
+              </span>
+            )}
+            {w.product.category.trim() && (
+              <span className="rounded-md bg-white/[0.06] px-2 py-0.5 text-[11px] text-ink-medium">
+                Ngành: <span className="text-ink-high">{w.product.category}</span>
+              </span>
+            )}
+          </div>
+          <p className="mt-2 text-[11px] text-ink-low">
+            Bước sau, AI tự viết <span className="text-ink-medium">kịch bản chốt đơn</span> tiếng Việt (có hook + kêu gọi mua) từ thông tin này.
+          </p>
+        </div>
+      )}
+
       <Field label={t("videoTypeLabel")}>
         <ChipGroup
           value={w.videoType}

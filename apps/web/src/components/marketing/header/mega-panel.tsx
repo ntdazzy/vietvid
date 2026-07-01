@@ -20,7 +20,7 @@ export const SPOTLIGHT: Record<MegaKind, { image: string; eyebrow: string; title
     href: "/app/create",
   },
   tools: {
-    image: "/showcase/v2/genre-street-fashion-walk.jpg",
+    image: "/showcase/v2/face-girl-next-door-bedroom-vlogger.jpg",
     eyebrow: "công cụ AI",
     title: "Video, ảnh, giọng nói, nhân vật",
     sub: "Bộ công cụ tạo nội dung AI — từ ý tưởng tới bản dựng.",
